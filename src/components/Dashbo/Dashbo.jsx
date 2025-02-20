@@ -510,7 +510,7 @@
 
 // export default Dashbo;
 
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Header from "../Header/Header";
 import Sidebar from "../Sidebar/Sidebar";
 import styles from "./Dashboard.module.css";
@@ -520,22 +520,28 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  PointElement,
+  LineElement,
   BarElement,
   Title,
   Tooltip,
   Legend,
   ArcElement,
+  RadialLinearScale,
 } from "chart.js";
-import { Bar, Pie } from "react-chartjs-2";
+import { Bar, Pie, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
   ArcElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  RadialLinearScale
 );
 
 const eventos_municipio = [
@@ -622,19 +628,19 @@ const tecnologia_actividad = [
   },
   {
     mes: "Tamizaje",
-    cantidad: 14,
+    cantidad: 8,
   },
   {
     mes: "Jornadas de Salud",
-    cantidad: 14,
+    cantidad: 7,
   },
   {
     mes: "Vacunación",
-    cantidad: 14,
+    cantidad: 5,
   },
   {
     mes: "Medicamentos",
-    cantidad: 14,
+    cantidad: 4,
   },
 ];
 
@@ -699,7 +705,7 @@ const mes_actividad = [
   { mes: "Agosto", cantidad: 24 },
   { mes: "Septiembre", cantidad: 26 },
   { mes: "Octubre", cantidad: 28 },
-  { mes: "Noviembre", cantidad: 30 },
+  { mes: "Noviembre", cantidad: 40 },
   { mes: "Diciembre", cantidad: 32 },
 ];
 
@@ -730,7 +736,50 @@ const Dashbo = () => {
 
   const [usuario_dos, setUsuario_dos] = useState(null);
   const [super_usuario, setSuper] = useState(null);
+
+  const [activeDataset, setActiveDataset] = useState("eventos");
+
+  const labels_doble =
+    activeDataset === "eventos"
+      ? eventos_municipio.map((item) => item.mes)
+      : tecnologia_actividad.map((item) => item.mes);
+
   // let super_usuario = false;
+
+  useEffect(() => {
+    const fetch_user = async () => {
+      try {
+        const response = await fetch(`${url_usuarios}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Error al obtener usuarios.");
+
+        const data = await response.json();
+        const datos = {
+          usuario: data.custom_roles[0].name,
+        };
+
+        if (data.custom_roles.length > 1) {
+          setSuper(true);
+        }
+
+        console.log("data_usuario", data);
+        console.log("datos", datos);
+        sessionStorage.setItem("usuario", JSON.stringify(datos));
+        setUsuario_dos(datos.usuario);
+        console.log("super_user", super_usuario);
+        //setSubregions(data.data);
+        // setMunicipios(data.data);
+      } catch (error) {
+        console.error("Error fetching subregions:", error);
+      }
+    };
+
+    fetch_user();
+  }, [token]);
 
   const barData = {
     labels: eventos_municipio.map((item) => item.mes),
@@ -747,11 +796,12 @@ const Dashbo = () => {
 
   const barOptions = {
     responsive: true,
+    indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
     plugins: {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "Cantidad de Productos por Proyecto",
+        text: "Cantidad de Eventos por Municipio",
       },
     },
   };
@@ -805,40 +855,296 @@ const Dashbo = () => {
     },
   };
 
+  const bar_operador_data = {
+    labels: operador_evento.map((item) => item.mes),
+    datasets: [
+      {
+        label: "Cantidad",
+        data: operador_evento.map((item) => item.cantidad),
+        backgroundColor: "rgba(22, 111, 171, 0.5)",
+        barPercentage: 0.7, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
+        categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)
+      },
+    ],
+  };
+
+  const bar_operador_options = {
+    responsive: true,
+    indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
+    plugins: {
+      legend: { position: "top" },
+      title: {
+        display: true,
+        text: "Cantidad de Eventos Según Operador",
+      },
+    },
+  };
+
+  const bar_producto_data = {
+    labels: producto_indicador.map((item) => item.mes),
+    datasets: [
+      {
+        label: "Cantidad Productos",
+        data: producto_indicador.map((item) => item.cantidad),
+        backgroundColor: "rgba(22, 111, 171, 0.5)",
+        barPercentage: 0.5, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
+        categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)
+      },
+    ],
+  };
+
+  const bar_producto_options = {
+    responsive: true,
+    // indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
+    plugins: {
+      legend: { position: "top" },
+      title: {
+        display: true,
+        text: "Cantidad de Productos por Indicador",
+      },
+    },
+  };
+
+  const doughnut_data = {
+    labels: tecnologia_actividad.map((item) => item.mes),
+    datasets: [
+      {
+        data: tecnologia_actividad.map((item) => item.cantidad),
+        // backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+        // hoverBackgroundColor: ["#FF6384CC", "#36A2EBCC", "#FFCE56CC"],
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          "#8DCD55",
+        ],
+        hoverBackgroundColor: [
+          "#FF6384CC",
+          "#36A2EBCC",
+          "#FFCE56CC",
+          "#4BC0C0CC",
+          "#9966FFCC",
+          "#FF9F40CC",
+          "#8DCD55CC",
+        ],
+      },
+    ],
+  };
+
+  const doughnut_options = {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom" },
+      title: {
+        display: true,
+        text: "Cantidad de Actividades por Tecnología",
+      },
+    },
+  };
+
+  // const colors_polar = [
+  //   "#FF638499",
+  //   "#36A2EB99",
+  //   "#FFCE5699",
+  //   "#4BC0C099",
+  //   "#9966FF99",
+  // ];
+
+  const colors_polar = [
+    "#FF638480",
+    "#36A2EB80",
+    "#FFCE5680",
+    "#4BC0C080",
+    "#9966FF80",
+  ];
+
+  const polar_data = {
+    labels: entorno_actividad.map((item) => item.mes), // Extrae los nombres
+    datasets: [
+      {
+        data: entorno_actividad.map((item) => item.cantidad), // Extrae las cantidades
+        backgroundColor: colors_polar,
+        // hoverBackgroundColor: colors_polar.map((color) => color + "CC"), // Versión con transparencia
+      },
+    ],
+  };
+
+  const polar_options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "right",
+      },
+      title: {
+        display: true,
+        text: "Distribución por Entorno de Actividad",
+      },
+    },
+  };
+
+  const labels = poblacion_actividad.map((item) => item.mes);
+  const dataValues = poblacion_actividad.map((item) => item.cantidad);
+
+  const colors = [
+    "#FF6384",
+    "#36A2EB",
+    "#FFCE56",
+    "#4BC0C0",
+    "#9966FF",
+    "#8A2BE2",
+  ];
+
+  function createGradient(ctx, area) {
+    const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(0.5, colors[2]);
+    gradient.addColorStop(1, colors[4]);
+    return gradient;
+  }
+
+  const chartRef = useRef(null);
+  const [chartData, setChartData] = useState({
+    labels,
+    datasets: [],
+  });
+
   useEffect(() => {
-    const fetch_user = async () => {
-      try {
-        const response = await fetch(`${url_usuarios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const chart = chartRef.current;
+    if (!chart) return;
 
-        if (!response.ok) throw new Error("Error al obtener usuarios.");
-
-        const data = await response.json();
-        const datos = {
-          usuario: data.custom_roles[0].name,
-        };
-
-        if (data.custom_roles.length > 1) {
-          setSuper(true);
-        }
-
-        console.log("data_usuario", data);
-        console.log("datos", datos);
-        sessionStorage.setItem("usuario", JSON.stringify(datos));
-        setUsuario_dos(datos.usuario);
-        console.log("super_user", super_usuario);
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
+    const updatedData = {
+      labels,
+      datasets: [
+        {
+          label: "Cantidad por población",
+          data: dataValues,
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: "white",
+          tension: 0.4,
+          borderColor: createGradient(chart.ctx, chart.chartArea),
+        },
+      ],
     };
 
-    fetch_user();
-  }, [token]);
+    setChartData(updatedData);
+  }, []);
+
+  const data_mes = {
+    labels: mes_actividad.map((item) => item.mes),
+    datasets: [
+      {
+        label: "Actividad por Mes",
+        data: mes_actividad.map((item) => item.cantidad),
+        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const options_mes = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: "Cantidad de Actividades por Mes",
+      },
+    },
+  };
+
+  const doughnut_data_soporte = {
+    labels: check_soporte.map((item) => item.mes),
+    datasets: [
+      {
+        data: check_soporte.map((item) => item.cantidad),
+        // backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+        // hoverBackgroundColor: ["#FF6384CC", "#36A2EBCC", "#FFCE56CC"],
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+          "#8DCD55",
+        ],
+        hoverBackgroundColor: [
+          "#FF6384CC",
+          "#36A2EBCC",
+          "#FFCE56CC",
+          "#4BC0C0CC",
+          "#9966FFCC",
+          "#FF9F40CC",
+          "#8DCD55CC",
+        ],
+      },
+    ],
+  };
+
+  const doughnut_options_soporte = {
+    responsive: true,
+    plugins: {
+      legend: { position: "bottom" },
+      title: {
+        display: true,
+        text: "Cantidad de Soportes Según Check",
+      },
+    },
+  };
+
+  const data_doble_barra = {
+    // labels: eventos_municipio.map((item) => item.mes),
+    labels: labels_doble,
+    datasets: [
+      {
+        label: "Cantidad de Eventos",
+        data: eventos_municipio.map((item) => item.cantidad),
+        backgroundColor: "rgba(40, 20, 153, 0.5)",
+        hidden: activeDataset !== "eventos", // Oculta si no está activo
+        barPercentage: 0.9, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
+        categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)
+      },
+      {
+        label: "Cantidad de Actividades",
+        data: tecnologia_actividad.map((item) => item.cantidad),
+        backgroundColor: "rgba(20, 140, 130, 0.5)",
+        hidden: activeDataset !== "tecnologia", // Oculta si no está activo
+      },
+    ],
+  };
+
+  const doble_barra_options = {
+    responsive: true,
+    indexAxis: "y",
+    plugins: {
+      // legend: {
+      //   position: "top",
+      // },
+      legend: {
+        position: "top",
+        onClick: (e, legendItem, legend) => {
+          // Obtiene el dataset index
+          const datasetIndex = legendItem.datasetIndex;
+          // Cambia el estado activo
+          setActiveDataset(datasetIndex === 0 ? "eventos" : "tecnologia");
+        },
+      },
+      title: {
+        display: true,
+        text:
+          activeDataset === "eventos"
+            ? "Cantidad de Eventos por Municipio"
+            : "Cantidad de en Actividades Según Tecnologías ",
+      },
+    },
+  };
 
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
@@ -889,18 +1195,43 @@ const Dashbo = () => {
           </div>
 
           <div style={{ width: "600px" }}>
+            <Bar data={data_doble_barra} options={doble_barra_options} />
+          </div>
+          <div style={{ width: "600px" }}>
             <Bar data={barData} options={barOptions} />
           </div>
+
           <div style={{ width: "450px", marginLeft: "20px" }}>
             <Pie data={pieData} options={pieOptions} />
           </div>
 
           <div style={{ width: "600px" }}>
-            <Bar data={barData} options={barOptions} />
+            <Bar data={bar_operador_data} options={bar_operador_options} />
           </div>
 
           <div style={{ width: "600px" }}>
-            <Bar data={barData} options={barOptions} />
+            <Bar data={bar_producto_data} options={bar_producto_options} />
+          </div>
+
+          <div style={{ width: "450px", marginLeft: "20px" }}>
+            <Doughnut data={doughnut_data} options={doughnut_options} />
+          </div>
+
+          <div style={{ width: "450px", marginLeft: "20px" }}>
+            <PolarArea data={polar_data} options={polar_options} />
+          </div>
+
+          <div style={{ width: "450px", marginLeft: "20px" }}>
+            <Chart ref={chartRef} type="line" data={chartData} />
+          </div>
+          <div style={{ width: "450px", marginLeft: "20px" }}>
+            <Line data={data_mes} options={options_mes} />
+          </div>
+          <div style={{ width: "450px", marginLeft: "20px" }}>
+            <Doughnut
+              data={doughnut_data_soporte}
+              options={doughnut_options_soporte}
+            />
           </div>
         </div>
       </div>
