@@ -515,6 +515,10 @@ import Header from "../Header/Header";
 import Sidebar from "../Sidebar/Sidebar";
 import styles from "./Dashboard.module.css";
 import { Card, CardContent, Typography } from "@mui/material";
+import Bardouble from "./Bardouble";
+import PieGraphic from "./Pie";
+import imagen from "../../assets/mapa_nariño.png";
+import LocationCityIcon from "@mui/icons-material/LocationCity"; // Importa el icono
 
 import {
   Chart as ChartJS,
@@ -529,7 +533,7 @@ import {
   ArcElement,
   RadialLinearScale,
 } from "chart.js";
-import { Bar, Pie, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
+import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 
 ChartJS.register(
   CategoryScale,
@@ -806,55 +810,6 @@ const Dashbo = () => {
     },
   };
 
-  const pieData = {
-    labels: productos_proyecto.map((item) => item.mes),
-    datasets: [
-      {
-        data: productos_proyecto.map((item) => item.cantidad),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#C9CBCF",
-        ],
-        hoverBackgroundColor: [
-          "#FF6384CC",
-          "#36A2EBCC",
-          "#FFCE56CC",
-          "#4BC0C0CC",
-          "#9966FFCC",
-          "#FF9F40CC",
-          "#C9CBCFCC",
-        ],
-      },
-    ],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom",
-        align: "start", // Alinea los elementos del legend a la izquierda
-      },
-      title: {
-        display: true,
-        text: "Cantidad de Productos Según Proyecto",
-        font: {
-          size: 15, // Ajusta el tamaño del texto
-          weight: "bold", // Opcional: hace el texto más grueso
-        },
-        padding: {
-          top: 10,
-          bottom: 8, // Espacio debajo del título
-        },
-      },
-    },
-  };
-
   const bar_operador_data = {
     labels: operador_evento.map((item) => item.mes),
     datasets: [
@@ -1099,53 +1054,6 @@ const Dashbo = () => {
     },
   };
 
-  const data_doble_barra = {
-    // labels: eventos_municipio.map((item) => item.mes),
-    labels: labels_doble,
-    datasets: [
-      {
-        label: "Cantidad de Eventos",
-        data: eventos_municipio.map((item) => item.cantidad),
-        backgroundColor: "rgba(40, 20, 153, 0.5)",
-        hidden: activeDataset !== "eventos", // Oculta si no está activo
-        barPercentage: 0.9, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
-        categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)
-      },
-      {
-        label: "Cantidad de Actividades",
-        data: tecnologia_actividad.map((item) => item.cantidad),
-        backgroundColor: "rgba(20, 140, 130, 0.5)",
-        hidden: activeDataset !== "tecnologia", // Oculta si no está activo
-      },
-    ],
-  };
-
-  const doble_barra_options = {
-    responsive: true,
-    indexAxis: "y",
-    plugins: {
-      // legend: {
-      //   position: "top",
-      // },
-      legend: {
-        position: "top",
-        onClick: (e, legendItem, legend) => {
-          // Obtiene el dataset index
-          const datasetIndex = legendItem.datasetIndex;
-          // Cambia el estado activo
-          setActiveDataset(datasetIndex === 0 ? "eventos" : "tecnologia");
-        },
-      },
-      title: {
-        display: true,
-        text:
-          activeDataset === "eventos"
-            ? "Cantidad de Eventos por Municipio"
-            : "Cantidad de en Actividades Según Tecnologías ",
-      },
-    },
-  };
-
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
   const usuario = usuario_object.usuario;
@@ -1169,9 +1077,39 @@ const Dashbo = () => {
             background: "#ecf0f1",
           }}
         >
-          <div style={{ width: "600px" }}>
-            <Card sx={{ minWidth: 200, textAlign: "center", p: 2 }}>
+          <div
+            style={{
+              width: "400px",
+              marginLeft: "150px",
+              marginTop: "20px",
+            }}
+          >
+            <Card
+              sx={{
+                minWidth: 200,
+                // height: 180,
+                textAlign: "center",
+                p: 2,
+                border: "4px solid #216c95", // Borde azul
+                boxShadow: 3, // Sombra suave
+                borderRadius: 2, // Bordes redondeados
+              }}
+            >
               <CardContent>
+                {/* <LocationCityIcon
+                  sx={{ fontSize: 40, color: "#1976d2", mb: 1 }}
+                />{" "} */}
+                <img
+                  src={imagen}
+                  alt="Mapa de Nariño"
+                  style={{
+                    width: 50,
+                    height: 50,
+                    objectFit: "contain",
+                    marginBottom: 8,
+                  }}
+                />
+                {/* Ícono */}
                 <Typography variant="h6" color="textSecondary">
                   {"Total de Municipios con Eventos"}
                 </Typography>
@@ -1181,7 +1119,41 @@ const Dashbo = () => {
               </CardContent>
             </Card>
           </div>
-          <div style={{ width: "600px" }}>
+
+          <div
+            style={{
+              width: "400px",
+              marginLeft: "100px",
+              marginTop: "20px",
+            }}
+          >
+            <Card
+              sx={{
+                minWidth: 200,
+                height: 210,
+                textAlign: "center",
+                p: 2,
+                border: "4px solid #216c95", // Borde azul
+                boxShadow: 3, // Sombra suave
+                borderRadius: 2, // Bordes redondeados
+              }}
+            >
+              <CardContent>
+                <LocationCityIcon
+                  sx={{ fontSize: 40, color: "#1976d2", mb: 1 }}
+                />{" "}
+                {/* Ícono */}
+                <Typography variant="h6" color="textSecondary">
+                  {"Total de Operadores"}
+                </Typography>
+                <Typography variant="h4" fontWeight="bold">
+                  {20}
+                </Typography>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* <div style={{ width: "400px" }}>
             <Card sx={{ minWidth: 200, textAlign: "center", p: 2 }}>
               <CardContent>
                 <Typography variant="h6" color="textSecondary">
@@ -1192,17 +1164,19 @@ const Dashbo = () => {
                 </Typography>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
 
           <div style={{ width: "600px" }}>
-            <Bar data={data_doble_barra} options={doble_barra_options} />
+            <Bardouble />
           </div>
+
           <div style={{ width: "600px" }}>
             <Bar data={barData} options={barOptions} />
           </div>
 
           <div style={{ width: "450px", marginLeft: "20px" }}>
-            <Pie data={pieData} options={pieOptions} />
+            {/* <Pie data={pieData} options={pieOptions} /> */}
+            <PieGraphic />
           </div>
 
           <div style={{ width: "600px" }}>
