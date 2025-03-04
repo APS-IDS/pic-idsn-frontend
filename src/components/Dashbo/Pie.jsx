@@ -27,33 +27,26 @@ ChartJS.register(
 );
 
 const PieGraphic = () => {
-  const productos_proyecto = [
+  const producto_indicador = [
     {
-      mes: "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+      mes: "Menos de 2 indicadores",
       cantidad: 10,
     },
     {
-      mes: "Salud para Población de Especial Protección para la paz",
+      mes: "Igual a 2 y menor o igual a 3 indicadores",
       cantidad: 20,
     },
     {
-      mes: "PAI -Prevención de enfermedades transmisibles para la paz",
-      cantidad: 15,
-    },
-    {
-      mes: "Garantía de derechos sexuales y reproductivos para la paz",
+      mes: "Mas de tres indicadores",
       cantidad: 30,
     },
-    { mes: "Atención Primaria En Salud", cantidad: 25 },
-    { mes: "Emergencias-Salud Ambiental para la Paz", cantidad: 35 },
-    { mes: "Nutrición y alimentación saludable para la Paz", cantidad: 40 },
   ];
 
   const pieData = {
-    labels: productos_proyecto.map((item) => item.mes),
+    labels: producto_indicador.map((item) => item.mes),
     datasets: [
       {
-        data: productos_proyecto.map((item) => item.cantidad),
+        data: producto_indicador.map((item) => item.cantidad),
         backgroundColor: [
           "#FF6384",
           "#36A2EB",
@@ -85,7 +78,7 @@ const PieGraphic = () => {
       },
       title: {
         display: true,
-        text: "Cantidad de Productos Según Proyecto",
+        text: "Cantidad de Productos por Indicador",
         font: {
           size: 15, // Ajusta el tamaño del texto
           weight: "bold", // Opcional: hace el texto más grueso

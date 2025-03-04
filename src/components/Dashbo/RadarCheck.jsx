@@ -1,0 +1,89 @@
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  RadialLinearScale,
+} from "chart.js";
+import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
+import DonaActividad from "./DonaActividades";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  RadialLinearScale
+);
+
+const RadarCheck = () => {
+  const check_soporte = [
+    {
+      mes: "Aprobado",
+      cantidad: 10,
+    },
+    {
+      mes: "No aprobado",
+      cantidad: 12,
+    },
+    {
+      mes: "Aprobado Soporte Físico",
+      cantidad: 14,
+    },
+    {
+      mes: "No Aprobado Soporte Físico",
+      cantidad: 14,
+    },
+  ];
+
+  const colors_polar = [
+    "#FF638480",
+    "#36A2EB80",
+    "#FFCE5680",
+    "#4BC0C080",
+    "#9966FF80",
+  ];
+
+  const polar_data = {
+    labels: check_soporte.map((item) => item.mes), // Extrae los nombres
+    datasets: [
+      {
+        data: check_soporte.map((item) => item.cantidad), // Extrae las cantidades
+        backgroundColor: colors_polar,
+        // hoverBackgroundColor: colors_polar.map((color) => color + "CC"), // Versión con transparencia
+      },
+    ],
+  };
+
+  const polar_options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "right",
+      },
+      title: {
+        display: true,
+        text: "Cantidad de Soportes Según Check",
+      },
+    },
+  };
+
+  return (
+    <>
+      <PolarArea data={polar_data} options={polar_options} />
+    </>
+  );
+};
+
+export default RadarCheck;

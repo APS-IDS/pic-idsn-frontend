@@ -24,6 +24,9 @@ const Seguimiento = () => {
 
   const usuario = usuario_object.usuario;
 
+  const user_name = usuario_object.user_name;
+
+  console.log("nombre del usuario", user_name);
   console.log("Actividad", actividad);
 
   console.log("Usuario_seguimiento", usuario);

@@ -27,41 +27,32 @@ const Bardouble = () => {
     { mes: "YACUANQUER", cantidad: 40 },
   ];
 
-  const tecnologia_actividad = [
+  const operador_evento = [
     {
-      mes: "Redes Familiares",
+      mes: "E.S.E. Hospital San Andrés - Tumaco",
       cantidad: 10,
     },
     {
-      mes: "Zonas de Escucha",
-      cantidad: 12,
+      mes: "E.S.E. Hospital el Buen Samaritano - La Cruz",
+      cantidad: 20,
     },
     {
-      mes: "Rehabilitación",
-      cantidad: 14,
+      mes: "E.S.E. Hospital Departamental de Nariño",
+      cantidad: 15,
     },
     {
-      mes: "Tamizaje",
-      cantidad: 8,
+      mes: "E.S.E. Centro de Salud de Puerres",
+      cantidad: 30,
     },
-    {
-      mes: "Jornadas de Salud",
-      cantidad: 7,
-    },
-    {
-      mes: "Vacunación",
-      cantidad: 5,
-    },
-    {
-      mes: "Medicamentos",
-      cantidad: 4,
-    },
+    { mes: "E.S.E. Hospital Clarita Santos - Sandoná", cantidad: 25 },
+    { mes: "E.S.E. Centro de Salud de Ancuyá - Nariñoz", cantidad: 35 },
+    { mes: "E.S.E. Centro de Salud - Consacá", cantidad: 40 },
   ];
 
   const labels_doble =
     activeDataset === "eventos"
       ? eventos_municipio.map((item) => item.mes)
-      : tecnologia_actividad.map((item) => item.mes);
+      : operador_evento.map((item) => item.mes);
 
   const data_doble_barra = {
     // labels: eventos_municipio.map((item) => item.mes),
@@ -76,10 +67,10 @@ const Bardouble = () => {
         categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)
       },
       {
-        label: "Cantidad de Actividades",
-        data: tecnologia_actividad.map((item) => item.cantidad),
+        label: "Cantidad de Eventos Operador",
+        data: operador_evento.map((item) => item.cantidad),
         backgroundColor: "rgba(20, 140, 130, 0.5)",
-        hidden: activeDataset !== "tecnologia", // Oculta si no está activo
+        hidden: activeDataset !== "operador", // Oculta si no está activo
       },
     ],
   };
@@ -98,7 +89,7 @@ const Bardouble = () => {
         },
         onClick: (e, legendItem, legend) => {
           const datasetIndex = legendItem.datasetIndex;
-          setActiveDataset(datasetIndex === 0 ? "eventos" : "tecnologia");
+          setActiveDataset(datasetIndex === 0 ? "eventos" : "operador");
         },
       },
       title: {
@@ -106,7 +97,7 @@ const Bardouble = () => {
         text:
           activeDataset === "eventos"
             ? "Cantidad de Eventos por Municipio"
-            : "Cantidad de Actividades Según Tecnologías",
+            : "Cantidad de Eventos Según Operador",
         font: {
           size: 18, // Tamaño de fuente del título
           weight: "bold", // Opcional, para negrita
