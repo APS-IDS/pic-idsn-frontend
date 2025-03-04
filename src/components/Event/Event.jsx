@@ -171,6 +171,28 @@ const Event = ({ events, setEvents, edit_button }) => {
     }),
   };
 
+  const custom_styles_two = {
+    control: (base) => ({
+      ...base,
+      minWidth: "280px", // Ajusta el ancho mínimo
+      //maxWidth: "400px", // Opcional, limita el ancho máximo
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 5, // Asegura que el menú no se superponga
+      maxHeight: "200px", // Ajusta la altura máxima del menú
+      overflowY: "auto", // Activa la barra de desplazamiento si es necesario
+    }),
+    option: (base) => ({
+      ...base,
+      whiteSpace: "nowrap", // Evita que el texto se parta
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
+    }),
+  };
+
   const handleStrategicAxisChange = (eventIndex, selectedOptions) => {
     const updatedEvents = [...events];
     updatedEvents[eventIndex].eje_estrategico = selectedOptions.map(
@@ -606,8 +628,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                       onChange={(selectedOptions) =>
                         handleStrategicAxisChange(index, selectedOptions)
                       }
-                      placeholder="Seleccionar ejes..."
-                      styles={customStyles}
+                      placeholder="Seleccionar ejes"
+                      styles={custom_styles_two}
                     />
                   </td>
 
