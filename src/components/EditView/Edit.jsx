@@ -164,8 +164,9 @@ const Edit = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor revise que todos los datos esten completos !",
+        text: "Ha ocurrido un error al enviar la información !",
       });
+      setLoading(false);
       console.error(error);
     }
   };
