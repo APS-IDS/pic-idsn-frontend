@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,6 +16,38 @@ import { Bar } from "react-chartjs-2";
 
 const Bardouble = () => {
   const [activeDataset, setActiveDataset] = useState("eventos");
+
+  const [data_municipios, setDataMunicipios] = useState([]);
+
+  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  const token = token_object.token;
+
+  const back = import.meta.env.VITE_APP_BACK;
+  const url_cantidad_eventos = `${back}/api/municipios-eventos`;
+
+  useEffect(() => {
+    const fetch_subregion = async () => {
+      try {
+        const response = await fetch(`${url_cantidad_eventos}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener subregiones.");
+        const data = await response.json();
+        //setSubregions(data.data);
+        //setMunicipios(data.data);
+        console.log("data", data.result);
+        setDataMunicipios(data.result);
+      } catch (error) {
+        console.error("Error fetching subregions:", error);
+      }
+    };
+
+    fetch_subregion();
+  }, [token]);
+
+  console.log("data_municipios", data_municipios);
 
   const eventos_municipio = [
     { mes: "LA UNION", cantidad: 10 },
@@ -51,7 +83,8 @@ const Bardouble = () => {
 
   const labels_doble =
     activeDataset === "eventos"
-      ? eventos_municipio.map((item) => item.mes)
+      ? // ? eventos_municipio.map((item) => item.mes)
+        data_municipios.map((item) => item.municipio)
       : operador_evento.map((item) => item.mes);
 
   const data_doble_barra = {
@@ -60,7 +93,8 @@ const Bardouble = () => {
     datasets: [
       {
         label: "Cantidad de Eventos",
-        data: eventos_municipio.map((item) => item.cantidad),
+        // data: eventos_municipio.map((item) => item.cantidad),
+        data: data_municipios.map((item) => item.eventos),
         backgroundColor: "rgba(40, 20, 153, 0.5)",
         hidden: activeDataset !== "eventos", // Oculta si no está activo
         barPercentage: 0.9, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)

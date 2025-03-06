@@ -42,8 +42,7 @@ const ReportView = () => {
   // }`;
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10); // Puedes cambiar el valor si necesitas más registros por página.
-
+  const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
   const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
     filterValue
       ? `&filters[eventos][proyectos_idsn][proyecto][$eq]=${filterValue}`
