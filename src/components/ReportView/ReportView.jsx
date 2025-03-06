@@ -22,8 +22,6 @@ const ReportView = () => {
 
   const usuario = usuario_object.usuario;
 
-  console.log("rol_view", usuario);
-
   const back = import.meta.env.VITE_APP_BACK;
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const token = token_object.token;
@@ -55,6 +53,8 @@ const ReportView = () => {
       ? `&filters[eventos][operador_pic][operador_pic][$eq]=${operatorFilterValue}`
       : ""
   }`;
+
+  console.log("Valor filtro:", operatorFilterValue);
 
   const url_soportes = `${back}/api/seguimiento/upload-file`;
   const url_soportes_get = `${back}/api/check-seguimiento?`;
@@ -127,7 +127,6 @@ const ReportView = () => {
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
   console.log("datos", data);
-  console.log("token", token);
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -607,7 +606,10 @@ const ReportView = () => {
         </div>
         <select
           value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
+          onChange={(e) => {
+            setFilterValue(e.target.value);
+            setCurrentPage(1);
+          }}
           className={styles.filterSelect}
         >
           <option value="">Todos los proyectos</option>
@@ -626,7 +628,10 @@ const ReportView = () => {
         </div>
         <select
           value={operatorFilterValue}
-          onChange={(e) => setOperatorFilterValue(e.target.value)}
+          onChange={(e) => {
+            setOperatorFilterValue(e.target.value);
+            setCurrentPage(1);
+          }}
           className={styles.filterSelect}
         >
           <option value="">Todos los operadores</option>

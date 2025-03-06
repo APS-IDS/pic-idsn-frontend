@@ -285,8 +285,9 @@ const ReportForm = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor revise que todos los datos esten completos !",
+        text: "Error al enviar la información!",
       });
+      setLoading(false);
       console.error(error);
     }
   };
