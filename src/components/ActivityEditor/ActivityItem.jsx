@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { NumericFormat } from "react-number-format";
 
 const ActivityItem = ({
   activity,
@@ -522,7 +523,7 @@ const ActivityItem = ({
                   />
                 </td>
 
-                <td>
+                {/* <td>
                   <div className={styles.input_valor_container}>
                     <input
                       type="text"
@@ -557,8 +558,76 @@ const ActivityItem = ({
                       min="0"
                     />
                   </div>
+                </td> */}
+
+                <td>
+                  <div className={styles.input_valor_container}>
+                    <NumericFormat
+                      name="valor_unitario"
+                      value={activity.valor_unitario}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2} // Número de decimales permitidos
+                      fixedDecimalScale={true} // Mantener siempre el número de decimales
+                      onValueChange={(values) => {
+                        const { formattedValue, value } = values;
+                        handleActivityChange(
+                          { target: { name: "valor_unitario", value } },
+                          index
+                        );
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          !/[0-9,]/.test(e.key) && // Solo números y coma
+                          e.key !== "Backspace" && // Permitir borrar
+                          e.key !== "Tab" && // Permitir Tab
+                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                          e.key !== "ArrowRight" && // Permitir flecha derecha
+                          e.key !== "Delete" // Permitir tecla Delete
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={styles.input_valor}
+                      min="0"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <div className={styles.input_valor_container}>
+                    <NumericFormat
+                      name="valor_total"
+                      value={activity.valor_total}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2} // Número de decimales permitidos
+                      fixedDecimalScale={true} // Mantener siempre el número de decimales
+                      onValueChange={(values) => {
+                        const { formattedValue, value } = values;
+                        handleActivityChange(
+                          { target: { name: "valor_total", value } },
+                          index
+                        );
+                      }}
+                      onKeyDown={(e) => {
+                        if (
+                          !/[0-9,]/.test(e.key) && // Solo números y coma
+                          e.key !== "Backspace" && // Permitir borrar
+                          e.key !== "Tab" && // Permitir Tab
+                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                          e.key !== "ArrowRight" && // Permitir flecha derecha
+                          e.key !== "Delete" // Permitir tecla Delete
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={styles.input_valor}
+                      min="0"
+                    />
+                  </div>
                 </td>
 
+                {/* 
                 <td>
                   <div className={styles.input_valor_container}>
                     <input
@@ -597,7 +666,7 @@ const ActivityItem = ({
                       min="0"
                     />
                   </div>
-                </td>
+                </td> */}
 
                 <td>{renderCronogramaField()}</td>
               </tr>

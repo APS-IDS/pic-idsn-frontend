@@ -262,57 +262,43 @@ const Dashbo = () => {
             </Card>
           </div>
 
-          {/* <div style={{ width: "400px" }}>
-            <Card sx={{ minWidth: 200, textAlign: "center", p: 2 }}>
-              <CardContent>
-                <Typography variant="h6" color="textSecondary">
-                  {"Total Municipios"}
-                </Typography>
-                <Typography variant="h4" fontWeight="bold">
-                  {60}
-                </Typography>
-              </CardContent>
-            </Card>
-          </div> */}
-
-          <div style={{ width: "600px" }}>
+          <div className={styles.bardouble}>
             <Bardouble />
           </div>
 
-          <div style={{ width: "450px", marginLeft: "20px" }}>
+          <div className={styles.dona_producto}>
             {/* <Pie data={pieData} options={pieOptions} /> */}
             <Dona />
           </div>
 
-          <div style={{ width: "450px", marginLeft: "20px" }}>
-            {/* <Pie data={pieData} options={pieOptions} /> */}
-            <PieGraphic />
-          </div>
-
-          <div style={{ width: "600px" }}>
+          <div className={styles.barra_operador}>
             <Bar data={bar_operador_data} options={bar_operador_options} />
           </div>
 
-          <div style={{ width: "450px", marginLeft: "20px" }}>
+          <div className={styles.pastel_producto}>
+            {/* <Pie data={pieData} options={pieOptions} /> */}
+            <PieGraphic />
+          </div>
+          <div className={styles.barra_poblacion}>
+            <BarraPoblacion />
+          </div>
+
+          <div className={styles.dona_actividad}>
+            {/* <Pie data={pieData} options={pieOptions} /> */}
             <DonaActividad />
             {/* <Doughnut data={doughnut_data} options={doughnut_options} /> */}
           </div>
 
-          <div style={{ width: "450px", marginLeft: "20px" }}>
+          <div className={styles.linea_mes}>
+            <LineaMes />
+          </div>
+
+          <div className={styles.radar_entorno}>
             {/* <PolarArea data={polar_data} options={polar_options} /> */}
             <RadarEntorno />
           </div>
-          <div style={{ width: "450px", marginLeft: "20px" }}>
-            <BarraPoblacion />
-          </div>
 
-          {/* <div style={{ width: "450px", marginLeft: "20px" }}>
-            <Chart ref={chartRef} type="line" data={chartData} />
-          </div> */}
-          <div style={{ width: "450px", marginLeft: "20px" }}>
-            <LineaMes />
-          </div>
-          <div style={{ width: "450px", marginLeft: "20px" }}>
+          <div className={styles.radar_check}>
             <RadarCheck />
           </div>
         </div>
