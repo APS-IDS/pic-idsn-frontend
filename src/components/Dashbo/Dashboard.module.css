@@ -19,11 +19,13 @@
 .bardouble {
   margin-left: 20px;
   margin-top: 20px;
+  /* width: fit-content;  */
   width: 600px;
   border: 3px solid #216c95;
   padding: 5px;
   border-radius: 8px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .dona_producto {
@@ -35,6 +37,17 @@
   border-radius: 8px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 }
+
+.dona_actividad {
+  margin-top: 20px;
+  margin-left: 40px;
+  width: fit-content;
+  border: 3px solid #216c95;
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+}
+
 .pastel_producto {
   margin-top: 20px;
   margin-left: 40px;
@@ -54,20 +67,22 @@
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 }
 
-.dona_actividad {
+.radar_entorno {
   margin-top: 20px;
   margin-left: 40px;
   width: fit-content;
+
   border: 3px solid #216c95;
   padding: 5px;
   border-radius: 8px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
 }
 
-.radar_entorno {
+.radar_check {
   margin-top: 20px;
-  margin-left: 40px;
-  width: 500px;
+  margin-left: 20px;
+  width: 600px;
+  /* width: fit-content; */
   border: 3px solid #216c95;
   padding: 5px;
   border-radius: 8px;
@@ -88,16 +103,6 @@
   margin-top: 20px;
   margin-left: 20px;
   width: 600px;
-  border: 3px solid #216c95;
-  padding: 5px;
-  border-radius: 8px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
-}
-
-.radar_check {
-  margin-top: 20px;
-  margin-left: 20px;
-  width: 400px;
   border: 3px solid #216c95;
   padding: 5px;
   border-radius: 8px;

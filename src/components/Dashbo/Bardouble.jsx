@@ -109,17 +109,99 @@ const Bardouble = () => {
     ],
   };
 
+  // const doble_barra_options = {
+  //   responsive: true,
+  //   indexAxis: "y",
+
+  //   plugins: {
+  //     legend: {
+  //       position: "top",
+
+  //       labels: {
+  //         font: {
+  //           size: 12, // Tamaño de fuente de los labels de la leyenda
+  //           weight: "bold", // Opcional, para negrita
+  //         },
+  //         padding: 20,
+  //       },
+  //       onClick: (e, legendItem, legend) => {
+  //         const datasetIndex = legendItem.datasetIndex;
+  //         setActiveDataset(datasetIndex === 0 ? "eventos" : "operador");
+  //       },
+  //     },
+  //     title: {
+  //       display: true,
+  //       text:
+  //         activeDataset === "eventos"
+  //           ? "Cantidad de Eventos por Municipio"
+  //           : "Cantidad de Eventos Según Operador",
+  //       font: {
+  //         size: 18, // Tamaño de fuente del título
+  //         weight: "bold", // Opcional, para negrita
+  //       },
+  //     },
+  //   },
+
+  //   scales: {
+  //     y: {
+  //       ticks: {
+  //         callback: function (value, index, ticks) {
+  //           const label = this.getLabelForValue(value);
+  //           const maxLength = 25;
+  //           return label.length > maxLength
+  //             ? label.slice(0, maxLength) + "..."
+  //             : label;
+  //         },
+  //         font: {
+  //           size: 13,
+  //         },
+  //         padding: 5,
+  //       },
+  //     },
+  //     x: {
+  //       ticks: {
+  //         font: {
+  //           size: 13,
+  //         },
+  //       },
+  //     },
+  //   },
+
+  //   // scales: {
+  //   //   y: {
+  //   //     ticks: {
+  //   //       font: {
+  //   //         size: 13, // Tamaño de fuente en eje Y
+  //   //       },
+  //   //     },
+  //   //   },
+  //   //   x: {
+  //   //     ticks: {
+  //   //       font: {
+  //   //         size: 13, // Tamaño de fuente en eje X
+  //   //       },
+  //   //     },
+  //   //   },
+  //   // },
+  // };
+
   const doble_barra_options = {
     responsive: true,
     indexAxis: "y",
+    layout: {
+      padding: {
+        top: 20, // Ajusta este valor según sea necesario
+      },
+    },
     plugins: {
       legend: {
         position: "top",
         labels: {
           font: {
-            size: 12, // Tamaño de fuente de los labels de la leyenda
-            weight: "bold", // Opcional, para negrita
+            size: 12,
+            weight: "bold",
           },
+          padding: 20, // Aumenta este valor para más separación
         },
         onClick: (e, legendItem, legend) => {
           const datasetIndex = legendItem.datasetIndex;
@@ -133,23 +215,31 @@ const Bardouble = () => {
             ? "Cantidad de Eventos por Municipio"
             : "Cantidad de Eventos Según Operador",
         font: {
-          size: 18, // Tamaño de fuente del título
-          weight: "bold", // Opcional, para negrita
+          size: 18,
+          weight: "bold",
         },
       },
     },
     scales: {
       y: {
         ticks: {
-          font: {
-            size: 13, // Tamaño de fuente en eje Y
+          callback: function (value, index, ticks) {
+            const label = this.getLabelForValue(value);
+            const maxLength = 25;
+            return label.length > maxLength
+              ? label.slice(0, maxLength) + "..."
+              : label;
           },
+          font: {
+            size: 13,
+          },
+          padding: 5,
         },
       },
       x: {
         ticks: {
           font: {
-            size: 13, // Tamaño de fuente en eje X
+            size: 13,
           },
         },
       },

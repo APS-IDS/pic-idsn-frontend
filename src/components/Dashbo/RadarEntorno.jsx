@@ -85,7 +85,9 @@ const RadarEntorno = () => {
 
   return (
     <>
-      <PolarArea data={polar_data} options={polar_options} />
+      <div style={{ width: "450px", marginLeft: "20px" }}>
+        <PolarArea data={polar_data} options={polar_options} />
+      </div>
     </>
   );
 };

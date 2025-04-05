@@ -271,16 +271,21 @@ const Dashbo = () => {
             <Dona />
           </div>
 
-          <div className={styles.barra_operador}>
-            <Bar data={bar_operador_data} options={bar_operador_options} />
+          <div className={styles.barra_poblacion}>
+            <BarraPoblacion />
           </div>
+
+          {/* <div className={styles.barra_operador}>
+            <Bar data={bar_operador_data} options={bar_operador_options} />
+          </div> */}
 
           <div className={styles.pastel_producto}>
             {/* <Pie data={pieData} options={pieOptions} /> */}
             <PieGraphic />
           </div>
-          <div className={styles.barra_poblacion}>
-            <BarraPoblacion />
+
+          <div className={styles.linea_mes}>
+            <LineaMes />
           </div>
 
           <div className={styles.dona_actividad}>
@@ -289,17 +294,12 @@ const Dashbo = () => {
             {/* <Doughnut data={doughnut_data} options={doughnut_options} /> */}
           </div>
 
-          <div className={styles.linea_mes}>
-            <LineaMes />
+          <div className={styles.radar_check}>
+            <RadarCheck />
           </div>
-
           <div className={styles.radar_entorno}>
             {/* <PolarArea data={polar_data} options={polar_options} /> */}
             <RadarEntorno />
-          </div>
-
-          <div className={styles.radar_check}>
-            <RadarCheck />
           </div>
         </div>
       </div>

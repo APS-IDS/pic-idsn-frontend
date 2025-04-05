@@ -75,6 +75,10 @@ const BarraPoblacion = () => {
       title: {
         display: true,
         text: "Cantidad de Actividades Segúng Población",
+        font: {
+          size: 18,
+          weight: "bold",
+        },
       },
     },
   };
