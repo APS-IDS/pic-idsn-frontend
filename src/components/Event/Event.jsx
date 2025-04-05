@@ -520,7 +520,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                   <td>
                     <textarea
                       className={styles.textarea}
-                      type="text"
+                      placeholder="Máximo numero de caracteres 300"
+                      maxLength={300}
                       value={event.perfil_profesional || ""}
                       onChange={(e) =>
                         handleEventChange(
@@ -530,10 +531,14 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>
+                      {event.perfil_profesional?.length || 0} / 300 caracteres
+                    </p>
                   </td>
                   <td>
                     <textarea
                       className={styles.textarea}
+                      placeholder="Máximo numero de caracteres 2000"
                       type="text"
                       value={event.perfil_operativo || ""}
                       onChange={(e) =>
@@ -544,6 +549,9 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>
+                      {event.perfil_operativo?.length || 0} / 2000 caracteres
+                    </p>
                   </td>
                   <td>
                     <Select
