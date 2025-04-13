@@ -13,41 +13,22 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import Spinner from "../Spinner/Spinner";
 
-const Bardouble = () => {
+const Bardouble = ({ municipios }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [activeDataset, setActiveDataset] = useState("eventos");
-
-  const [data_municipios, setDataMunicipios] = useState([]);
 
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const token = token_object.token;
 
+  const data = municipios;
+
   const back = import.meta.env.VITE_APP_BACK;
-  const url_cantidad_eventos = `${back}/api/municipios-eventos`;
-
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
-        const response = await fetch(`${url_cantidad_eventos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        //setMunicipios(data.data);
-        console.log("data", data.result);
-        setDataMunicipios(data.result);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_subregion();
-  }, [token]);
-
-  console.log("data_municipios", data_municipios);
+  //const url_cantidad_eventos = `${back}/api/municipios-eventos`;
+  const url_cantidad_eventos = `${back}/api/dashboard-all`;
 
   const eventos_municipio = [
     { mes: "LA UNION", cantidad: 10 },
@@ -81,11 +62,15 @@ const Bardouble = () => {
     { mes: "E.S.E. Centro de Salud - Consacá", cantidad: 40 },
   ];
 
+  // console.log("Data nueva:", data);
+
   const labels_doble =
     activeDataset === "eventos"
       ? // ? eventos_municipio.map((item) => item.mes)
-        data_municipios.map((item) => item.municipio)
-      : operador_evento.map((item) => item.mes);
+        data.map((item) => item.municipio)
+      : // data.map((item) => item.municipio)
+        //data.map((item) => item.municipio)
+        operador_evento.map((item) => item.mes);
 
   const data_doble_barra = {
     // labels: eventos_municipio.map((item) => item.mes),
@@ -93,8 +78,8 @@ const Bardouble = () => {
     datasets: [
       {
         label: "Cantidad de Eventos",
-        // data: eventos_municipio.map((item) => item.cantidad),
-        data: data_municipios.map((item) => item.eventos),
+
+        data: data.map((item) => item.eventos),
         backgroundColor: "rgba(40, 20, 153, 0.5)",
         hidden: activeDataset !== "eventos", // Oculta si no está activo
         barPercentage: 0.9, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
@@ -108,82 +93,6 @@ const Bardouble = () => {
       },
     ],
   };
-
-  // const doble_barra_options = {
-  //   responsive: true,
-  //   indexAxis: "y",
-
-  //   plugins: {
-  //     legend: {
-  //       position: "top",
-
-  //       labels: {
-  //         font: {
-  //           size: 12, // Tamaño de fuente de los labels de la leyenda
-  //           weight: "bold", // Opcional, para negrita
-  //         },
-  //         padding: 20,
-  //       },
-  //       onClick: (e, legendItem, legend) => {
-  //         const datasetIndex = legendItem.datasetIndex;
-  //         setActiveDataset(datasetIndex === 0 ? "eventos" : "operador");
-  //       },
-  //     },
-  //     title: {
-  //       display: true,
-  //       text:
-  //         activeDataset === "eventos"
-  //           ? "Cantidad de Eventos por Municipio"
-  //           : "Cantidad de Eventos Según Operador",
-  //       font: {
-  //         size: 18, // Tamaño de fuente del título
-  //         weight: "bold", // Opcional, para negrita
-  //       },
-  //     },
-  //   },
-
-  //   scales: {
-  //     y: {
-  //       ticks: {
-  //         callback: function (value, index, ticks) {
-  //           const label = this.getLabelForValue(value);
-  //           const maxLength = 25;
-  //           return label.length > maxLength
-  //             ? label.slice(0, maxLength) + "..."
-  //             : label;
-  //         },
-  //         font: {
-  //           size: 13,
-  //         },
-  //         padding: 5,
-  //       },
-  //     },
-  //     x: {
-  //       ticks: {
-  //         font: {
-  //           size: 13,
-  //         },
-  //       },
-  //     },
-  //   },
-
-  //   // scales: {
-  //   //   y: {
-  //   //     ticks: {
-  //   //       font: {
-  //   //         size: 13, // Tamaño de fuente en eje Y
-  //   //       },
-  //   //     },
-  //   //   },
-  //   //   x: {
-  //   //     ticks: {
-  //   //       font: {
-  //   //         size: 13, // Tamaño de fuente en eje X
-  //   //       },
-  //   //     },
-  //   //   },
-  //   // },
-  // };
 
   const doble_barra_options = {
     responsive: true,
