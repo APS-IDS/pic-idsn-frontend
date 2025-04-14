@@ -1,8 +1,9 @@
-import { GET_TOKEN , LOGIN_DATA, TOKEN_DATA } from "./actions";
+import { GET_TOKEN, LOGIN_DATA, TOKEN_DATA, GET_DATA } from "./actions";
 
 const initialState = {
   token: {},
-  token_two:[],
+  token_two: [],
+  data: {},
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -11,6 +12,8 @@ const rootReducer = (state = initialState, action) => {
       return { ...state, token: action.payload };
     case TOKEN_DATA:
       return { ...state, token_two: action.payload };
+    case GET_DATA:
+      return { ...state, data: action.payload };
     default:
       return { ...state };
   }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,16 +16,30 @@ import {
 import { Bar } from "react-chartjs-2";
 import Spinner from "../Spinner/Spinner";
 
-const Bardouble = ({ municipios }) => {
+const Bardouble = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [data_municipios, setDataMunicipios] = useState([]);
 
   const [activeDataset, setActiveDataset] = useState("eventos");
 
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const token = token_object.token;
 
-  const data = municipios;
+  const data_full = useSelector((state) => state.data || []);
+
+  useEffect(() => {
+    if (data_full?.municipiosEventos?.result) {
+      setDataMunicipios(data_full.municipiosEventos.result);
+    }
+  }, [data_full]);
+
+  // console.log("data_redux", data_redux);
+
+  // const data = municipios;
+
+  console.log("data actual", data_full);
 
   const back = import.meta.env.VITE_APP_BACK;
   //const url_cantidad_eventos = `${back}/api/municipios-eventos`;
@@ -67,7 +82,7 @@ const Bardouble = ({ municipios }) => {
   const labels_doble =
     activeDataset === "eventos"
       ? // ? eventos_municipio.map((item) => item.mes)
-        data.map((item) => item.municipio)
+        data_municipios.map((item) => item.municipio)
       : // data.map((item) => item.municipio)
         //data.map((item) => item.municipio)
         operador_evento.map((item) => item.mes);
@@ -79,7 +94,7 @@ const Bardouble = ({ municipios }) => {
       {
         label: "Cantidad de Eventos",
 
-        data: data.map((item) => item.eventos),
+        data: data_municipios.map((item) => item.eventos),
         backgroundColor: "rgba(40, 20, 153, 0.5)",
         hidden: activeDataset !== "eventos", // Oculta si no está activo
         barPercentage: 0.9, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)

@@ -11,6 +11,8 @@ import Dona from "./DonaProducto";
 import DonaActividad from "./DonaActividades";
 import RadarEntorno from "./RadarEntorno";
 import Spinner from "../Spinner/Spinner";
+import { useDispatch } from "react-redux";
+import { get_data } from "../../redux/actions";
 
 import {
   Chart as ChartJS,
@@ -104,7 +106,11 @@ const Dashbo = () => {
 
   const url_cantidad_eventos = `${back}/api/dashboard-all`;
 
-  // let super_usuario = false;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(get_data(token));
+  }, [dispatch]);
 
   useEffect(() => {
     const fetch_user = async () => {
@@ -145,33 +151,32 @@ const Dashbo = () => {
     fetch_user();
   }, [token]);
 
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
-        const response = await fetch(`${url_cantidad_eventos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        //setMunicipios(data.data);
-        console.log("data total", data);
-        //console.log("data", data.result);
-        //setDataMunicipios(data.result);
-        setDataMunicipios(data.municipiosEventos.result);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetch_subregion = async () => {
+  //     try {
+  //       const response = await fetch(`${url_cantidad_eventos}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       if (!response.ok) throw new Error("Error al obtener subregiones.");
+  //       const data = await response.json();
 
-    fetch_subregion();
-  }, [token]);
+  //       console.log("data total", data);
+  //       //console.log("data", data.result);
+  //       //setDataMunicipios(data.result);
+  //       setDataMunicipios(data.municipiosEventos.result);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching subregions:", error);
+  //     }
+  //   };
 
-  if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
-  if (error) return <div>Error: {error}</div>;
+  //   fetch_subregion();
+  // }, [token]);
+
+  // if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
+  // if (error) return <div>Error: {error}</div>;
 
   const bar_operador_data = {
     labels: operador_evento.map((item) => item.mes),
@@ -298,9 +303,10 @@ const Dashbo = () => {
           </div>
 
           <div className={styles.bardouble}>
-            {data_municipios?.length > 0 && (
+            {/* {data_municipios?.length > 0 && (
               <Bardouble municipios={data_municipios} />
-            )}
+            )} */}
+            <Bardouble />
           </div>
 
           <div className={styles.dona_producto}>
