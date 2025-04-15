@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 import DonaActividad from "./DonaActividades";
+import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,22 @@ ChartJS.register(
 );
 
 const RadarEntorno = () => {
+  const data_full = useSelector((state) => state.data || []);
+  const [data_entorno, setDataEntorno] = useState([]);
+
+  useEffect(() => {
+    if (data_full?.actividadesEntorno?.result) {
+      const resultObj = data_full.actividadesEntorno.result;
+      const resultArray = Object.entries(resultObj).map(
+        ([entorno, cantidad]) => ({
+          entorno,
+          cantidad,
+        })
+      );
+      setDataEntorno(resultArray);
+    }
+  }, [data_full]);
+
   const entorno_actividad = [
     {
       mes: "Hogar",
@@ -60,10 +78,10 @@ const RadarEntorno = () => {
   ];
 
   const polar_data = {
-    labels: entorno_actividad.map((item) => item.mes), // Extrae los nombres
+    labels: data_entorno.map((item) => item.entorno), // Extrae los nombres
     datasets: [
       {
-        data: entorno_actividad.map((item) => item.cantidad), // Extrae las cantidades
+        data: data_entorno.map((item) => item.cantidad), // Extrae las cantidades
         backgroundColor: colors_polar,
         // hoverBackgroundColor: colors_polar.map((color) => color + "CC"), // Versión con transparencia
       },

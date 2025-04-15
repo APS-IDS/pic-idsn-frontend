@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 import BarraPoblacion from "./BarraPoblacion";
+import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,20 @@ ChartJS.register(
 );
 
 const LineaMes = () => {
+  const data_full = useSelector((state) => state.data || []);
+  const [data_mes_actividad, setDataMes] = useState([]);
+
+  useEffect(() => {
+    if (data_full?.actividadesMes?.result) {
+      const resultObj = data_full.actividadesMes.result;
+      const resultArray = Object.entries(resultObj).map(([mes, cantidad]) => ({
+        mes,
+        cantidad,
+      }));
+      setDataMes(resultArray);
+    }
+  }, [data_full]);
+
   const mes_actividad = [
     { mes: "Enero", cantidad: 10 },
     { mes: "Febrero", cantidad: 12 },
@@ -44,11 +60,11 @@ const LineaMes = () => {
   ];
 
   const data_mes = {
-    labels: mes_actividad.map((item) => item.mes),
+    labels: data_mes_actividad.map((item) => item.mes),
     datasets: [
       {
         label: "Actividad por Mes",
-        data: mes_actividad.map((item) => item.cantidad),
+        data: data_mes_actividad.map((item) => item.cantidad),
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.4,

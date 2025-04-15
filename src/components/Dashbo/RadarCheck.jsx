@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 import DonaActividad from "./DonaActividades";
+import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,22 @@ ChartJS.register(
 );
 
 const RadarCheck = () => {
+  const data_full = useSelector((state) => state.data || []);
+  const [data_check, setDataCheck] = useState([]);
+
+  useEffect(() => {
+    if (data_full?.soportesEstado?.result) {
+      const resultObj = data_full.soportesEstado.result;
+      const resultArray = Object.entries(resultObj).map(
+        ([check, cantidad]) => ({
+          check,
+          cantidad,
+        })
+      );
+      setDataCheck(resultArray);
+    }
+  }, [data_full]);
+
   const check_soporte = [
     {
       mes: "Aprobado",
@@ -56,10 +74,10 @@ const RadarCheck = () => {
   ];
 
   const polar_data = {
-    labels: check_soporte.map((item) => item.mes), // Extrae los nombres
+    labels: data_check.map((item) => item.check), // Extrae los nombres
     datasets: [
       {
-        data: check_soporte.map((item) => item.cantidad), // Extrae las cantidades
+        data: data_check.map((item) => item.cantidad), // Extrae las cantidades
         backgroundColor: colors_polar,
         // hoverBackgroundColor: colors_polar.map((color) => color + "CC"), // Versión con transparencia
       },

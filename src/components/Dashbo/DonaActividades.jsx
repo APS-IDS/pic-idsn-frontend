@@ -12,6 +12,8 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
+import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -27,42 +29,27 @@ ChartJS.register(
 );
 
 const DonaActividad = () => {
-  const tecnologia_actividad = [
-    {
-      mes: "Redes Familiares",
-      cantidad: 10,
-    },
-    {
-      mes: "Zonas de Escucha",
-      cantidad: 12,
-    },
-    {
-      mes: "Rehabilitación",
-      cantidad: 14,
-    },
-    {
-      mes: "Tamizaje",
-      cantidad: 8,
-    },
-    {
-      mes: "Jornadas de Salud",
-      cantidad: 7,
-    },
-    {
-      mes: "Vacunación",
-      cantidad: 5,
-    },
-    {
-      mes: "Medicamentos",
-      cantidad: 4,
-    },
-  ];
+  const data_full = useSelector((state) => state.data || []);
+  const [data_actividad, setDataActividad] = useState([]);
+
+  useEffect(() => {
+    if (data_full?.actividadesTecnologia?.result) {
+      const resultObj = data_full.actividadesTecnologia.result;
+      const resultArray = Object.entries(resultObj).map(
+        ([actividad, cantidad]) => ({
+          actividad,
+          cantidad,
+        })
+      );
+      setDataActividad(resultArray);
+    }
+  }, [data_full]);
 
   const doughnut_data = {
-    labels: tecnologia_actividad.map((item) => item.mes),
+    labels: data_actividad.map((item) => item.actividad),
     datasets: [
       {
-        data: tecnologia_actividad.map((item) => item.cantidad),
+        data: data_actividad.map((item) => item.cantidad),
         // backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
         // hoverBackgroundColor: ["#FF6384CC", "#36A2EBCC", "#FFCE56CC"],
         backgroundColor: [
