@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import { useSelector } from "react-redux";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,50 +37,36 @@ const Dona = () => {
   const back = import.meta.env.VITE_APP_BACK;
   const url_cantidad_productos = `${back}/api/productos-proyecto`;
 
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
-        const response = await fetch(`${url_cantidad_productos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
+  const data_full = useSelector((state) => state.data || []);
 
-        console.log("data", data.result);
-        setDataProductos(data.result);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetch_subregion = async () => {
+  //     try {
+  //       const response = await fetch(`${url_cantidad_productos}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       if (!response.ok) throw new Error("Error al obtener subregiones.");
+  //       const data = await response.json();
 
-    fetch_subregion();
-  }, [token]);
+  //       console.log("data", data.result);
+  //       // setDataProductos(data.result);
+  //     } catch (error) {
+  //       console.error("Error fetching subregions:", error);
+  //     }
+  //   };
+
+  //   fetch_subregion();
+  // }, [token]);
 
   console.log("data_productos", data_productos);
 
-  // const productos_proyecto = [
-  //   {
-  //     mes: "Medicamentos-Prestación de servicios de salud con calidad para la paz",
-  //     cantidad: 10,
-  //   },
-  //   {
-  //     mes: "Salud para Población de Especial Protección para la paz",
-  //     cantidad: 20,
-  //   },
-  //   {
-  //     mes: "PAI -Prevención de enfermedades transmisibles para la paz",
-  //     cantidad: 15,
-  //   },
-  //   {
-  //     mes: "Garantía de derechos sexuales y reproductivos para la paz",
-  //     cantidad: 30,
-  //   },
-  //   { mes: "Atención Primaria En Salud", cantidad: 25 },
-  //   { mes: "Emergencias-Salud Ambiental para la Paz", cantidad: 35 },
-  //   { mes: "Nutrición y alimentación saludable para la Paz", cantidad: 40 },
-  // ];
+  useEffect(() => {
+    if (data_full?.productosProyecto?.result) {
+      setDataProductos(data_full.productosProyecto.result);
+    }
+  }, [data_full]);
 
   const doughnut_data = {
     labels: data_productos.map((item) => item.proyecto),

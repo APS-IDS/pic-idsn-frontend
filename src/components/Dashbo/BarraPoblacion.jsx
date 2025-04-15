@@ -12,6 +12,8 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
+import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -27,39 +29,35 @@ ChartJS.register(
 );
 
 const BarraPoblacion = () => {
-  const poblacion_actividad = [
-    {
-      mes: "Familias",
-      cantidad: 10,
-    },
-    {
-      mes: "Comunidad",
-      cantidad: 12,
-    },
-    {
-      mes: "Personas",
-      cantidad: 14,
-    },
-    {
-      mes: "Estudiantes",
-      cantidad: 14,
-    },
-    {
-      mes: "Comunidad Educativa",
-      cantidad: 14,
-    },
-    {
-      mes: "Trabajadores",
-      cantidad: 14,
-    },
-  ];
+  const data_full = useSelector((state) => state.data || []);
+
+  const [data_poblacion, setDataPoblacion] = useState([]);
+
+  // useEffect(() => {
+  //   if (data_full?.actividadesPoblacion?.result) {
+  //     setDataPoblacion(data_full.actividadesPoblacion.result);
+  //   }
+  // }, [data_full]);
+
+  useEffect(() => {
+    if (data_full?.actividadesPoblacion?.result) {
+      const resultObj = data_full.actividadesPoblacion.result;
+      const resultArray = Object.entries(resultObj).map(
+        ([poblacion, cantidad]) => ({
+          poblacion,
+          cantidad,
+        })
+      );
+      setDataPoblacion(resultArray);
+    }
+  }, [data_full]);
 
   const barData = {
-    labels: poblacion_actividad.map((item) => item.mes),
+    labels: data_poblacion.map((item) => item.poblacion),
     datasets: [
       {
         label: "Cantidad",
-        data: poblacion_actividad.map((item) => item.cantidad),
+        data: data_poblacion.map((item) => item.cantidad),
         backgroundColor: "rgba(22, 111, 171, 0.5)",
         barPercentage: 0.7, // Controla el ancho relativo de cada barra (1 = ancho completo, 0.1 = muy delgado)
         categoryPercentage: 0.8, // Controla el espacio entre barras (1 = juntas, 0.1 = mucho espacio)

@@ -22,6 +22,8 @@ const Bardouble = () => {
 
   const [data_municipios, setDataMunicipios] = useState([]);
 
+  const [data_operador, setDataOperador] = useState([]);
+
   const [activeDataset, setActiveDataset] = useState("eventos");
 
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
@@ -30,8 +32,12 @@ const Bardouble = () => {
   const data_full = useSelector((state) => state.data || []);
 
   useEffect(() => {
-    if (data_full?.municipiosEventos?.result) {
+    if (
+      data_full?.municipiosEventos?.result &&
+      data_full?.eventosOperador?.result
+    ) {
       setDataMunicipios(data_full.municipiosEventos.result);
+      setDataOperador(data_full.eventosOperador.result);
     }
   }, [data_full]);
 
@@ -40,42 +46,11 @@ const Bardouble = () => {
   // const data = municipios;
 
   console.log("data actual", data_full);
+  console.log("Data operador", data_operador);
 
   const back = import.meta.env.VITE_APP_BACK;
   //const url_cantidad_eventos = `${back}/api/municipios-eventos`;
   const url_cantidad_eventos = `${back}/api/dashboard-all`;
-
-  const eventos_municipio = [
-    { mes: "LA UNION", cantidad: 10 },
-    { mes: "BUESACO", cantidad: 20 },
-    { mes: "EL TABLON", cantidad: 15 },
-    { mes: "BELEN", cantidad: 30 },
-    { mes: "SAN BERNARDO", cantidad: 25 },
-    { mes: "TANGUA", cantidad: 35 },
-    { mes: "YACUANQUER", cantidad: 40 },
-  ];
-
-  const operador_evento = [
-    {
-      mes: "E.S.E. Hospital San Andrés - Tumaco",
-      cantidad: 10,
-    },
-    {
-      mes: "E.S.E. Hospital el Buen Samaritano - La Cruz",
-      cantidad: 20,
-    },
-    {
-      mes: "E.S.E. Hospital Departamental de Nariño",
-      cantidad: 15,
-    },
-    {
-      mes: "E.S.E. Centro de Salud de Puerres",
-      cantidad: 30,
-    },
-    { mes: "E.S.E. Hospital Clarita Santos - Sandoná", cantidad: 25 },
-    { mes: "E.S.E. Centro de Salud de Ancuyá - Nariñoz", cantidad: 35 },
-    { mes: "E.S.E. Centro de Salud - Consacá", cantidad: 40 },
-  ];
 
   // console.log("Data nueva:", data);
 
@@ -85,7 +60,7 @@ const Bardouble = () => {
         data_municipios.map((item) => item.municipio)
       : // data.map((item) => item.municipio)
         //data.map((item) => item.municipio)
-        operador_evento.map((item) => item.mes);
+        data_operador.map((item) => item.operador);
 
   const data_doble_barra = {
     // labels: eventos_municipio.map((item) => item.mes),
@@ -102,7 +77,7 @@ const Bardouble = () => {
       },
       {
         label: "Cantidad de Eventos Operador",
-        data: operador_evento.map((item) => item.cantidad),
+        data: data_operador.map((item) => item.eventos),
         backgroundColor: "rgba(20, 140, 130, 0.5)",
         hidden: activeDataset !== "operador", // Oculta si no está activo
       },

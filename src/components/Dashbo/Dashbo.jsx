@@ -13,7 +13,7 @@ import RadarEntorno from "./RadarEntorno";
 import Spinner from "../Spinner/Spinner";
 import { useDispatch } from "react-redux";
 import { get_data } from "../../redux/actions";
-
+import { useSelector } from "react-redux";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -101,8 +101,8 @@ const Dashbo = () => {
 
   const [activeDataset, setActiveDataset] = useState("eventos");
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
 
   const url_cantidad_eventos = `${back}/api/dashboard-all`;
 
@@ -111,6 +111,11 @@ const Dashbo = () => {
   useEffect(() => {
     dispatch(get_data(token));
   }, [dispatch]);
+
+  const globalData = useSelector((state) => state.data);
+  const loading = !globalData || Object.keys(globalData).length === 0;
+
+  console.log("Estado loading", loading);
 
   useEffect(() => {
     const fetch_user = async () => {
@@ -177,6 +182,8 @@ const Dashbo = () => {
 
   // if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   // if (error) return <div>Error: {error}</div>;
+
+  if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
 
   const bar_operador_data = {
     labels: operador_evento.map((item) => item.mes),
