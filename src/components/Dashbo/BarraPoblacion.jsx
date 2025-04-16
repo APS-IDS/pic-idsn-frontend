@@ -72,7 +72,7 @@ const BarraPoblacion = () => {
       legend: { position: "top" },
       title: {
         display: true,
-        text: "Cantidad de Actividades Segúng Población",
+        text: "Cantidad de Actividades Según Población",
         font: {
           size: 18,
           weight: "bold",

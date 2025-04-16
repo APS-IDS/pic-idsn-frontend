@@ -93,7 +93,7 @@ const PieGraphic = () => {
 
   return (
     <>
-      <div style={{ width: "450px", marginLeft: "20px" }}></div>
+      <div style={{ width: "500px", marginLeft: "20px" }}></div>
       <Pie data={pieData} options={pieOptions} />
       <div />
     </>

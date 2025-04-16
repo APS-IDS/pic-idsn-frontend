@@ -29,42 +29,38 @@ ChartJS.register(
   RadialLinearScale
 );
 
-const RadarEntorno = () => {
+const RadarCheckActividad = () => {
   const data_full = useSelector((state) => state.data || []);
-  const [data_entorno, setDataEntorno] = useState([]);
+  const [data_check, setDataCheck] = useState([]);
 
   useEffect(() => {
-    if (data_full?.actividadesEntorno?.result) {
-      const resultObj = data_full.actividadesEntorno.result;
+    if (data_full?.soportesEstado?.result) {
+      const resultObj = data_full.soportesEstado.result;
       const resultArray = Object.entries(resultObj).map(
-        ([entorno, cantidad]) => ({
-          entorno,
+        ([check, cantidad]) => ({
+          check,
           cantidad,
         })
       );
-      setDataEntorno(resultArray);
+      setDataCheck(resultArray);
     }
   }, [data_full]);
 
-  const entorno_actividad = [
+  const check_soporte = [
     {
-      mes: "Hogar",
+      mes: "Aprobado",
       cantidad: 10,
     },
     {
-      mes: "Comunitario",
+      mes: "No aprobado",
       cantidad: 12,
     },
     {
-      mes: "Educativo",
+      mes: "Aprobado Soporte Físico",
       cantidad: 14,
     },
     {
-      mes: "Laboral-Informal",
-      cantidad: 14,
-    },
-    {
-      mes: "Insitucional",
+      mes: "No Aprobado Soporte Físico",
       cantidad: 14,
     },
   ];
@@ -78,10 +74,10 @@ const RadarEntorno = () => {
   ];
 
   const polar_data = {
-    labels: data_entorno.map((item) => item.entorno), // Extrae los nombres
+    labels: data_check.map((item) => item.check), // Extrae los nombres
     datasets: [
       {
-        data: data_entorno.map((item) => item.cantidad), // Extrae las cantidades
+        data: data_check.map((item) => item.cantidad), // Extrae las cantidades
         backgroundColor: colors_polar,
         // hoverBackgroundColor: colors_polar.map((color) => color + "CC"), // Versión con transparencia
       },
@@ -96,18 +92,16 @@ const RadarEntorno = () => {
       },
       title: {
         display: true,
-        text: "Número de Actividades Según Entorno",
+        text: "Cantidad de Actividades Según Estado",
       },
     },
   };
 
   return (
     <>
-      <div style={{ width: "500px", marginLeft: "20px" }}>
-        <PolarArea data={polar_data} options={polar_options} />
-      </div>
+      <PolarArea data={polar_data} options={polar_options} />
     </>
   );
 };
 
-export default RadarEntorno;
+export default RadarCheckActividad;

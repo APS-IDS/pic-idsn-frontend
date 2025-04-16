@@ -99,6 +99,19 @@
   overflow-y: auto; /* Scroll si el contenido excede */
 }
 
+.textarea_perfil_operativo {
+  width: 250px;
+  text-align: justify;
+  min-height: 40px; /* Altura mínima */
+  max-height: 150px; /* Altura máxima */
+  box-sizing: border-box;
+  padding: 5px;
+  font-size: 0.9rem;
+  /* background-color: #1abc9c; */
+  resize: vertical; /* Permitir que el usuario cambie la altura */
+  overflow-y: auto; /* Scroll si el contenido excede */
+}
+
 .cellWrapper {
   display: flex; /* Permite ajustar el contenido dinámicamente */
   width: 150px; /* Tamaño específico para el contenedor */

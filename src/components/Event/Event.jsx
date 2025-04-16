@@ -537,7 +537,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                   </td>
                   <td>
                     <textarea
-                      className={styles.textarea}
+                      className={styles.textarea_perfil_operativo}
                       placeholder="Máximo numero de caracteres 2000"
                       type="text"
                       value={event.perfil_operativo || ""}

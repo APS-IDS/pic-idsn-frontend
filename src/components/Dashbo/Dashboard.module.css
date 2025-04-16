@@ -3,7 +3,7 @@
   flex-direction: column;
   /* height: 100vh; */
   overflow: auto;
-  width: fit-content;
+  /* width: fit-content; */
 
   /* overflow: hidden; */
 }
@@ -12,7 +12,7 @@
   display: flex;
   flex: 1;
   overflow: auto;
-  width: fit-content;
+  /* width: fit-content; */
   /* height: 100vh; */
 }
 

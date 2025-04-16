@@ -14,6 +14,8 @@ import Spinner from "../Spinner/Spinner";
 import { useDispatch } from "react-redux";
 import { get_data } from "../../redux/actions";
 import { useSelector } from "react-redux";
+import RadarCheckActividad from "./RadarCheckActividad";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -350,6 +352,9 @@ const Dashbo = () => {
           <div className={styles.radar_entorno}>
             {/* <PolarArea data={polar_data} options={polar_options} /> */}
             <RadarEntorno />
+          </div>
+          <div className={styles.radar_check}>
+            <RadarCheckActividad />
           </div>
         </div>
       </div>

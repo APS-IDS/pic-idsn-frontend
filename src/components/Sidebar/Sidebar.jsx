@@ -14,44 +14,46 @@ const Sidebar = ({ usuario_dos, super_usuario }) => {
 
   console.log("super_usuario_side_bar", super_usuario);
   return (
-    <aside className={styles.sidebar}>
-      <nav>
-        <ul>
-          <li>
-            <NavLink to="/dashbo" className={styles.active}>
-              Inicio
-            </NavLink>
-          </li>
-          {(usuario === "referente_instituto" || super_usuario === true) && (
+    <div className={styles.side}>
+      <aside className={styles.sidebar}>
+        <nav>
+          <ul>
             <li>
-              <NavLink to="/repo" className={styles.active}>
-                Anexo Técnico
+              <NavLink to="/dashbo" className={styles.active}>
+                Inicio
               </NavLink>
             </li>
-          )}
-          <li>
-            <NavLink
-              to="/view"
-              // className={({ isActive }) => (isActive ? styles.active : "")}
-              className={styles.active}
-            >
-              Visualización
-            </NavLink>
-          </li>
-          {super_usuario === true && (
+            {(usuario === "referente_instituto" || super_usuario === true) && (
+              <li>
+                <NavLink to="/repo" className={styles.active}>
+                  Anexo Técnico
+                </NavLink>
+              </li>
+            )}
             <li>
               <NavLink
-                to="/register"
+                to="/view"
                 // className={({ isActive }) => (isActive ? styles.active : "")}
                 className={styles.active}
               >
-                Registro
+                Visualización
               </NavLink>
             </li>
-          )}
-        </ul>
-      </nav>
-    </aside>
+            {super_usuario === true && (
+              <li>
+                <NavLink
+                  to="/register"
+                  // className={({ isActive }) => (isActive ? styles.active : "")}
+                  className={styles.active}
+                >
+                  Registro
+                </NavLink>
+              </li>
+            )}
+          </ul>
+        </nav>
+      </aside>
+    </div>
   );
 };
 

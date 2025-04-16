@@ -87,7 +87,7 @@ const DonaActividad = () => {
 
   return (
     <>
-      <div style={{ width: "450px", marginLeft: "20px" }}>
+      <div style={{ width: "500px", marginLeft: "20px" }}>
         <Doughnut data={doughnut_data} options={doughnut_options} />
       </div>
     </>
