@@ -93,6 +93,10 @@ const RadarCheck = () => {
       title: {
         display: true,
         text: "Cantidad de Soportes Según Check",
+        font: {
+          size: 18,
+          weight: "bold",
+        },
       },
     },
   };

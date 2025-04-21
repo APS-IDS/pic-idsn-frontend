@@ -74,22 +74,81 @@ const DonaActividad = () => {
     ],
   };
 
+  // const doughnut_options = {
+  //   responsive: true,
+  //   plugins: {
+  //     legend: { position: "bottom" },
+  //     title: {
+  //       display: true,
+  //       text: "Cantidad de Actividades por Tecnología",
+  //     },
+  //   },
+  // };
+
   const doughnut_options = {
     responsive: true,
     plugins: {
-      legend: { position: "bottom" },
+      legend: {
+        position: "bottom",
+        align: "start",
+        labels: {
+          boxWidth: 40,
+          padding: 10,
+          textAlign: "left",
+          font: {
+            size: 14, // Tamaño de los labels (leyenda)
+          },
+        },
+      },
       title: {
         display: true,
         text: "Cantidad de Actividades por Tecnología",
+        font: {
+          size: 18, // Tamaño del título
+          weight: "bold", // Puedes usar normal, bold, etc.
+        },
+      },
+
+      tooltip: {
+        boxPadding: 10,
+        callbacks: {
+          title: () => "",
+          // label: function (context) {
+          //   const value = context.raw;
+          //   const data = context.chart.data.datasets[0].data;
+          //   const total = data.reduce((sum, val) => sum + val, 0);
+          //   const percentage = ((value / total) * 100).toFixed(1); // 1 decimal
+
+          //   return `Productos: ${value} (${percentage}%)`;
+          // },
+          label: function (context) {
+            const value = context.raw;
+            let label = context.label || "";
+            if (label.length > 25) {
+              label = label.slice(0, 25) + "...";
+            }
+
+            return `${label}: ${value}`;
+            // return `Productos: ${value}`;
+          },
+        },
+        bodyFont: {
+          size: 14,
+        },
+        titleFont: {
+          size: 16,
+        },
       },
     },
   };
 
   return (
     <>
-      <div style={{ width: "500px", marginLeft: "20px" }}>
+      {/* <div style={{ width: "500px", marginLeft: "20px" }}>
         <Doughnut data={doughnut_data} options={doughnut_options} />
-      </div>
+      </div> */}
+
+      <Doughnut data={doughnut_data} options={doughnut_options} />
     </>
   );
 };

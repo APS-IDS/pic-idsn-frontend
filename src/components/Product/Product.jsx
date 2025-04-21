@@ -189,6 +189,8 @@ const Product = ({
                         <textarea
                           className={styles.textarea}
                           type="text"
+                          placeholder="Máximo numero de caracteres 600"
+                          maxLength={600}
                           value={product.descripcion_producto || ""}
                           onChange={(e) =>
                             handleInputChange(
@@ -198,6 +200,10 @@ const Product = ({
                             )
                           }
                         />
+                        <p>
+                          {product.descripcion_producto?.length || 0} / 600
+                          caracteres
+                        </p>
                       </div>
                     </td>
                     <td>

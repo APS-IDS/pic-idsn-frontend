@@ -87,11 +87,11 @@ const Bardouble = () => {
   const doble_barra_options = {
     responsive: true,
     indexAxis: "y",
-    layout: {
-      padding: {
-        top: 20, // Ajusta este valor según sea necesario
-      },
-    },
+    // layout: {
+    //   padding: {
+    //     top: 20, // Ajusta este valor según sea necesario
+    //   },
+    // },
     plugins: {
       legend: {
         position: "top",

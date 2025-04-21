@@ -97,15 +97,21 @@ const RadarEntorno = () => {
       title: {
         display: true,
         text: "Número de Actividades Según Entorno",
+        font: {
+          size: 18,
+          weight: "bold",
+        },
       },
     },
   };
 
   return (
     <>
-      <div style={{ width: "500px", marginLeft: "20px" }}>
+      {/* <div style={{ width: "500px", marginLeft: "20px" }}>
         <PolarArea data={polar_data} options={polar_options} />
-      </div>
+      </div> */}
+
+      <PolarArea data={polar_data} options={polar_options} />
     </>
   );
 };

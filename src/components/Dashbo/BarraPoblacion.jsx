@@ -65,11 +65,35 @@ const BarraPoblacion = () => {
     ],
   };
 
+  // const barOptions = {
+  //   responsive: true,
+  //   indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
+  //   plugins: {
+  //     legend: { position: "top" },
+  //     title: {
+  //       display: true,
+  //       text: "Cantidad de Actividades Según Población",
+  //       font: {
+  //         size: 18,
+  //         weight: "bold",
+  //       },
+  //     },
+  //   },
+  // };
+
   const barOptions = {
     responsive: true,
-    indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
+
+    indexAxis: "y", // gráfico horizontal
     plugins: {
-      legend: { position: "top" },
+      legend: {
+        position: "top",
+        labels: {
+          font: {
+            size: 16, // Tamaño del texto de la leyenda
+          },
+        },
+      },
       title: {
         display: true,
         text: "Cantidad de Actividades Según Población",
@@ -79,7 +103,24 @@ const BarraPoblacion = () => {
         },
       },
     },
+    scales: {
+      x: {
+        ticks: {
+          font: {
+            size: 15, // Cambia este valor para agrandar los números del eje X
+          },
+        },
+      },
+      y: {
+        ticks: {
+          font: {
+            size: 15, // Cambia este valor para agrandar los textos del eje Y
+          },
+        },
+      },
+    },
   };
+
   return (
     <>
       <Bar data={barData} options={barOptions} />

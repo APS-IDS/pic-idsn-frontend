@@ -25,7 +25,7 @@ export const get_data = (token) => {
       console.log("data redux:", data);
       dispatch({ type: GET_DATA, payload: data });
     } catch (error) {
-      alert("algo salio mal");
+      // alert("algo salio mal");
       console.error("Error fetching subregions:", error);
     }
   };

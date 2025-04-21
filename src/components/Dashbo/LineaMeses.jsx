@@ -77,10 +77,36 @@ const LineaMes = () => {
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          font: {
+            size: 15, // Tamaño del texto de la leyenda
+          },
+        },
       },
       title: {
         display: true,
         text: "Cantidad de Actividades por Mes",
+        font: {
+          size: 18,
+          weight: "bold",
+        },
+      },
+    },
+
+    scales: {
+      x: {
+        ticks: {
+          font: {
+            size: 15, // Cambia este valor para agrandar los números del eje X
+          },
+        },
+      },
+      y: {
+        ticks: {
+          font: {
+            size: 15, // Cambia este valor para agrandar los textos del eje Y
+          },
+        },
       },
     },
   };
