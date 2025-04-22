@@ -113,7 +113,7 @@ const Dona = () => {
           padding: 10,
           textAlign: "left",
           font: {
-            size: 14, // Tamaño de los labels (leyenda)
+            size: 15, // Tamaño de los labels (leyenda)
           },
         },
       },

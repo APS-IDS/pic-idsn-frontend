@@ -93,6 +93,14 @@ const RadarEntorno = () => {
     plugins: {
       legend: {
         position: "right",
+        labels: {
+          boxWidth: 40,
+          padding: 10,
+          textAlign: "left",
+          font: {
+            size: 14, // Tamaño de los labels (leyenda)
+          },
+        },
       },
       title: {
         display: true,

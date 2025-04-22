@@ -75,12 +75,20 @@ const PieGraphic = () => {
       legend: {
         position: "bottom",
         align: "start", // Alinea los elementos del legend a la izquierda
+        labels: {
+          boxWidth: 40,
+          padding: 10,
+          textAlign: "left",
+          font: {
+            size: 16, // Tamaño de los labels (leyenda)
+          },
+        },
       },
       title: {
         display: true,
         text: "Cantidad de Productos por Indicador",
         font: {
-          size: 15, // Ajusta el tamaño del texto
+          size: 18, // Ajusta el tamaño del texto
           weight: "bold", // Opcional: hace el texto más grueso
         },
         padding: {

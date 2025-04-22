@@ -264,11 +264,17 @@ const ActivityItem = ({
                     <textarea
                       type="text"
                       name="descripcion_actividad"
+                      placeholder="Máximo numero de caracteres 400"
+                      maxLength={400}
                       value={activity.descripcion_actividad || ""}
                       onChange={(e) => handleActivityChange(e, index)}
                       className={styles.textarea_actividad}
                     />
                   </div>
+                  <p>
+                    {activity.descripcion_actividad?.length || 0} / 400
+                    caracteres
+                  </p>
                 </td>
                 <td>
                   <div className={styles.inputContainer}>

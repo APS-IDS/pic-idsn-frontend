@@ -12,7 +12,7 @@ import DonaActividad from "./DonaActividades";
 import RadarEntorno from "./RadarEntorno";
 import Spinner from "../Spinner/Spinner";
 import { useDispatch } from "react-redux";
-import { get_data } from "../../redux/actions";
+import { get_data, get_user } from "../../redux/actions";
 import { useSelector } from "react-redux";
 import RadarCheckActividad from "./RadarCheckActividad";
 
@@ -112,51 +112,55 @@ const Dashbo = () => {
 
   useEffect(() => {
     dispatch(get_data(token));
+    dispatch(get_user(token));
   }, [dispatch]);
 
   const globalData = useSelector((state) => state.data);
+  const usuario_redux = useSelector((state) => state.user);
+
   const loading = !globalData || Object.keys(globalData).length === 0;
 
+  console.log("Usuario_Reduxxx:", usuario_redux);
   console.log("Estado loading", loading);
 
-  useEffect(() => {
-    const fetch_user = async () => {
-      try {
-        const response = await fetch(`${url_usuarios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  // useEffect(() => {
+  //   const fetch_user = async () => {
+  //     try {
+  //       const response = await fetch(`${url_usuarios}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-        if (!response.ok) throw new Error("Error al obtener usuarios.");
+  //       if (!response.ok) throw new Error("Error al obtener usuarios.");
 
-        const data = await response.json();
-        const datos = {
-          usuario: data.custom_roles[0].name,
-          user_name: data.username,
-        };
+  //       const data = await response.json();
+  //       const datos = {
+  //         usuario: data.custom_roles[0].name,
+  //         user_name: data.username,
+  //       };
 
-        if (data.custom_roles.length > 1) {
-          setSuper(true);
-        }
+  //       if (data.custom_roles.length > 1) {
+  //         setSuper(true);
+  //       }
 
-        console.log("data_usuario", data);
-        console.log("datos", datos);
+  //       console.log("data_usuario", data);
+  //       console.log("datos", datos);
 
-        sessionStorage.setItem("usuario", JSON.stringify(datos));
+  //       sessionStorage.setItem("usuario", JSON.stringify(datos));
 
-        setUsuario_dos(datos.usuario);
+  //       setUsuario_dos(datos.usuario);
 
-        console.log("super_user", super_usuario);
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+  //       console.log("super_user", super_usuario);
+  //       //setSubregions(data.data);
+  //       // setMunicipios(data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching subregions:", error);
+  //     }
+  //   };
 
-    fetch_user();
-  }, [token]);
+  //   fetch_user();
+  // }, [token]);
 
   // useEffect(() => {
   //   const fetch_subregion = async () => {
@@ -222,7 +226,7 @@ const Dashbo = () => {
     <div className={styles.dashboard}>
       <Header />
       <div className={styles.main}>
-        <Sidebar usuario_dos={usuario_dos} super_usuario={super_usuario} />
+        <Sidebar />
         {/* <div className={styles.content}> */}
 
         <div className={styles.container}>

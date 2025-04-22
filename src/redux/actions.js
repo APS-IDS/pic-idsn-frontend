@@ -2,6 +2,8 @@ import axios from "axios";
 
 export const GET_DATA = "GET_DATA";
 
+export const GET_USER = "GET_USER";
+
 export const GET_TOKEN = "GET_TOKEN";
 export const LOGIN_DATA = "LOGIN_DATA";
 export const TOKEN_DATA = "TOKEN_DATA";
@@ -10,6 +12,7 @@ export const TOKEN_DATA = "TOKEN_DATA";
 
 const back = import.meta.env.VITE_APP_BACK;
 const url_data_total = `${back}/api/dashboard-all`;
+const url_usuarios = `${back}/api/users/me?pLevel=2`;
 
 export const get_data = (token) => {
   return async function (dispatch) {
@@ -24,6 +27,30 @@ export const get_data = (token) => {
 
       console.log("data redux:", data);
       dispatch({ type: GET_DATA, payload: data });
+    } catch (error) {
+      // alert("algo salio mal");
+      console.error("Error fetching subregions:", error);
+    }
+  };
+};
+
+export const get_user = (token) => {
+  return async function (dispatch) {
+    try {
+      const response = await fetch(`${url_usuarios}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      const data = await response.json();
+      const datos = {
+        usuario: data.custom_roles[0].name,
+        user_name: data.username,
+      };
+
+      console.log("data user:", datos);
+      dispatch({ type: GET_USER, payload: datos });
     } catch (error) {
       // alert("algo salio mal");
       console.error("Error fetching subregions:", error);

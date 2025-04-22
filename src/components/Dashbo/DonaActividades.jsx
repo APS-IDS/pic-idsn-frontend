@@ -96,7 +96,7 @@ const DonaActividad = () => {
           padding: 10,
           textAlign: "left",
           font: {
-            size: 14, // Tamaño de los labels (leyenda)
+            size: 16, // Tamaño de los labels (leyenda)
           },
         },
       },
