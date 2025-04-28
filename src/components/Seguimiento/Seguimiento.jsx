@@ -3,6 +3,7 @@ import styles from "./Seguimiento.module.css";
 import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import { FaSave } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 import { useLocation } from "react-router-dom";
 
@@ -20,9 +21,14 @@ const Seguimiento = () => {
 
   const [soportes, setSoportes] = useState([]);
 
+  const usuario_redux = useSelector((state) => state.user.usuario);
+
+  console.log("Usuario Redux:", usuario_redux);
+
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
-  const usuario = usuario_object.usuario;
+  // const usuario = usuario_object.usuario;
+  const usuario = usuario_redux;
 
   const user_name = usuario_object.user_name;
 
