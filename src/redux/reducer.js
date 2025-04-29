@@ -4,6 +4,7 @@ import {
   TOKEN_DATA,
   GET_DATA,
   GET_USER,
+  LOGOUT,
 } from "./actions";
 
 const initialState = {
@@ -23,6 +24,8 @@ const rootReducer = (state = initialState, action) => {
       return { ...state, data: action.payload };
     case GET_USER:
       return { ...state, user: action.payload };
+    case LOGOUT:
+      return { ...initialState };
     default:
       return { ...state };
   }

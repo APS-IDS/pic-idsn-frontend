@@ -3,10 +3,14 @@ import { FaHome, FaUserCircle } from "react-icons/fa"; // Importar íconos
 import { useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/actions";
 
 const Header = () => {
   const navigate = useNavigate(); // Hook para navegación
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); // Estado para el menú del usuario
+
+  const dispatch = useDispatch();
 
   const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const user = user_object.user;
@@ -23,7 +27,7 @@ const Header = () => {
   const handleLogout = () => {
     console.log("Cerrar sesión");
     sessionStorage.clear();
-
+    dispatch(logout());
     navigate("/"); // Redirigir al login
   };
 

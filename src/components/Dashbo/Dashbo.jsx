@@ -162,33 +162,6 @@ const Dashbo = () => {
   //   fetch_user();
   // }, [token]);
 
-  // useEffect(() => {
-  //   const fetch_subregion = async () => {
-  //     try {
-  //       const response = await fetch(`${url_cantidad_eventos}`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-  //       if (!response.ok) throw new Error("Error al obtener subregiones.");
-  //       const data = await response.json();
-
-  //       console.log("data total", data);
-  //       //console.log("data", data.result);
-  //       //setDataMunicipios(data.result);
-  //       setDataMunicipios(data.municipiosEventos.result);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error("Error fetching subregions:", error);
-  //     }
-  //   };
-
-  //   fetch_subregion();
-  // }, [token]);
-
-  // if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
-  // if (error) return <div>Error: {error}</div>;
-
   if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
 
   const bar_operador_data = {

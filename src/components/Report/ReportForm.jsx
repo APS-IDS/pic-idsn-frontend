@@ -137,8 +137,685 @@ const ReportForm = () => {
 
   console.log("Datos eventos", events);
 
+  // const validateEvents = () => {
+  //   for (let i = 0; i < events.length; i++) {
+  //     const event = events[i];
+
+  //     if (!event.operador_pic) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Campo requerido",
+  //         text: `Por favor selecciona el operador PIC en el evento ${i + 1}`,
+  //       });
+  //       return false;
+  //     }
+
+  //     if (!event.equipo_operativo) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Campo requerido",
+  //         text: `Por favor selecciona el equipo operativo en el evento ${
+  //           i + 1
+  //         }`,
+  //       });
+  //       return false;
+  //     }
+
+  //     // Puedes agregar aquí más validaciones que necesites...
+  //   }
+
+  //   return true; // Todo está correcto
+  // };
+
+  // const requiredFields = [
+  //   { field: "operador_pic", name: "Operador PIC" },
+  //   { field: "equipo_operativo", name: "Equipo Operativo" },
+  //   { field: "perfil_profesional", name: "Perfil Profesional" },
+  //   { field: "perfil_operativo", name: "Perfil Operativo" },
+  //   { field: "codigo_nombre_territorio", name: "Nombre Territorio" },
+  //   // Agrega aquí los campos que quieras validar
+  // ];
+
+  const requiredFields = [
+    { path: "operador_pic", name: "Operador PIC" },
+    { path: "equipo_operativo", name: "Equipo Operativo" },
+    { path: "perfil_profesional", name: "Perfil Profesional" },
+    { path: "perfil_operativo", name: "Perfil Operativo" },
+    { path: "codigo_nombre_territorio", name: "Nombre Territorio" },
+
+    // Validaciones sobre arrays
+    {
+      path: "product_data",
+      array: true,
+      fields: [
+        {
+          path: "producto.descripcion_producto",
+          name: "Descripción Producto",
+        },
+      ],
+    },
+
+    {
+      path: "actividades",
+      array: true,
+      fields: [
+        { path: "descripcion_actividad", name: "Descripción Actividad" },
+      ],
+    },
+  ];
+
+  // const validateEvents = () => {
+  //   for (let i = 0; i < events.length; i++) {
+  //     const event = events[i];
+
+  //     for (let fieldInfo of requiredFields) {
+  //       const { field, name } = fieldInfo;
+  //       if (
+  //         !event[field] ||
+  //         (typeof event[field] === "string" && event[field].trim() === "")
+  //       ) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Campo requerido",
+  //           text: `Por favor llena el campo "${name}" en el evento ${i + 1}.`,
+  //         });
+  //         return false;
+  //       }
+  //     }
+
+  //     // También puedes hacer validaciones especiales aquí:
+  //     // if (Array.isArray(event.subregion) && event.subregion.length === 0) {
+  //     //   Swal.fire({
+  //     //     icon: "warning",
+  //     //     title: "Campo requerido",
+  //     //     text: `Debes seleccionar al menos una Subregión en el evento ${i + 1}.`,
+  //     //   });
+  //     //   return false;
+  //     // }
+  //   }
+
+  //   return true; // Todo está bien
+  // };
+
+  // const getValueByPath = (obj, path) => {
+  //   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+  // };
+
+  // const validateEvents = () => {
+  //   for (let i = 0; i < events.length; i++) {
+  //     const event = events[i];
+
+  //     // Primero validamos campos normales
+  //     const fields = [
+  //       { path: "operador_pic", name: "Operador PIC" },
+  //       { path: "equipo_operativo", name: "Equipo Operativo" },
+  //       { path: "perfil_profesional", name: "Perfil Profesional" },
+  //       { path: "perfil_operativo", name: "Perfil Operativo" },
+  //       { path: "codigo_nombre_territorio", name: "Nombre Territorio" },
+  //     ];
+
+  //     for (let field of fields) {
+  //       const value = getValueByPath(event, field.path);
+  //       if (!value || (typeof value === "string" && value.trim() === "")) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Campo requerido",
+  //           text: `Falta "${field.name}" en el evento ${i + 1}.`,
+  //         });
+  //         return false;
+  //       }
+  //     }
+
+  //     // Ahora validamos productos
+  //     if (
+  //       !event.product_data ||
+  //       !event.product_data.producto ||
+  //       !Array.isArray(event.product_data.producto) ||
+  //       event.product_data.producto.length === 0
+  //     ) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Campo requerido",
+  //         text: `El evento ${i + 1} debe tener al menos un Producto.`,
+  //       });
+  //       return false;
+  //     }
+
+  //     for (let j = 0; j < event.product_data.producto.length; j++) {
+  //       const producto = event.product_data.producto[j];
+  //       if (
+  //         !producto.descripcion_producto ||
+  //         producto.descripcion_producto.trim() === ""
+  //       ) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Campo requerido",
+  //           text: `Falta "Descripción Producto" en el Producto ${
+  //             j + 1
+  //           } del evento ${i + 1}.`,
+  //         });
+  //         return false;
+  //       }
+  //     }
+
+  //     // Ahora validamos actividades
+  //     if (!Array.isArray(event.actividades) || event.actividades.length === 0) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Campo requerido",
+  //         text: `El evento ${i + 1} debe tener al menos una Actividad.`,
+  //       });
+  //       return false;
+  //     }
+
+  //     for (let k = 0; k < event.actividades.length; k++) {
+  //       const actividad = event.actividades[k];
+  //       if (
+  //         !actividad.descripcion_actividad ||
+  //         actividad.descripcion_actividad.trim() === ""
+  //       ) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Campo requerido",
+  //           text: `Falta "Descripción Actividad" en la Actividad ${
+  //             k + 1
+  //           } del evento ${i + 1}.`,
+  //         });
+  //         return false;
+  //       }
+  //     }
+
+  //     // Validación especial de subregión
+  //     if (Array.isArray(event.subregion) && event.subregion.length === 0) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Campo requerido",
+  //         text: `Debes seleccionar al menos una Subregión en el evento ${
+  //           i + 1
+  //         }.`,
+  //       });
+  //       return false;
+  //     }
+  //   }
+
+  //   return true;
+  // };
+
+  // // Utilidad para leer paths normales
+  // const getValueByPath = (obj, path) => {
+  //   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  // };
+
+  const getValueByPath = (obj, path) => {
+    return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+  };
+
+  // const validateEventsData = (events) => {
+  //   for (let eventIndex = 0; eventIndex < events.length; eventIndex++) {
+  //     const event = events[eventIndex];
+
+  //     // Validaciones de campos simples
+  //     const fields = [
+  //       { path: "operador_pic", name: "Operador PIC" },
+  //       { path: "equipo_operativo", name: "Equipo Operativo" },
+  //       { path: "perfil_profesional", name: "Perfil Profesional" },
+  //       { path: "perfil_operativo", name: "Perfil Operativo" },
+  //       { path: "codigo_nombre_territorio", name: "Nombre Territorio" },
+  //     ];
+
+  //     for (let field of fields) {
+  //       const value = getValueByPath(event, field.path);
+  //       if (!value || (typeof value === "string" && value.trim() === "")) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Campo requerido",
+  //           text: `Falta "${field.name}" en el evento ${eventIndex + 1}.`,
+  //         });
+  //         return false;
+  //       }
+  //     }
+
+  //     // Validar productos
+  //     if (!event.product_data || !Array.isArray(event.product_data.producto)) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Datos incompletos",
+  //         text: `No se encontraron productos en el evento ${eventIndex + 1}.`,
+  //       });
+  //       return false;
+  //     }
+
+  //     for (
+  //       let productIndex = 0;
+  //       productIndex < event.product_data.producto.length;
+  //       productIndex++
+  //     ) {
+  //       const producto = event.product_data.producto[productIndex];
+
+  //       if (
+  //         !producto.descripcion_producto ||
+  //         producto.descripcion_producto.trim() === ""
+  //       ) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Producto incompleto",
+  //           text: `El producto ${productIndex + 1} en el evento ${
+  //             eventIndex + 1
+  //           } no tiene descripción.`,
+  //         });
+  //         return false;
+  //       }
+  //       if (!producto.indicadores || producto.indicadores.trim() === "") {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Producto incompleto",
+  //           text: `El producto ${productIndex + 1} en el evento ${
+  //             eventIndex + 1
+  //           } no tiene indicador`,
+  //         });
+  //         return false;
+  //       }
+  //       if (!producto.valor_producto) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Producto incompleto",
+  //           text: `El producto ${productIndex + 1} en el evento ${
+  //             eventIndex + 1
+  //           } no tiene valor.`,
+  //         });
+  //         return false;
+  //       }
+
+  //       // Validar actividades
+  //       const actividades = event.activities?.[productIndex];
+  //       if (!actividades || actividades.length === 0) {
+  //         Swal.fire({
+  //           icon: "warning",
+  //           title: "Actividad incompleta",
+  //           text: `El producto ${productIndex + 1} en el evento ${
+  //             eventIndex + 1
+  //           } no tiene actividades asociadas.`,
+  //         });
+  //         return false;
+  //       }
+
+  //       for (
+  //         let activityIndex = 0;
+  //         activityIndex < actividades.length;
+  //         activityIndex++
+  //       ) {
+  //         const actividad = actividades[activityIndex];
+
+  //         if (
+  //           !actividad.descripcion_actividad ||
+  //           actividad.descripcion_actividad.trim() === ""
+  //         ) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Actividad incompleta",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene descripción.`,
+  //           });
+  //           return false;
+  //         }
+  //         if (!actividad.cantidad) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Actividad incompleta",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene cantidad.`,
+  //           });
+  //           return false;
+  //         }
+  //         if (
+  //           !actividad.unidad_medida ||
+  //           actividad.unidad_medida.trim() === ""
+  //         ) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Actividad incompleta",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene unidad de medida.`,
+  //           });
+  //           return false;
+  //         }
+  //         if (!actividad.valor_unitario) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Actividad incompleta",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene valor unitario.`,
+  //           });
+  //           return false;
+  //         }
+  //         if (!actividad.valor_total) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Actividad incompleta",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene valor total.`,
+  //           });
+  //           return false;
+  //         }
+
+  //         // Validar entornos
+  //         if (
+  //           !actividad.entorno ||
+  //           !Array.isArray(actividad.entorno) ||
+  //           actividad.entorno.length === 0
+  //         ) {
+  //           Swal.fire({
+  //             icon: "warning",
+  //             title: "Entornos incompletos",
+  //             text: `La actividad ${activityIndex + 1} del producto ${
+  //               productIndex + 1
+  //             } en el evento ${eventIndex + 1} no tiene entornos asociados.`,
+  //           });
+  //           return false;
+  //         }
+
+  //         for (
+  //           let entornoIndex = 0;
+  //           entornoIndex < actividad.entorno.length;
+  //           entornoIndex++
+  //         ) {
+  //           const entorno = actividad.entorno[entornoIndex];
+  //           if (!entorno || entorno.trim() === "") {
+  //             Swal.fire({
+  //               icon: "warning",
+  //               title: "Entorno vacío",
+  //               text: `El entorno ${entornoIndex + 1} de la actividad ${
+  //                 activityIndex + 1
+  //               } del producto ${productIndex + 1} en el evento ${
+  //                 eventIndex + 1
+  //               } está vacío.`,
+  //             });
+  //             return false;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // Si todo está correcto
+  //   return true;
+  // };
+
+  const validateEventsData = (events) => {
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
+      // event.subregion.length > 0
+
+      if (!event.subregion.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `Sub-Región" está vacío en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      if (!event.operador_pic) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Operador PIC" está vacío en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      if (!event.equipo_operativo) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Equipo Operativo" está vacío en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      if (!event.perfil_profesional) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Perfil Profesional" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      if (!event.perfil_operativo) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Perfil Operativo" está vacío en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      if (!event.product_data?.producto?.length) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `Debe agregar al menos un producto en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      for (let j = 0; j < event.product_data.producto.length; j++) {
+        const producto = event.product_data.producto[j];
+
+        if (!producto.descripcion_producto) {
+          Swal.fire({
+            icon: "warning",
+            title: "Campo incompleto",
+            text: `Falta la descripción del producto ${j + 1} en el evento ${
+              i + 1
+            }.`,
+          });
+          return false;
+        }
+
+        if (!producto.descripcion_producto) {
+          Swal.fire({
+            icon: "warning",
+            title: "Campo incompleto",
+            text: `Falta la descripción del producto ${j + 1} en el evento ${
+              i + 1
+            }.`,
+          });
+          return false;
+        }
+
+        const indicadores = producto.indicadores || [];
+
+        if (!indicadores.length) {
+          Swal.fire({
+            icon: "warning",
+            title: "Indicadores requeridos",
+            text: `Debe agregar al menos un indicador para el producto ${
+              j + 1
+            } en el evento ${i + 1}.`,
+          });
+          return false;
+        }
+
+        for (let l = 0; l < indicadores.length; l++) {
+          const indicador = indicadores[l];
+
+          if (!indicador.meta_producto) {
+            Swal.fire({
+              icon: "warning",
+              title: "Meta del producto requerida",
+              text: `Falta la meta del producto en el indicador ${
+                l + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!indicador.cantidad || indicador.cantidad <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Cantidad inválida",
+              text: `La cantidad en el indicador ${l + 1} del producto ${
+                j + 1
+              } en el evento ${i + 1} es inválida.`,
+            });
+            return false;
+          }
+
+          if (!indicador.indicador_linea_base) {
+            Swal.fire({
+              icon: "warning",
+              title: "Indicador línea base requerido",
+              text: `Falta el valor de línea base en el indicador ${
+                l + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+        }
+        //**************** */
+
+        const actividades = event.activities?.[j] || [];
+
+        if (!actividades.length) {
+          Swal.fire({
+            icon: "warning",
+            title: "Campo incompleto",
+            text: `Debe agregar al menos una actividad para el producto ${
+              j + 1
+            } en el evento ${i + 1}.`,
+          });
+          return false;
+        }
+
+        for (let k = 0; k < actividades.length; k++) {
+          const actividad = actividades[k];
+
+          if (!actividad.descripcion_actividad) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo incompleto",
+              text: `Falta la descripción de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.cantidad || actividad.cantidad <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Cantidad inválida",
+              text: `La cantidad de la actividad ${k + 1} del producto ${
+                j + 1
+              } en el evento ${i + 1} es inválida.`,
+            });
+            return false;
+          }
+
+          if (!actividad.unidad_medida) {
+            Swal.fire({
+              icon: "warning",
+              title: "Unidad de medida requerida",
+              text: `Falta la unidad de medida de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.valor_unitario || actividad.valor_unitario <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Valor unitario inválido",
+              text: `El valor unitario de la actividad ${k + 1} del producto ${
+                j + 1
+              } en el evento ${i + 1} es inválido.`,
+            });
+            return false;
+          }
+
+          if (!actividad.valor_total || actividad.valor_total <= 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "Valor total inválido",
+              text: `El valor total de la actividad ${k + 1} del producto ${
+                j + 1
+              } en el evento ${i + 1} es inválido.`,
+            });
+            return false;
+          }
+
+          if (!actividad.entorno?.length) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo entorno requerido",
+              text: `Debe agregar al menos un entorno para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.tecnologia?.length) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo tecnología requerido",
+              text: `Debe agregar al menos una tecnología para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.poblacion_sujeto?.length) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo población sujeto requerido",
+              text: `Debe agregar al menos una población objetivo para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.codigo_cups) {
+            Swal.fire({
+              icon: "warning",
+              title: "Código CUPS requerido",
+              text: `Debe ingresar el código CUPS para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // if (!validateEvents()) {
+    //   return; // Si la validación falla, NO enviamos nada
+    // }
+
+    const isValid = validateEventsData(events);
+    if (!isValid) {
+      // No seguir con el envío
+      return;
+    }
 
     try {
       setLoading(true);
@@ -157,17 +834,7 @@ const ReportForm = () => {
             equipo: event.equipo_operativo || null,
             perfiles_profesional: event.perfil_profesional || null,
             perfil_operativo: event.perfil_operativo || null,
-            // territorializacion:
-            //   {
-            //     numero_hogares: parseInt(event.total_hogares, 10) || null,
-            //     municipios: {
-            //       connect: (event.subregion || []).map((region) => ({
-            //         documentId: region || null,
-            //       })),
-            //     },
-            //     territorio: event.codigo_nombre_territorio || null,
-            //     microterritorio: event.codigo_micro_territorio || null,
-            //   } || null,
+
             territorializacion:
               event.total_hogares ||
               (Array.isArray(event.subregion) && event.subregion.length > 0) ||
@@ -197,18 +864,8 @@ const ReportForm = () => {
             ejes_estrategicos: (event.eje_estrategico || []).map((eje) => ({
               nombre: eje || null,
             })),
-            // lineas_operativa: (event.linea_operativa || []).map((linea) => ({
-            //   nombre: linea || null,
-            // })),
-            lineas_operativa: { nombre: event.linea_operativa || null },
 
-            // lineas_operativa: event.linea_operativa
-            //   ? [
-            //       {
-            //         nombre: event.linea_operativa,
-            //       },
-            //     ]
-            //   : [],
+            lineas_operativa: { nombre: event.linea_operativa || null },
 
             productos: event.product_data.producto.map((producto, index) => ({
               descripcion: producto.descripcion_producto || null,

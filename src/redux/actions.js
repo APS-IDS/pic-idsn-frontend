@@ -7,7 +7,7 @@ export const GET_USER = "GET_USER";
 export const GET_TOKEN = "GET_TOKEN";
 export const LOGIN_DATA = "LOGIN_DATA";
 export const TOKEN_DATA = "TOKEN_DATA";
-
+export const LOGOUT = "LOGOUT";
 // Variable de entorno
 
 const back = import.meta.env.VITE_APP_BACK;
@@ -66,6 +66,10 @@ export const tokenData = (tokenData) => ({
 export const loginSuccess = (userData) => ({
   type: LOGIN_DATA,
   payload: userData,
+});
+
+export const logout = () => ({
+  type: LOGOUT,
 });
 
 export const getUser = (id) => {
