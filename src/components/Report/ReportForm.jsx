@@ -555,7 +555,7 @@ const ReportForm = () => {
         Swal.fire({
           icon: "warning",
           title: "Campo incompleto",
-          text: `Sub-Región" está vacío en el evento ${i + 1}.`,
+          text: `"Nodo-Municipio-Priorizado" está vacío en el Evento ${i + 1}.`,
         });
         return false;
       }
@@ -598,6 +598,72 @@ const ReportForm = () => {
         return false;
       }
 
+      if (!event.proyecto) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Proyecto IDSN Responsable" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      if (!event.description_event) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Descripción Evento" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      if (!event.indicator_name) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Nombre del indicador" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      if (!event.meta_indicator) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Meta Indicador" está vacío en el evento ${i + 1}.`,
+        });
+        return false;
+      }
+
+      if (!event.eje_estrategico.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Ejes Estratégicos" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      if (!event.linea_operativa) {
+        Swal.fire({
+          icon: "warning",
+          title: "Campo incompleto",
+          text: `El campo "Lineas Operativas" está vacío en el evento ${
+            i + 1
+          }.`,
+        });
+        return false;
+      }
+
+      //*********************************/
+
       if (!event.product_data?.producto?.length) {
         Swal.fire({
           icon: "warning",
@@ -614,23 +680,23 @@ const ReportForm = () => {
           Swal.fire({
             icon: "warning",
             title: "Campo incompleto",
-            text: `Falta la descripción del producto ${j + 1} en el evento ${
-              i + 1
-            }.`,
+            text: `Falta el campo "Descripción del Producto" en producto ${
+              j + 1
+            } en el evento ${i + 1}.`,
           });
           return false;
         }
 
-        if (!producto.descripcion_producto) {
-          Swal.fire({
-            icon: "warning",
-            title: "Campo incompleto",
-            text: `Falta la descripción del producto ${j + 1} en el evento ${
-              i + 1
-            }.`,
-          });
-          return false;
-        }
+        // if (!producto.descripcion_producto) {
+        //   Swal.fire({
+        //     icon: "warning",
+        //     title: "Campo incompleto",
+        //     text: `Falta la descripción del producto ${j + 1} en el evento ${
+        //       i + 1
+        //     }.`,
+        //   });
+        //   return false;
+        // }
 
         const indicadores = producto.indicadores || [];
 
@@ -651,35 +717,35 @@ const ReportForm = () => {
           if (!indicador.meta_producto) {
             Swal.fire({
               icon: "warning",
-              title: "Meta del producto requerida",
-              text: `Falta la meta del producto en el indicador ${
+              title: "Campo incompleto",
+              text: `Falta el campo "Indicador de producto"  en el indicador ${
                 l + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
             });
             return false;
           }
 
-          if (!indicador.cantidad || indicador.cantidad <= 0) {
-            Swal.fire({
-              icon: "warning",
-              title: "Cantidad inválida",
-              text: `La cantidad en el indicador ${l + 1} del producto ${
-                j + 1
-              } en el evento ${i + 1} es inválida.`,
-            });
-            return false;
-          }
+          // if (!indicador.cantidad || indicador.cantidad <= 0) {
+          //   Swal.fire({
+          //     icon: "warning",
+          //     title: "Cantidad inválida",
+          //     text: `La cantidad en el indicador ${l + 1} del producto ${
+          //       j + 1
+          //     } en el evento ${i + 1} es inválida.`,
+          //   });
+          //   return false;
+          // }
 
-          if (!indicador.indicador_linea_base) {
-            Swal.fire({
-              icon: "warning",
-              title: "Indicador línea base requerido",
-              text: `Falta el valor de línea base en el indicador ${
-                l + 1
-              } del producto ${j + 1} en el evento ${i + 1}.`,
-            });
-            return false;
-          }
+          // if (!indicador.indicador_linea_base) {
+          //   Swal.fire({
+          //     icon: "warning",
+          //     title: "Indicador línea base requerido",
+          //     text: `Falta el valor de línea base en el indicador ${
+          //       l + 1
+          //     } del producto ${j + 1} en el evento ${i + 1}.`,
+          //   });
+          //   return false;
+          // }
         }
         //**************** */
 
@@ -703,20 +769,20 @@ const ReportForm = () => {
             Swal.fire({
               icon: "warning",
               title: "Campo incompleto",
-              text: `Falta la descripción de la actividad ${
+              text: `Falta el campo "Descripción Actividad" de la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
             });
             return false;
           }
 
-          if (!actividad.cantidad || actividad.cantidad <= 0) {
+          if (!actividad.cantidad) {
             Swal.fire({
               icon: "warning",
-              title: "Cantidad inválida",
-              text: `La cantidad de la actividad ${k + 1} del producto ${
-                j + 1
-              } en el evento ${i + 1} es inválida.`,
+              title: "Campo Incompleto",
+              text: `Falta el campo "Cantidad" de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}`,
             });
             return false;
           }
@@ -724,32 +790,10 @@ const ReportForm = () => {
           if (!actividad.unidad_medida) {
             Swal.fire({
               icon: "warning",
-              title: "Unidad de medida requerida",
-              text: `Falta la unidad de medida de la actividad ${
+              title: "Campo Incompleto",
+              text: `Falta el campo "Unidad de Medida" de la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
-            });
-            return false;
-          }
-
-          if (!actividad.valor_unitario || actividad.valor_unitario <= 0) {
-            Swal.fire({
-              icon: "warning",
-              title: "Valor unitario inválido",
-              text: `El valor unitario de la actividad ${k + 1} del producto ${
-                j + 1
-              } en el evento ${i + 1} es inválido.`,
-            });
-            return false;
-          }
-
-          if (!actividad.valor_total || actividad.valor_total <= 0) {
-            Swal.fire({
-              icon: "warning",
-              title: "Valor total inválido",
-              text: `El valor total de la actividad ${k + 1} del producto ${
-                j + 1
-              } en el evento ${i + 1} es inválido.`,
             });
             return false;
           }
@@ -757,8 +801,8 @@ const ReportForm = () => {
           if (!actividad.entorno?.length) {
             Swal.fire({
               icon: "warning",
-              title: "Campo entorno requerido",
-              text: `Debe agregar al menos un entorno para la actividad ${
+              title: "Campo Incompleto",
+              text: `Debe agregar al menos un "Entorno" para la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
             });
@@ -768,8 +812,8 @@ const ReportForm = () => {
           if (!actividad.tecnologia?.length) {
             Swal.fire({
               icon: "warning",
-              title: "Campo tecnología requerido",
-              text: `Debe agregar al menos una tecnología para la actividad ${
+              title: "Campo Incompleto",
+              text: `Debe agregar al menos una "Tecnología" para la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
             });
@@ -779,8 +823,43 @@ const ReportForm = () => {
           if (!actividad.poblacion_sujeto?.length) {
             Swal.fire({
               icon: "warning",
-              title: "Campo población sujeto requerido",
-              text: `Debe agregar al menos una población objetivo para la actividad ${
+              title: "Campo Incompleto",
+              text: `Debe agregar al menos una "Población Sujeto" para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          console.log("Soporte", actividad.array_soportes[0].tipo_soporte);
+
+          if (!actividad.array_soportes[0].tipo_soporte) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo Incompleto",
+              text: `Debe agregar el campo "Tipo Soporte"  de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.array_soportes[0].descripcion_soporte) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo Incompleto",
+              text: `Debe agregar el campo "Descripción Soporte" para la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.array_soportes[0].cantidad_soporte) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo Incompleto",
+              text: `Debe agregar el campo "Cantidad" para la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
             });
@@ -790,10 +869,32 @@ const ReportForm = () => {
           if (!actividad.codigo_cups) {
             Swal.fire({
               icon: "warning",
-              title: "Código CUPS requerido",
-              text: `Debe ingresar el código CUPS para la actividad ${
+              title: "Campo Incompleto",
+              text: `Debe ingresar el "Código CUPS" para la actividad ${
                 k + 1
               } del producto ${j + 1} en el evento ${i + 1}.`,
+            });
+            return false;
+          }
+
+          if (!actividad.valor_unitario) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo Incompleto",
+              text: `Falta el campo "Valor Unitario" de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}`,
+            });
+            return false;
+          }
+
+          if (!actividad.valor_total) {
+            Swal.fire({
+              icon: "warning",
+              title: "Campo Incompleto",
+              text: `Falta el campo "Valor Total" de la actividad ${
+                k + 1
+              } del producto ${j + 1} en el evento ${i + 1}`,
             });
             return false;
           }

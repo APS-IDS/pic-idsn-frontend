@@ -19,6 +19,8 @@ const Seguimiento = () => {
   const url_post_observaciones = `${back}/api/observaciones/register`;
   const url_post_check = `${back}/api/seguimiento/evidencia-status`;
 
+  const url_estado_soportes = `${back}/api/estado-soportes`;
+
   const [soportes, setSoportes] = useState([]);
 
   const usuario_redux = useSelector((state) => state.user.usuario);
@@ -42,6 +44,8 @@ const Seguimiento = () => {
 
   const [estadoSoportes, setEstadoSoportes] = useState({});
 
+  const [estados_back, setEstados_back] = useState({});
+
   const [observaciones, setObservaciones] = useState({
     observacion_referente: "",
     observacion_operador: "",
@@ -63,6 +67,30 @@ const Seguimiento = () => {
       icon: "warning",
     });
   }, []);
+
+  useEffect(() => {
+    const fetch_data = async () => {
+      try {
+        const response = await fetch(`${url_estado_soportes}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener soportes.");
+        const data = await response.json();
+        //setSubregions(data.data);
+        setEstados_back(data.data);
+
+        console.log("Estados soportes:", data);
+      } catch (error) {
+        console.error("Error fetching subregions:", error);
+      }
+    };
+
+    fetch_data();
+  }, [token]);
+
+  console.log("Estados_back:", estados_back);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -155,6 +183,7 @@ const Seguimiento = () => {
     // event.preventDefault();
 
     console.log("soporte", id);
+
     try {
       // setLoading(true);
 
@@ -310,6 +339,14 @@ const Seguimiento = () => {
 
   console.log("status_porcentaje", status_porcentaje);
 
+  const getEmojiEstado = (estado) => {
+    if (estado.includes("No aprobado")) return "❌";
+    if (estado.includes("Aprobado soporte fisico")) return "✅";
+    if (estado.includes("Aprobado")) return "⏳";
+    if (estado.includes("No Aprobado soporte fisico")) return "❌";
+    return "❔";
+  };
+
   return (
     <div className={styles.contenedor_principal}>
       <Header />
@@ -448,7 +485,7 @@ const Seguimiento = () => {
                           </table>
                         </td>
 
-                        <td>
+                        {/* <td>
                           {usuario === "referente_instituto" ? (
                             soportes[soporte.uuid]?.evidencias?.length > 0 ? (
                               <select
@@ -482,6 +519,53 @@ const Seguimiento = () => {
                               {estadoSoportes[soporte.uuid] ===
                                 "en proceso" && <>⏳ En proceso</>}
                               {!estadoSoportes[soporte.uuid] && (
+                                <>❔ Sin check</>
+                              )}
+                            </p>
+                          )}
+                        </td> */}
+
+                        <td>
+                          {usuario === "referente_instituto" ? (
+                            soportes[soporte.uuid]?.evidencias?.length > 0 ? (
+                              <select
+                                className={styles.select}
+                                value={estadoSoportes[soporte.uuid] || ""}
+                                onChange={(e) =>
+                                  handleEstadoChange(
+                                    soporte.uuid,
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                <option value="" disabled>
+                                  🟡 Selecciona un estado
+                                </option>
+                                {estados_back.map((estado) => (
+                                  // <option
+                                  //   key={estado.id}
+                                  //   value={estado.estado_soporte}
+                                  // >
+                                  //   {estado.estado_soporte}
+                                  // </option>
+                                  <option
+                                    key={estado.id}
+                                    value={estado.estado_soporte}
+                                  >
+                                    {getEmojiEstado(estado.estado_soporte)}{" "}
+                                    {estado.estado_soporte}
+                                  </option>
+                                ))}
+                              </select>
+                            ) : null
+                          ) : (
+                            <p>
+                              {estadoSoportes[soporte.uuid] ? (
+                                <>
+                                  {getEmojiEstado(estadoSoportes[soporte.uuid])}{" "}
+                                  {estadoSoportes[soporte.uuid]}
+                                </>
+                              ) : (
                                 <>❔ Sin check</>
                               )}
                             </p>
