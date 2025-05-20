@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { FaEdit } from "react-icons/fa";
 import { FaClipboardList } from "react-icons/fa";
 import { FaPaperclip } from "react-icons/fa";
+import { useSelector } from "react-redux";
 import withReactContent from "sweetalert2-react-content";
 
 const ReportView = () => {
@@ -20,7 +21,9 @@ const ReportView = () => {
 
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
-  const usuario = usuario_object.usuario;
+  // const usuario = usuario_object.usuario;
+
+  const usuario = useSelector((state) => state.user.usuario);
 
   const back = import.meta.env.VITE_APP_BACK;
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
@@ -28,18 +31,6 @@ const ReportView = () => {
 
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
   const [municipios, setMunicipios] = useState([]);
-
-  // const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[pageSize]=100`;
-
-  // const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[pageSize]=100${
-  //   filterValue
-  //     ? `&filters[eventos][proyectos_idsn][proyecto][$eq]=${filterValue}`
-  //     : ""
-  // }${
-  //   operatorFilterValue
-  //     ? `&filters[eventos][operador_pic][operador_pic][$eq]=${operatorFilterValue}`
-  //     : ""
-  // }`;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
