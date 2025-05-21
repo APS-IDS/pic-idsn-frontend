@@ -183,7 +183,13 @@ const Seguimiento = () => {
     // event.preventDefault();
 
     console.log("soporte", id);
+    console.log("document_id", documentId);
 
+    const estado_seleccionado = estados_back.find(
+      (e) => e.estado_soporte === estadoSoportes[id]
+    );
+
+    console.log("Estado_enviar", estado_seleccionado);
     try {
       // setLoading(true);
 
@@ -198,7 +204,8 @@ const Seguimiento = () => {
         body: JSON.stringify({
           anexo_id: documentId,
           soporte_id: id,
-          status: estadoSoportes[id],
+          //status: estadoSoportes[id],
+          status_id: estado_seleccionado?.documentId,
         }),
       });
 
@@ -294,6 +301,16 @@ const Seguimiento = () => {
           if (!response.ok) return null; // Si la respuesta no es OK, devuelve null
 
           const data = await response.json();
+
+          // console.log(
+          //   "data_endpoint_soportes:",
+          //   data.estado_soporte.estado_soporte
+          // );
+
+          console.log(
+            "data_endpoint_soportes:",
+            data?.estado_soporte?.estado_soporte ?? "sin estado"
+          );
           return { soporteId: soporte.uuid, data };
         });
 
@@ -311,13 +328,18 @@ const Seguimiento = () => {
 
           return nuevosSoportes; // Retorna el nuevo estado sin borrar datos previos
         });
-
+        //data.estado_soporte.estado_soporte
         setEstadoSoportes((prevEstado) => {
           const nuevosEstados = { ...prevEstado };
 
           results.forEach((result) => {
-            if (result && result.data.estado) {
-              nuevosEstados[result.soporteId] = result.data.estado;
+            // if (result && result.data.estado) {
+            //   nuevosEstados[result.soporteId] = result.data.estado;
+            // }
+
+            if (result?.data?.estado_soporte?.estado_soporte) {
+              nuevosEstados[result.soporteId] =
+                result.data.estado_soporte.estado_soporte;
             }
           });
 
@@ -331,7 +353,7 @@ const Seguimiento = () => {
     fetchSoportes();
   }, [token, actividad]); // Se ejecuta cuando `actividad` o `token` cambian
 
-  console.log("soportes", soportes["283"]?.estado);
+  // console.log("soportes", soportes["283"]?.estado);
   console.log("Soportes", soportes);
 
   console.log("estadoSoportes", estadoSoportes);
@@ -573,6 +595,7 @@ const Seguimiento = () => {
                         </td>
 
                         {usuario === "referente_instituto" && (
+                          //Boton envio de estado_check
                           <td>
                             {soportes[soporte.uuid]?.evidencias?.length > 0 && (
                               <button
