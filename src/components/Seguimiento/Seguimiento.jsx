@@ -340,10 +340,10 @@ const Seguimiento = () => {
   console.log("status_porcentaje", status_porcentaje);
 
   const getEmojiEstado = (estado) => {
+    if (estado.includes("No Aprobado soporte fisico")) return "❌";
     if (estado.includes("No aprobado")) return "❌";
     if (estado.includes("Aprobado soporte fisico")) return "✅";
-    if (estado.includes("Aprobado")) return "⏳";
-    if (estado.includes("No Aprobado soporte fisico")) return "❌";
+    if (estado.includes("Aprobado")) return "✅";
     return "❔";
   };
 
