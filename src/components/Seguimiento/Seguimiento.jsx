@@ -21,6 +21,10 @@ const Seguimiento = () => {
 
   const url_estado_soportes = `${back}/api/estado-soportes`;
 
+  const url_estado_operadores = `${back}/api/estado-operadors`;
+
+  const url_estado_referentes = `${back}/api/estado-referentes`;
+
   const [soportes, setSoportes] = useState([]);
 
   const usuario_redux = useSelector((state) => state.user.usuario);
@@ -42,15 +46,21 @@ const Seguimiento = () => {
   const documentId = actividad?.documentId;
   const uuid = actividad?.uuid;
 
-  const [estadoSoportes, setEstadoSoportes] = useState({});
+  const [estadoSoportes, setEstadoSoportes] = useState([]);
 
-  const [estados_back, setEstados_back] = useState({});
+  const [estados_back, setEstados_back] = useState([]);
+
+  const [estados_operador, setEstados_operador] = useState([]);
+
+  const [estados_referente, setEstados_referente] = useState([]);
 
   const [observaciones, setObservaciones] = useState({
     observacion_referente: "",
     observacion_operador: "",
     fecha_referente: "",
     fecha_operador: "",
+    usuario_referente: "",
+    usuario_operador: "",
   });
 
   const [status_porcentaje, setStatus] = useState({
@@ -81,7 +91,7 @@ const Seguimiento = () => {
         //setSubregions(data.data);
         setEstados_back(data.data);
 
-        console.log("Estados soportes:", data);
+        //console.log("Estados soportes:", data);
       } catch (error) {
         console.error("Error fetching subregions:", error);
       }
@@ -90,7 +100,55 @@ const Seguimiento = () => {
     fetch_data();
   }, [token]);
 
-  console.log("Estados_back:", estados_back);
+  //console.log("Estados_back:", estados_back);
+
+  useEffect(() => {
+    const fetch_data = async () => {
+      try {
+        const response = await fetch(`${url_estado_operadores}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener soportes.");
+        const data = await response.json();
+
+        setEstados_operador(data.data);
+
+        // console.log("Estados operador_observacion:", data);
+      } catch (error) {
+        console.error("Error fetching subregions:", error);
+      }
+    };
+
+    fetch_data();
+  }, [token]);
+
+  console.log("Estados_operador_observacion:", estados_operador);
+
+  useEffect(() => {
+    const fetch_data = async () => {
+      try {
+        const response = await fetch(`${url_estado_referentes}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener soportes.");
+        const data = await response.json();
+
+        setEstados_referente(data.data);
+
+        // console.log("Estados operador_observacion:", data);
+      } catch (error) {
+        console.error("Error fetching subregions:", error);
+      }
+    };
+
+    fetch_data();
+  }, [token]);
+
+  console.log("Estados_referente_observacion:", estados_referente);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -125,6 +183,18 @@ const Seguimiento = () => {
   const handle_send = async () => {
     // event.preventDefault();
 
+    const estado_seleccionado =
+      usuario === "referente_instituto"
+        ? estados_referente.find(
+            (e) => e.estado_actividad === status_porcentaje.estado_referente
+          )
+        : estados_operador.find(
+            (e) => e.estado_actividad === status_porcentaje.estado_operador
+          );
+
+    const documentId_estado = estado_seleccionado?.documentId || null;
+
+    console.log("estado_SELECCIONADO:", estado_seleccionado);
     try {
       // setLoading(true);
 
@@ -146,14 +216,27 @@ const Seguimiento = () => {
             usuario === "referente_instituto"
               ? status_porcentaje.porcentaje_referente
               : status_porcentaje.porcentaje_operador,
+          // estado_operador: status_porcentaje.estado_operador,
+          // estado_referente: status_porcentaje.estado_referente,
+          // estado_operador: "ufbl2bq9eq8wbqbtf30glyh7",
+          // estado_referente: "mqmr6ffj6imh24gareavq2q2",
 
-          estado:
+          estado_referente:
             usuario === "referente_instituto"
-              ? status_porcentaje.estado_referente
-              : status_porcentaje.estado_operador,
+              ? documentId_estado
+              : "mqmr6ffj6imh24gareavq2q2",
+          estado_operador:
+            usuario === "referente_instituto"
+              ? "mm4070563cltcc6ie9yu5hjt"
+              : documentId_estado,
+
+          // estado:
+          //   usuario === "referente_instituto"
+          //     ? status_porcentaje.estado_referente
+          //     : status_porcentaje.estado_operador,
 
           id_actividad: uuid,
-          tipo: usuario === "referente_instituto" ? "referente" : "operador",
+          // tipo: usuario === "referente_instituto" ? "referente" : "operador",
         }),
       });
 
@@ -266,6 +349,8 @@ const Seguimiento = () => {
           observacion_operador: data.operador?.observacion ?? "Sin observación",
           fecha_operador: fecha_local_operador,
           fecha_referente: fecha_local_referente,
+          usuario_operador: data.operador?.custom_role.name,
+          usuario_referente: data.referente?.custom_role.name,
         }));
 
         setStatus((prev) => ({
@@ -367,6 +452,22 @@ const Seguimiento = () => {
     if (estado.includes("Aprobado soporte fisico")) return "✅";
     if (estado.includes("Aprobado")) return "✅";
     return "❔";
+  };
+
+  const emojisPorEstado = {
+    "Sin Reporte": "🟡",
+    "No aplica para periodo": "📄",
+    "Avance Limitado": "⚠️",
+    "Actividad con avance": "📈",
+    "Actividad cerrada": "✅",
+    "Ajustar soportes": "🛠️",
+  };
+
+  const emojiPorEstadoOperador = {
+    "No Aplica para periodo": "🚫",
+    "Reporte Actualizado": "♻️",
+    "Reporte de avance": "📈",
+    "Sin avance": "⚠️",
   };
 
   return (
@@ -657,6 +758,7 @@ const Seguimiento = () => {
                     <tr>
                       <th>Observacion</th>
                       {observaciones.fecha_referente && <th>Fecha</th>}
+                      {observaciones.usuario_referente && <th>Usuario</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -703,6 +805,20 @@ const Seguimiento = () => {
                           </p>
 
                           {/* {observaciones.fecha_referente} */}
+                        </td>
+                      )}
+                      {observaciones.usuario_referente && (
+                        <td>
+                          <p
+                            style={{
+                              margin: 0,
+                              padding: "5px",
+                              fontSize: "16px",
+                              width: "200px",
+                            }}
+                          >
+                            {observaciones.usuario_referente}
+                          </p>
                         </td>
                       )}
                     </tr>
@@ -756,7 +872,7 @@ const Seguimiento = () => {
                         )}
                       </td>
 
-                      <td>
+                      {/* <td>
                         {usuario === "referente_instituto" ? (
                           <select
                             id="referente"
@@ -774,7 +890,6 @@ const Seguimiento = () => {
                           </select>
                         ) : (
                           <p>
-                            {/* {status_porcentaje.estado_referente} */}
                             {status_porcentaje.estado_referente ===
                               "No cumple" && <>❌ No cumple</>}
 
@@ -783,6 +898,53 @@ const Seguimiento = () => {
 
                             {status_porcentaje.estado_referente ===
                               "En proceso" && <>⏳ En proceso</>}
+                          </p>
+                        )}
+                      </td> */}
+
+                      <td>
+                        {usuario === "referente_instituto" ? (
+                          <select
+                            id="referente"
+                            name="estado_referente"
+                            className={styles.select}
+                            value={status_porcentaje.estado_referente}
+                            onChange={onchange_status}
+                          >
+                            <option value="Sin Estado" disabled>
+                              🟡 Selecciona un estado
+                            </option>
+                            {estados_referente?.map((estado) => (
+                              <option
+                                key={estado.id}
+                                value={estado.estado_actividad}
+                                // title={estado.descripcion_estado}
+                              >
+                                {emojisPorEstado[estado.estado_actividad] ||
+                                  "❓"}{" "}
+                                {estado.estado_actividad}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <p>
+                            {status_porcentaje.estado_referente && (
+                              <>
+                                {status_porcentaje.estado_referente ===
+                                  "Actividad con avance" && (
+                                  <>📈 Actividad con avance</>
+                                )}
+                                {status_porcentaje.estado_referente ===
+                                  "Avance Limitado" && <>⚠️ Avance Limitado</>}
+                                {/* Agrega más condiciones o un fallback si deseas mostrar todos los casos */}
+                                {![
+                                  "Actividad con avance",
+                                  "Avance Limitado",
+                                ].includes(
+                                  status_porcentaje.estado_referente
+                                ) && <>{status_porcentaje.estado_referente}</>}
+                              </>
+                            )}
                           </p>
                         )}
                       </td>
@@ -796,6 +958,7 @@ const Seguimiento = () => {
                     <tr>
                       <th>Observacion</th>
                       {observaciones.fecha_operador && <th>Fecha</th>}
+                      {observaciones.usuario_operador && <th>Usuario</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -824,6 +987,20 @@ const Seguimiento = () => {
                             }}
                           >
                             {observaciones.fecha_operador}
+                          </p>
+                        </td>
+                      )}
+                      {observaciones.usuario_operador && (
+                        <td>
+                          <p
+                            style={{
+                              margin: 0,
+                              padding: "5px",
+                              fontSize: "16px",
+                              width: "200px",
+                            }}
+                          >
+                            {observaciones.usuario_operador}
                           </p>
                         </td>
                       )}
@@ -878,7 +1055,7 @@ const Seguimiento = () => {
                         )}
                       </td>
 
-                      <td>
+                      {/* <td>
                         {" "}
                         {usuario === "operador" ? (
                           <select
@@ -897,7 +1074,7 @@ const Seguimiento = () => {
                           </select>
                         ) : (
                           <p>
-                            {/* {status_porcentaje.estado_operador} */}
+                            
                             {status_porcentaje.estado_operador ===
                               "No cumple" && <>❌ No cumple</>}
 
@@ -907,6 +1084,43 @@ const Seguimiento = () => {
 
                             {status_porcentaje.estado_operador ===
                               "En proceso" && <>⏳ En proceso</>}
+                          </p>
+                        )}
+                      </td> */}
+                      <td>
+                        {usuario === "operador" ? (
+                          <select
+                            id="operador_status"
+                            name="estado_operador"
+                            className={styles.select}
+                            value={status_porcentaje.estado_operador}
+                            onChange={onchange_status}
+                          >
+                            <option value="Sin Estado" disabled>
+                              🟡 Selecciona un estado
+                            </option>
+                            {estados_operador?.map((estado) => (
+                              <option
+                                key={estado.id}
+                                value={estado.estado_actividad}
+                              >
+                                {emojiPorEstadoOperador[
+                                  estado.estado_actividad
+                                ] || "❔"}{" "}
+                                {estado.estado_actividad}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <p>
+                            {status_porcentaje.estado_operador && (
+                              <>
+                                {emojiPorEstadoOperador[
+                                  status_porcentaje.estado_operador
+                                ] || "❔"}{" "}
+                                {status_porcentaje.estado_operador}
+                              </>
+                            )}
                           </p>
                         )}
                       </td>
