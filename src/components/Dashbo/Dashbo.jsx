@@ -47,28 +47,6 @@ ChartJS.register(
   RadialLinearScale
 );
 
-const productos_proyecto = [
-  {
-    mes: "Medicamentos-Prestación de servicios de salud con calidad para la paz",
-    cantidad: 10,
-  },
-  {
-    mes: "Salud para Población de Especial Protección para la paz",
-    cantidad: 20,
-  },
-  {
-    mes: "PAI -Prevención de enfermedades transmisibles para la paz",
-    cantidad: 15,
-  },
-  {
-    mes: "Garantía de derechos sexuales y reproductivos para la paz",
-    cantidad: 30,
-  },
-  { mes: "Atención Primaria En Salud", cantidad: 25 },
-  { mes: "Emergencias-Salud Ambiental para la Paz", cantidad: 35 },
-  { mes: "Nutrición y alimentación saludable para la Paz", cantidad: 40 },
-];
-
 const operador_evento = [
   {
     mes: "E.S.E. Hospital San Andrés - Tumaco",
@@ -123,45 +101,6 @@ const Dashbo = () => {
   console.log("Usuario_Reduxxx:", usuario_redux);
   console.log("Estado loading", loading);
 
-  // useEffect(() => {
-  //   const fetch_user = async () => {
-  //     try {
-  //       const response = await fetch(`${url_usuarios}`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-
-  //       if (!response.ok) throw new Error("Error al obtener usuarios.");
-
-  //       const data = await response.json();
-  //       const datos = {
-  //         usuario: data.custom_roles[0].name,
-  //         user_name: data.username,
-  //       };
-
-  //       if (data.custom_roles.length > 1) {
-  //         setSuper(true);
-  //       }
-
-  //       console.log("data_usuario", data);
-  //       console.log("datos", datos);
-
-  //       sessionStorage.setItem("usuario", JSON.stringify(datos));
-
-  //       setUsuario_dos(datos.usuario);
-
-  //       console.log("super_user", super_usuario);
-  //       //setSubregions(data.data);
-  //       // setMunicipios(data.data);
-  //     } catch (error) {
-  //       console.error("Error fetching subregions:", error);
-  //     }
-  //   };
-
-  //   fetch_user();
-  // }, [token]);
-
   if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
 
   const bar_operador_data = {
@@ -203,7 +142,7 @@ const Dashbo = () => {
         {/* <div className={styles.content}> */}
 
         <div className={styles.container}>
-          <Card className={styles.card_municipios}>
+          {/* <Card className={styles.card_municipios}>
             <CardContent>
               <img
                 src={imagen}
@@ -223,9 +162,9 @@ const Dashbo = () => {
                 {20}
               </Typography>
             </CardContent>
-          </Card>
+          </Card> */}
 
-          <Card
+          {/* <Card
             className={styles.card_operador}
             // sx={{
             //   width: 400,
@@ -242,7 +181,7 @@ const Dashbo = () => {
               <LocationCityIcon
                 sx={{ fontSize: 40, color: "#1976d2", mb: 1 }}
               />{" "}
-              {/* Ícono */}
+              
               <Typography variant="h6" color="textSecondary">
                 {"Total de Operadores"}
               </Typography>
@@ -250,7 +189,18 @@ const Dashbo = () => {
                 {20}
               </Typography>
             </CardContent>
-          </Card>
+          </Card> */}
+
+          <div className={styles.bardouble}>
+            {/* {data_municipios?.length > 0 && (
+              <Bardouble municipios={data_municipios} />
+            )} */}
+            <Bardouble />
+          </div>
+
+          <div className={styles.barra_poblacion}>
+            <BarraPoblacion />
+          </div>
 
           <div className={styles.radar_entorno}>
             {/* <PolarArea data={polar_data} options={polar_options} /> */}
@@ -272,29 +222,16 @@ const Dashbo = () => {
             {/* <Doughnut data={doughnut_data} options={doughnut_options} /> */}
           </div>
 
-          <div className={styles.pastel_producto}>
-            {/* <Pie data={pieData} options={pieOptions} /> */}
-            <PieGraphic />
-          </div>
-
-          <div className={styles.radar_check_actividad}>
-            <RadarCheckActividad />
-          </div>
-
-          <div className={styles.bardouble}>
-            {/* {data_municipios?.length > 0 && (
-              <Bardouble municipios={data_municipios} />
-            )} */}
-            <Bardouble />
-          </div>
-
-          <div className={styles.barra_poblacion}>
-            <BarraPoblacion />
-          </div>
-
           <div className={styles.linea_mes}>
             <LineaMes />
           </div>
+          {/* <div className={styles.pastel_producto}>
+            <PieGraphic />
+          </div> */}
+
+          {/* <div className={styles.radar_check_actividad}>
+            <RadarCheckActividad />
+          </div> */}
         </div>
       </div>
     </div>

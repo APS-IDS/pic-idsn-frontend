@@ -216,18 +216,16 @@ const Seguimiento = () => {
             usuario === "referente_instituto"
               ? status_porcentaje.porcentaje_referente
               : status_porcentaje.porcentaje_operador,
-          // estado_operador: status_porcentaje.estado_operador,
-          // estado_referente: status_porcentaje.estado_referente,
-          // estado_operador: "ufbl2bq9eq8wbqbtf30glyh7",
-          // estado_referente: "mqmr6ffj6imh24gareavq2q2",
 
           estado_referente:
             usuario === "referente_instituto"
               ? documentId_estado
-              : "mqmr6ffj6imh24gareavq2q2",
+              : // : "mqmr6ffj6imh24gareavq2q2",
+                null,
           estado_operador:
             usuario === "referente_instituto"
-              ? "mm4070563cltcc6ie9yu5hjt"
+              ? // ? "mm4070563cltcc6ie9yu5hjt"
+                null
               : documentId_estado,
 
           // estado:
@@ -349,14 +347,16 @@ const Seguimiento = () => {
           observacion_operador: data.operador?.observacion ?? "Sin observación",
           fecha_operador: fecha_local_operador,
           fecha_referente: fecha_local_referente,
-          usuario_operador: data.operador?.custom_role.name,
-          usuario_referente: data.referente?.custom_role.name,
+          usuario_operador: data.operador?.user.username,
+          usuario_referente: data.referente?.user.username,
         }));
 
         setStatus((prev) => ({
           ...prev,
-          estado_referente: data.referente?.estado ?? "Sin Estado",
-          estado_operador: data.operador?.estado ?? "Sin Estado",
+          estado_referente:
+            data.referente?.estado_referente.estado_actividad ?? "Sin Estado",
+          estado_operador:
+            data.operador?.estado_operador.estado_actividad ?? "Sin Estado",
           porcentaje_operador:
             data.operador?.porcentaje_completado ?? "Sin porcentaje",
           porcentaje_referente:
@@ -454,9 +454,9 @@ const Seguimiento = () => {
     return "❔";
   };
 
-  const emojisPorEstado = {
-    "Sin Reporte": "🟡",
-    "No aplica para periodo": "📄",
+  const emojiPorEstadoReferente = {
+    "Sin Reporte": "📄",
+    "No aplica para periodo": "🚫",
     "Avance Limitado": "⚠️",
     "Actividad con avance": "📈",
     "Actividad cerrada": "✅",
@@ -607,46 +607,6 @@ const Seguimiento = () => {
                             </tbody>
                           </table>
                         </td>
-
-                        {/* <td>
-                          {usuario === "referente_instituto" ? (
-                            soportes[soporte.uuid]?.evidencias?.length > 0 ? (
-                              <select
-                                className={styles.select}
-                                value={estadoSoportes[soporte.uuid] || ""}
-                                onChange={(e) =>
-                                  handleEstadoChange(
-                                    soporte.uuid,
-                                    e.target.value
-                                  )
-                                }
-                              >
-                                <option value="" disabled>
-                                  🟡 Selecciona un estado
-                                </option>
-                                <option value="cumple">✅ Cumple</option>
-                                <option value="no cumple">❌ No cumple</option>
-                                <option value="en proceso">
-                                  ⏳ En proceso
-                                </option>
-                              </select>
-                            ) : null
-                          ) : (
-                            <p>
-                              {estadoSoportes[soporte.uuid] === "no cumple" && (
-                                <>❌ No cumple</>
-                              )}
-                              {estadoSoportes[soporte.uuid] === "cumple" && (
-                                <>✅ Cumple</>
-                              )}
-                              {estadoSoportes[soporte.uuid] ===
-                                "en proceso" && <>⏳ En proceso</>}
-                              {!estadoSoportes[soporte.uuid] && (
-                                <>❔ Sin check</>
-                              )}
-                            </p>
-                          )}
-                        </td> */}
 
                         <td>
                           {usuario === "referente_instituto" ? (
@@ -872,36 +832,6 @@ const Seguimiento = () => {
                         )}
                       </td>
 
-                      {/* <td>
-                        {usuario === "referente_instituto" ? (
-                          <select
-                            id="referente"
-                            name="estado_referente"
-                            className={styles.select}
-                            value={status_porcentaje.estado_referente}
-                            onChange={onchange_status}
-                          >
-                            <option value="Sin Estado" disabled>
-                              🟡 Selecciona un estado
-                            </option>
-                            <option value="Cumple">✅ Cumple</option>
-                            <option value="No cumple">❌ No cumple</option>
-                            <option value="En proceso">⏳ En proceso</option>
-                          </select>
-                        ) : (
-                          <p>
-                            {status_porcentaje.estado_referente ===
-                              "No cumple" && <>❌ No cumple</>}
-
-                            {status_porcentaje.estado_referente ===
-                              "Cumple" && <>✅ Cumple</>}
-
-                            {status_porcentaje.estado_referente ===
-                              "En proceso" && <>⏳ En proceso</>}
-                          </p>
-                        )}
-                      </td> */}
-
                       <td>
                         {usuario === "referente_instituto" ? (
                           <select
@@ -920,8 +850,9 @@ const Seguimiento = () => {
                                 value={estado.estado_actividad}
                                 // title={estado.descripcion_estado}
                               >
-                                {emojisPorEstado[estado.estado_actividad] ||
-                                  "❓"}{" "}
+                                {emojiPorEstadoReferente[
+                                  estado.estado_actividad
+                                ] || "❓"}{" "}
                                 {estado.estado_actividad}
                               </option>
                             ))}
@@ -930,19 +861,10 @@ const Seguimiento = () => {
                           <p>
                             {status_porcentaje.estado_referente && (
                               <>
-                                {status_porcentaje.estado_referente ===
-                                  "Actividad con avance" && (
-                                  <>📈 Actividad con avance</>
-                                )}
-                                {status_porcentaje.estado_referente ===
-                                  "Avance Limitado" && <>⚠️ Avance Limitado</>}
-                                {/* Agrega más condiciones o un fallback si deseas mostrar todos los casos */}
-                                {![
-                                  "Actividad con avance",
-                                  "Avance Limitado",
-                                ].includes(
+                                {emojiPorEstadoReferente[
                                   status_porcentaje.estado_referente
-                                ) && <>{status_porcentaje.estado_referente}</>}
+                                ] || "❓"}{" "}
+                                {status_porcentaje.estado_referente}
                               </>
                             )}
                           </p>
@@ -1055,38 +977,6 @@ const Seguimiento = () => {
                         )}
                       </td>
 
-                      {/* <td>
-                        {" "}
-                        {usuario === "operador" ? (
-                          <select
-                            id="operador_status"
-                            name="estado_operador"
-                            className={styles.select}
-                            value={status_porcentaje.estado_operador}
-                            onChange={onchange_status}
-                          >
-                            <option value="Sin Estado" disabled>
-                              🟡 Selecciona un estado
-                            </option>
-                            <option value="Cumple">✅ Cumple</option>
-                            <option value="No cumple">❌ No cumple</option>
-                            <option value="En proceso">⏳ En proceso</option>
-                          </select>
-                        ) : (
-                          <p>
-                            
-                            {status_porcentaje.estado_operador ===
-                              "No cumple" && <>❌ No cumple</>}
-
-                            {status_porcentaje.estado_operador === "Cumple" && (
-                              <>✅ Cumple</>
-                            )}
-
-                            {status_porcentaje.estado_operador ===
-                              "En proceso" && <>⏳ En proceso</>}
-                          </p>
-                        )}
-                      </td> */}
                       <td>
                         {usuario === "operador" ? (
                           <select

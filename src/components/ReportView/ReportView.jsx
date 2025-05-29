@@ -32,6 +32,10 @@ const ReportView = () => {
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
   const [municipios, setMunicipios] = useState([]);
 
+  const [operadores, setOperadores] = useState([]);
+
+  const [proyectos, setProyectos] = useState([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
   const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
@@ -49,6 +53,11 @@ const ReportView = () => {
   const url_soportes = `${back}/api/seguimiento/upload-file`;
   const url_soportes_get = `${back}/api/check-seguimiento?`;
   const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
+
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=100`;
+
+  const url_proyectos = `${back}/api/proyectos-idsns`;
+
   const navigate = useNavigate(); // Hook para navegación
 
   //Paginacion
@@ -113,6 +122,54 @@ const ReportView = () => {
 
     fetch_subregion();
   }, [token]);
+
+  useEffect(() => {
+    const fetch_operador = async () => {
+      try {
+        const response = await fetch(`${url_operadores}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener subregiones.");
+        const data = await response.json();
+        //setSubregions(data.data);
+        // setMunicipios(data.data);
+        setOperadores(data.data);
+        console.log("Operadores", data.data);
+      } catch (error) {
+        console.error("Error fetching operador:", error);
+      }
+    };
+
+    fetch_operador();
+  }, [token]);
+
+  console.log("Operadores_Estado:", operadores);
+
+  useEffect(() => {
+    const fetch_proyectos = async () => {
+      try {
+        const response = await fetch(`${url_proyectos}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Error al obtener subregiones.");
+        const data = await response.json();
+        //setSubregions(data.data);
+        // setMunicipios(data.data);
+        setProyectos(data.data);
+        console.log("Proyectos_:", data.data);
+      } catch (error) {
+        console.error("Error fetching operador:", error);
+      }
+    };
+
+    fetch_proyectos();
+  }, [token]);
+
+  console.log("proyectos_estado:", proyectos);
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
@@ -568,7 +625,7 @@ const ReportView = () => {
     ),
   ].filter(Boolean);
 
-  // console.log("operadores", operatorOptions);
+  console.log("operadores", operatorOptions);
 
   // Filtrar datos basados en los valores seleccionados
   const filteredData = data?.data
@@ -603,11 +660,16 @@ const ReportView = () => {
           className={styles.filterSelect}
         >
           <option value="">Todos los proyectos</option>
-          {/* {projectOptions.map((option, index) => ( */}
-          {projectOptions.map((option) => (
-            // <option key={index} value={option}>
+
+          {/* {projectOptions.map((option) => (
             <option key={option.id || option} value={option}>
               {option}
+            </option>
+          ))} */}
+
+          {proyectos.map((option) => (
+            <option key={option.id} value={option.proyecto}>
+              {option.proyecto}
             </option>
           ))}
         </select>
@@ -625,9 +687,14 @@ const ReportView = () => {
           className={styles.filterSelect}
         >
           <option value="">Todos los operadores</option>
-          {operatorOptions.map((option) => (
+          {/* {operatorOptions.map((option) => (
             <option key={option} value={option}>
               {option}
+            </option>
+          ))} */}
+          {operadores.map((option) => (
+            <option key={option.id} value={option.operador_pic}>
+              {option.operador_pic}
             </option>
           ))}
         </select>
