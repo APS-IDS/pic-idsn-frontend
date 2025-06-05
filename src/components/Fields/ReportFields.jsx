@@ -11,7 +11,6 @@ const ReportFields = ({ reportData, handleChange }) => (
       <div>Total número de Hogares Beneficiarios</div>
     </div>
 
-    {/* Fila de inputs */}
     <div className={styles.tableRow}>
       <div>
         <input

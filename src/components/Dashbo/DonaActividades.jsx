@@ -50,8 +50,7 @@ const DonaActividad = () => {
     datasets: [
       {
         data: data_actividad.map((item) => item.cantidad),
-        // backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        // hoverBackgroundColor: ["#FF6384CC", "#36A2EBCC", "#FFCE56CC"],
+
         backgroundColor: [
           "#FF6384",
           "#36A2EB",
@@ -73,17 +72,6 @@ const DonaActividad = () => {
       },
     ],
   };
-
-  // const doughnut_options = {
-  //   responsive: true,
-  //   plugins: {
-  //     legend: { position: "bottom" },
-  //     title: {
-  //       display: true,
-  //       text: "Cantidad de Actividades por Tecnología",
-  //     },
-  //   },
-  // };
 
   const doughnut_options = {
     responsive: true,
@@ -113,14 +101,7 @@ const DonaActividad = () => {
         boxPadding: 10,
         callbacks: {
           title: () => "",
-          // label: function (context) {
-          //   const value = context.raw;
-          //   const data = context.chart.data.datasets[0].data;
-          //   const total = data.reduce((sum, val) => sum + val, 0);
-          //   const percentage = ((value / total) * 100).toFixed(1); // 1 decimal
 
-          //   return `Productos: ${value} (${percentage}%)`;
-          // },
           label: function (context) {
             const value = context.raw;
             let label = context.label || "";
@@ -129,7 +110,6 @@ const DonaActividad = () => {
             }
 
             return `${label}: ${value}`;
-            // return `Productos: ${value}`;
           },
         },
         bodyFont: {
@@ -144,10 +124,6 @@ const DonaActividad = () => {
 
   return (
     <>
-      {/* <div style={{ width: "500px", marginLeft: "20px" }}>
-        <Doughnut data={doughnut_data} options={doughnut_options} />
-      </div> */}
-
       <Doughnut data={doughnut_data} options={doughnut_options} />
     </>
   );

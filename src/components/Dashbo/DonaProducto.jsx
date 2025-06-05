@@ -39,29 +39,6 @@ const Dona = () => {
 
   const data_full = useSelector((state) => state.data || []);
 
-  // useEffect(() => {
-  //   const fetch_subregion = async () => {
-  //     try {
-  //       const response = await fetch(`${url_cantidad_productos}`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-  //       if (!response.ok) throw new Error("Error al obtener subregiones.");
-  //       const data = await response.json();
-
-  //       console.log("data", data.result);
-  //       // setDataProductos(data.result);
-  //     } catch (error) {
-  //       console.error("Error fetching subregions:", error);
-  //     }
-  //   };
-
-  //   fetch_subregion();
-  // }, [token]);
-
-  console.log("data_productos", data_productos);
-
   useEffect(() => {
     if (data_full?.productosProyecto?.result) {
       setDataProductos(data_full.productosProyecto.result);
@@ -78,8 +55,6 @@ const Dona = () => {
     datasets: [
       {
         data: data_productos.map((item) => item.productos),
-        // backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        // hoverBackgroundColor: ["#FF6384CC", "#36A2EBCC", "#FFCE56CC"],
         backgroundColor: [
           // "#FF6384",
           "#36A2EB",
@@ -130,14 +105,7 @@ const Dona = () => {
         boxPadding: 10,
         callbacks: {
           title: () => "",
-          // label: function (context) {
-          //   const value = context.raw;
-          //   const data = context.chart.data.datasets[0].data;
-          //   const total = data.reduce((sum, val) => sum + val, 0);
-          //   const percentage = ((value / total) * 100).toFixed(1); // 1 decimal
 
-          //   return `Productos: ${value} (${percentage}%)`;
-          // },
           label: function (context) {
             const value = context.raw;
             let label = context.label || "";
@@ -146,7 +114,6 @@ const Dona = () => {
             }
 
             return `${label}: ${value}`;
-            // return `Productos: ${value}`;
           },
         },
         bodyFont: {
@@ -159,86 +126,8 @@ const Dona = () => {
     },
   };
 
-  // const doughnut_options = {
-  //   responsive: true,
-  //   plugins: {
-  //     legend: {
-  //       position: "bottom",
-  //       align: "start",
-  //       labels: {
-  //         boxWidth: 40,
-  //         padding: 10,
-  //         textAlign: "left",
-  //         font: {
-  //           size: 14, // Tamaño de los labels (leyenda)
-  //         },
-  //         generateLabels: function (chart) {
-  //           const data = chart.data;
-  //           const meta = chart.getDatasetMeta(0);
-
-  //           if (data.labels.length && data.datasets.length) {
-  //             return data.labels.map((label, i) => {
-  //               const trimmedLabel =
-  //                 label.length > 45 ? label.slice(0, 45) + "..." : label;
-
-  //               const backgroundColor = data.datasets[0].backgroundColor[i];
-  //               const isHidden = meta.data[i].hidden;
-
-  //               return {
-  //                 text: trimmedLabel,
-  //                 fillStyle: backgroundColor,
-  //                 strokeStyle: backgroundColor,
-  //                 fontColor: "#636161",
-  //                 color: "#636161",
-  //                 index: i,
-  //                 hidden: isHidden,
-  //                 textDecoration: isHidden ? "line-through" : "", // efecto de tachado
-  //               };
-  //             });
-  //           }
-  //           return [];
-  //         },
-  //       },
-  //     },
-  //     title: {
-  //       display: true,
-  //       text: "Cantidad de Productos Según Proyecto",
-  //       font: {
-  //         size: 18, // Tamaño del título
-  //         weight: "bold", // Puedes usar normal, bold, etc.
-  //       },
-  //     },
-
-  //     tooltip: {
-  //       boxPadding: 10,
-  //       callbacks: {
-  //         title: () => "",
-  //         label: function (context) {
-  //           const value = context.raw;
-  //           let label = context.label || "";
-  //           if (label.length > 35) {
-  //             label = label.slice(0, 35) + "...";
-  //           }
-
-  //           return `${label}: ${value}`;
-  //         },
-  //       },
-  //       bodyFont: {
-  //         size: 14,
-  //       },
-  //       titleFont: {
-  //         size: 16,
-  //       },
-  //     },
-  //   },
-  // };
-
   return (
     <>
-      {/* <div style={{ width: "500px", marginLeft: "20px" }}>
-        <Doughnut data={doughnut_data} options={doughnut_options} />
-      </div> */}
-
       <Doughnut data={doughnut_data} options={doughnut_options} />
     </>
   );

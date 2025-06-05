@@ -12,7 +12,7 @@ import {
   RadialLinearScale,
 } from "chart.js";
 import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
-import DonaActividad from "./DonaActividades";
+
 import { useSelector } from "react-redux";
 import React, { useState, useEffect } from "react";
 
@@ -45,25 +45,6 @@ const RadarCheckActividad = () => {
       setDataCheck(resultArray);
     }
   }, [data_full]);
-
-  const check_soporte = [
-    {
-      mes: "Aprobado",
-      cantidad: 10,
-    },
-    {
-      mes: "No aprobado",
-      cantidad: 12,
-    },
-    {
-      mes: "Aprobado Soporte Físico",
-      cantidad: 14,
-    },
-    {
-      mes: "No Aprobado Soporte Físico",
-      cantidad: 14,
-    },
-  ];
 
   const colors_polar = [
     "#FF638480",

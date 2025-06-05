@@ -29,19 +29,12 @@ const Seguimiento = () => {
 
   const usuario_redux = useSelector((state) => state.user.usuario);
 
-  console.log("Usuario Redux:", usuario_redux);
-
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
   // const usuario = usuario_object.usuario;
   const usuario = usuario_redux;
 
   const user_name = usuario_object.user_name;
-
-  console.log("nombre del usuario", user_name);
-  console.log("Actividad", actividad);
-
-  console.log("Usuario_seguimiento", usuario);
 
   const documentId = actividad?.documentId;
   const uuid = actividad?.uuid;
@@ -90,8 +83,6 @@ const Seguimiento = () => {
         const data = await response.json();
         //setSubregions(data.data);
         setEstados_back(data.data);
-
-        //console.log("Estados soportes:", data);
       } catch (error) {
         console.error("Error fetching subregions:", error);
       }
@@ -99,8 +90,6 @@ const Seguimiento = () => {
 
     fetch_data();
   }, [token]);
-
-  //console.log("Estados_back:", estados_back);
 
   useEffect(() => {
     const fetch_data = async () => {
@@ -124,8 +113,6 @@ const Seguimiento = () => {
     fetch_data();
   }, [token]);
 
-  console.log("Estados_operador_observacion:", estados_operador);
-
   useEffect(() => {
     const fetch_data = async () => {
       try {
@@ -147,8 +134,6 @@ const Seguimiento = () => {
 
     fetch_data();
   }, [token]);
-
-  console.log("Estados_referente_observacion:", estados_referente);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -194,7 +179,6 @@ const Seguimiento = () => {
 
     const documentId_estado = estado_seleccionado?.documentId || null;
 
-    console.log("estado_SELECCIONADO:", estado_seleccionado);
     try {
       // setLoading(true);
 
@@ -263,14 +247,10 @@ const Seguimiento = () => {
   const handle_send_check = async (id) => {
     // event.preventDefault();
 
-    console.log("soporte", id);
-    console.log("document_id", documentId);
-
     const estado_seleccionado = estados_back.find(
       (e) => e.estado_soporte === estadoSoportes[id]
     );
 
-    console.log("Estado_enviar", estado_seleccionado);
     try {
       // setLoading(true);
 
@@ -327,8 +307,6 @@ const Seguimiento = () => {
         );
         if (!response.ok) throw new Error("Error al obtener observaciones.");
         const data = await response.json();
-
-        console.log("Data-Observacion", data);
 
         const fecha_operador = data.operador?.fecha ?? "";
         const fecha_local_operador = fecha_operador
@@ -389,13 +367,8 @@ const Seguimiento = () => {
 
           // console.log(
           //   "data_endpoint_soportes:",
-          //   data.estado_soporte.estado_soporte
+          //   data?.estado_soporte?.estado_soporte ?? "sin estado"
           // );
-
-          console.log(
-            "data_endpoint_soportes:",
-            data?.estado_soporte?.estado_soporte ?? "sin estado"
-          );
           return { soporteId: soporte.uuid, data };
         });
 
@@ -437,14 +410,6 @@ const Seguimiento = () => {
 
     fetchSoportes();
   }, [token, actividad]); // Se ejecuta cuando `actividad` o `token` cambian
-
-  // console.log("soportes", soportes["283"]?.estado);
-  console.log("Soportes", soportes);
-
-  console.log("estadoSoportes", estadoSoportes);
-  console.log("observaciones", observaciones);
-
-  console.log("status_porcentaje", status_porcentaje);
 
   const getEmojiEstado = (estado) => {
     if (estado.includes("No Aprobado soporte fisico")) return "❌";

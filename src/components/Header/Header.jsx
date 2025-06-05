@@ -16,7 +16,7 @@ const Header = () => {
 
   const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const user = user_object.user;
-  console.log("datos_usuario", user);
+  // console.log("datos_usuario", user);
 
   const handleHomeClick = () => {
     navigate("/dashbo"); // Redirigir al Home
@@ -27,7 +27,6 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    console.log("Cerrar sesión");
     sessionStorage.clear();
     dispatch(logout());
     navigate("/"); // Redirigir al login

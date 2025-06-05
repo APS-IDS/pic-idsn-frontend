@@ -46,29 +46,6 @@ const RadarEntorno = () => {
     }
   }, [data_full]);
 
-  const entorno_actividad = [
-    {
-      mes: "Hogar",
-      cantidad: 10,
-    },
-    {
-      mes: "Comunitario",
-      cantidad: 12,
-    },
-    {
-      mes: "Educativo",
-      cantidad: 14,
-    },
-    {
-      mes: "Laboral-Informal",
-      cantidad: 14,
-    },
-    {
-      mes: "Insitucional",
-      cantidad: 14,
-    },
-  ];
-
   const colors_polar = [
     "#FF638480",
     "#36A2EB80",
@@ -115,10 +92,6 @@ const RadarEntorno = () => {
 
   return (
     <>
-      {/* <div style={{ width: "500px", marginLeft: "20px" }}>
-        <PolarArea data={polar_data} options={polar_options} />
-      </div> */}
-
       <PolarArea data={polar_data} options={polar_options} />
     </>
   );

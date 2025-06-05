@@ -25,7 +25,7 @@ export const get_data = (token) => {
       if (!response.ok) throw new Error("Error al obtener subregiones.");
       const data = await response.json();
 
-      console.log("data redux:", data);
+      // console.log("data redux:", data);
       dispatch({ type: GET_DATA, payload: data });
     } catch (error) {
       // alert("algo salio mal");
@@ -49,7 +49,7 @@ export const get_user = (token) => {
         user_name: data.username,
       };
 
-      console.log("data user:", datos);
+      // console.log("data user:", datos);
       dispatch({ type: GET_USER, payload: datos });
     } catch (error) {
       // alert("algo salio mal");

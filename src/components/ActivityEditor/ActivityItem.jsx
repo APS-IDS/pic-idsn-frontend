@@ -112,7 +112,7 @@ const ActivityItem = ({
   const handleSoporteChange = (e, soporteIndex) => {
     const { name, value } = e.target;
     const newSoportes = [...activity.array_soportes];
-    console.log("soportes", newSoportes);
+
     newSoportes[soporteIndex][name] = value;
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
@@ -125,10 +125,6 @@ const ActivityItem = ({
   const selectedOptions = activity.array_soportes?.map(
     (soporte) => soporte.tipo_soporte
   );
-
-  // const formatNumberWithCommas = (number) => {
-  //   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  // };
 
   const handle_remove_soporte = (index) => {
     Swal.fire({
@@ -472,9 +468,6 @@ const ActivityItem = ({
                                     <button
                                       className={styles.removeButton}
                                       type="button"
-                                      // onClick={() =>
-                                      //   removeSoporte(soporteIndex)
-                                      // }
                                       onClick={() =>
                                         handle_remove_soporte(soporteIndex)
                                       }
@@ -528,43 +521,6 @@ const ActivityItem = ({
                     styles={custom_styles_cups}
                   />
                 </td>
-
-                {/* <td>
-                  <div className={styles.input_valor_container}>
-                    <input
-                      type="text"
-                      name="valor_unitario"
-                      value={
-                        activity.valor_unitario
-                          ? new Intl.NumberFormat("es-ES").format(
-                              activity.valor_unitario
-                            )
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\./g, ""); // Elimina puntos
-                        handleActivityChange(
-                          { target: { name: e.target.name, value: rawValue } },
-                          index
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) && // Solo números
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td> */}
 
                 <td>
                   <div className={styles.input_valor_container}>
@@ -632,47 +588,6 @@ const ActivityItem = ({
                     />
                   </div>
                 </td>
-
-                {/* 
-                <td>
-                  <div className={styles.input_valor_container}>
-                    <input
-                      type="text"
-                      name="valor_total"
-                      // value={new Intl.NumberFormat("es-ES").format(
-                      //   activity.valor_total
-                      // )}
-                      value={
-                        activity.valor_total
-                          ? new Intl.NumberFormat("es-ES").format(
-                              activity.valor_total
-                            )
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\./g, ""); // Elimina puntos
-                        handleActivityChange(
-                          { target: { name: e.target.name, value: rawValue } },
-                          index
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) && // Solo números
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td> */}
 
                 <td>{renderCronogramaField()}</td>
               </tr>

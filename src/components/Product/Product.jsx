@@ -18,7 +18,7 @@ const Product = ({
   const [isIndicatorOpen, setIsIndicatorOpen] = useState({}); // Estado para gestionar los acordeones
 
   const toggleIndicator = (productIndex, indicatorIndex) => {
-    console.log("productIndex", productIndex);
+    // console.log("productIndex", productIndex);
 
     setIsIndicatorOpen((prevState) => ({
       ...prevState,
@@ -87,8 +87,6 @@ const Product = ({
           indicador_linea_base: "",
         },
       ],
-      // nombre_entidad: "",
-      // descripcion_operador: "",
     };
     const updatedProducts = [...(product_data.producto || []), newProduct];
     setProductData({ ...product_data, producto: updatedProducts });
@@ -332,14 +330,6 @@ const Product = ({
           )}
         </div>
       ))}
-      {/* 
-      <button
-        type="button"
-        onClick={handleAddProduct}
-        className={styles.buttonMain}
-      >
-        Agregar Producto
-      </button> */}
     </div>
   );
 };

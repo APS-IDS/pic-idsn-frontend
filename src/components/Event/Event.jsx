@@ -136,9 +136,6 @@ const Event = ({ events, setEvents, edit_button }) => {
         });
         if (!response.ok) throw new Error("Error al obtener usuarios.");
         const data = await response.json();
-        console.log("data_usuario", data);
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
       } catch (error) {
         console.error("Error fetching subregions:", error);
       }
@@ -146,10 +143,6 @@ const Event = ({ events, setEvents, edit_button }) => {
 
     fetch_user();
   }, [token]);
-
-  // console.log("Municipios", municipios);
-  // console.log("Operadores", operadores);
-  // console.log("proyectos", proyectos);
 
   const customStyles = {
     control: (base) => ({
@@ -262,8 +255,6 @@ const Event = ({ events, setEvents, edit_button }) => {
                   meta_producto: "",
                 },
               ],
-              // nombre_entidad: "",
-              // descripcion_operador: "",
             },
           ],
         },
@@ -394,20 +385,12 @@ const Event = ({ events, setEvents, edit_button }) => {
                       isMulti
                       value={event?.subregion?.map((subregion) => ({
                         value: subregion,
-                        //   label:
-                        //     municipios.find(
-                        //       (muni) => muni.documentId === subregion.documentId
-                        //     )?.label || subregion.documentId, // Muestra el label.
-                        // }))}
+
                         label:
                           municipios.find(
                             (muni) => muni.documentId === subregion
                           )?.label || subregion, // Muestra el label.
                       }))}
-                      // options={municipios.map((muni) => ({
-                      //   value: { documentId: muni.documentId, id: muni.id },
-                      //   label: muni.label,
-                      // }))}
                       options={municipios.map((muni) => ({
                         value: muni.documentId,
                         label: muni.label,

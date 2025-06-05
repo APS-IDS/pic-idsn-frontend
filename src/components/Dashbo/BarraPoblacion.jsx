@@ -33,12 +33,6 @@ const BarraPoblacion = () => {
 
   const [data_poblacion, setDataPoblacion] = useState([]);
 
-  // useEffect(() => {
-  //   if (data_full?.actividadesPoblacion?.result) {
-  //     setDataPoblacion(data_full.actividadesPoblacion.result);
-  //   }
-  // }, [data_full]);
-
   useEffect(() => {
     if (data_full?.actividadesPoblacion?.result) {
       const resultObj = data_full.actividadesPoblacion.result;
@@ -64,22 +58,6 @@ const BarraPoblacion = () => {
       },
     ],
   };
-
-  // const barOptions = {
-  //   responsive: true,
-  //   indexAxis: "y", // <-- Esto hace que el gráfico sea horizontal
-  //   plugins: {
-  //     legend: { position: "top" },
-  //     title: {
-  //       display: true,
-  //       text: "Cantidad de Actividades Según Población",
-  //       font: {
-  //         size: 18,
-  //         weight: "bold",
-  //       },
-  //     },
-  //   },
-  // };
 
   const barOptions = {
     responsive: true,

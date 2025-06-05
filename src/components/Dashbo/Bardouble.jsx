@@ -1,25 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  RadialLinearScale,
-} from "chart.js";
+
 import { Bar } from "react-chartjs-2";
-import Spinner from "../Spinner/Spinner";
 
 const Bardouble = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const [data_municipios, setDataMunicipios] = useState([]);
 
   const [data_operador, setDataOperador] = useState([]);
@@ -41,18 +25,9 @@ const Bardouble = () => {
     }
   }, [data_full]);
 
-  // console.log("data_redux", data_redux);
-
-  // const data = municipios;
-
-  console.log("data actual", data_full);
-  console.log("Data operador", data_operador);
-
   const back = import.meta.env.VITE_APP_BACK;
-  //const url_cantidad_eventos = `${back}/api/municipios-eventos`;
-  const url_cantidad_eventos = `${back}/api/dashboard-all`;
 
-  // console.log("Data nueva:", data);
+  const url_cantidad_eventos = `${back}/api/dashboard-all`;
 
   const labels_doble =
     activeDataset === "eventos"
@@ -63,7 +38,6 @@ const Bardouble = () => {
         data_operador.map((item) => item.operador);
 
   const data_doble_barra = {
-    // labels: eventos_municipio.map((item) => item.mes),
     labels: labels_doble,
     datasets: [
       {
@@ -87,11 +61,7 @@ const Bardouble = () => {
   const doble_barra_options = {
     responsive: true,
     indexAxis: "y",
-    // layout: {
-    //   padding: {
-    //     top: 20, // Ajusta este valor según sea necesario
-    //   },
-    // },
+
     plugins: {
       legend: {
         position: "top",

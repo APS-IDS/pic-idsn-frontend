@@ -8,14 +8,8 @@ const Sidebar = () => {
   // const usuario_sesion = usuario_object.usuario;
   const usuario_redux = useSelector((state) => state.user.usuario);
   const super_user = useSelector((state) => state.user.user_name);
-  console.log("Usuario_sidebar:", usuario_redux);
+  // console.log("Usuario_sidebar:", usuario_redux);
 
-  // const usuario = usuario_dos;
-
-  // console.log("rol", usuario);
-  // console.log("rol_dos", usuario_dos);
-
-  // console.log("super_usuario_side_bar", super_usuario);
   return (
     <div className={styles.side}>
       <aside className={styles.sidebar}>
