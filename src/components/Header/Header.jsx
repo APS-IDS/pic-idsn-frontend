@@ -12,6 +12,8 @@ const Header = () => {
 
   const dispatch = useDispatch();
 
+  const usuario_redux = useSelector((state) => state.user.usuario);
+
   const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const user = user_object.user;
   console.log("datos_usuario", user);
@@ -34,6 +36,8 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>Sistema Gestión PIC</h1>
+      {/* <h1 className={styles.title}>BIENVENIDOS</h1> */}
+
       <div className={styles.actions}>
         <FaHome className={styles.homeIcon} onClick={handleHomeClick} />
         <div className={styles.userMenu}>
@@ -41,6 +45,7 @@ const Header = () => {
           {isUserMenuOpen && (
             <div className={styles.menu}>
               <p className={styles.userInfo}>Usuario:{user}</p>
+              <p className={styles.userInfo}>Rol:{usuario_redux}</p>
               <button className={styles.logout} onClick={handleLogout}>
                 Cerrar sesión
               </button>
