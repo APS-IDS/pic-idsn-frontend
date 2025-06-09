@@ -13,6 +13,7 @@ import {
 import imagen from "../../assets/Logo2.jpg";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert";
+import Select from "react-select";
 
 function Register() {
   const [form, setForm] = useState({
@@ -51,6 +52,50 @@ function Register() {
   const url_roles = `${back}/api/users-permissions/roles`;
 
   const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const customStyles = {
+    control: (base) => ({
+      ...base,
+      minHeight: "38px",
+      borderColor: "#ccc",
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused ? "#81e899" : "white",
+      color: "#333",
+    }),
+  };
+
+  // const customStyles = {
+  //   control: (provided, state) => ({
+  //     ...provided,
+  //     padding: "2px 5px",
+  //     // width: "700px",
+  //     fontSize: "16px",
+  //     border: state.isFocused ? "1px solid #007bff" : "1px solid #ccc",
+  //     borderRadius: "5px",
+  //     backgroundColor: "white",
+  //     boxShadow: "none", // elimina el sombreado por defecto
+  //     cursor: "pointer",
+  //     "&:hover": {
+  //       borderColor: "#007bff",
+  //     },
+  //   }),
+  //   option: (provided, state) => ({
+  //     ...provided,
+  //     cursor: "pointer",
+  //     backgroundColor: state.isSelected
+  //       ? "#007bff"
+  //       : state.isFocused
+  //       ? "#e6f0ff"
+  //       : "white",
+  //     color: state.isSelected ? "white" : "black",
+  //   }),
+  //   singleValue: (provided) => ({
+  //     ...provided,
+  //     color: "black",
+  //   }),
+  // };
 
   useEffect(() => {
     const fetch_operador = async () => {
@@ -234,16 +279,16 @@ function Register() {
       <MDBContainer
         fluid
         className="d-flex justify-content-center align-items-center vh-100"
-        style={{ paddingTop: "740px" }}
+        style={{ paddingTop: "730px" }}
       >
         <MDBRow className="d-flex justify-content-center align-items-center w-100">
           <MDBCol lg="6" md="8" sm="10">
-            <MDBCard className="my-5 rounded-3" style={{ maxWidth: "600px" }}>
+            <MDBCard className="my-5 rounded-3" style={{ maxWidth: "700px" }}>
               <MDBCardImage
                 src={imagen}
                 className="w-100 rounded-top"
                 alt="Imagen"
-                style={{ height: "500px", objectFit: "cover" }}
+                style={{ height: "400px", objectFit: "cover" }}
               />
               <MDBCardBody className="px-5">
                 <h3 className="mb-4 pb-2 text-center">Registro Usuario</h3>
@@ -350,7 +395,7 @@ function Register() {
                 {/* Select de Roles */}
                 <div className="mb-4">
                   <label className="form-label">Rol</label>
-                  <select
+                  {/* <select
                     name="custom_role_id"
                     className="form-select"
                     value={form.custom_role_id}
@@ -362,14 +407,45 @@ function Register() {
                         {role.name}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
+                  <Select
+                    name="custom_role_id"
+                    options={[
+                      { value: "", label: "Selecciona un rol" },
+                      ...roles.map((role) => ({
+                        value: role.id,
+                        label: role.name,
+                      })),
+                    ]}
+                    value={
+                      form.custom_role_id
+                        ? {
+                            value: form.custom_role_id,
+                            label:
+                              roles.find(
+                                (role) => role.id === form.custom_role_id
+                              )?.name || form.custom_role_id,
+                          }
+                        : { value: "", label: "Selecciona un rol" }
+                    }
+                    onChange={(selectedOption) =>
+                      changeHandler({
+                        target: {
+                          name: "custom_role_id",
+                          value: selectedOption?.value || "",
+                        },
+                      })
+                    }
+                    placeholder="Selecciona un rol"
+                    styles={customStyles} // si ya tienes tu objeto customStyles
+                  />
                 </div>
 
                 {/* Select de Operadores SOLO si el rol seleccionado es operador */}
                 {selectedRoleName === "operador" && (
                   <div className="mb-4">
                     <label className="form-label">Operador</label>
-                    <select
+                    {/* <select
                       name="operador_id"
                       className="form-select"
                       value={form.operador_id}
@@ -381,7 +457,40 @@ function Register() {
                           {op.operador_pic}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
+
+                    <Select
+                      name="operador_id"
+                      options={[
+                        { value: "", label: "Selecciona un operador" },
+                        ...operadores.map((op) => ({
+                          value: op.id,
+                          label: op.operador_pic,
+                        })),
+                      ]}
+                      value={
+                        form.operador_id
+                          ? {
+                              value: form.operador_id,
+                              label:
+                                operadores.find(
+                                  (op) => op.id === form.operador_id
+                                )?.operador_pic || form.operador_id,
+                            }
+                          : { value: "", label: "Selecciona un operador" }
+                      }
+                      onChange={(selectedOption) =>
+                        changeHandler({
+                          target: {
+                            name: "operador_id",
+                            value: selectedOption?.value || "",
+                          },
+                        })
+                      }
+                      placeholder="Selecciona un operador"
+                      //className="form-select" // si quieres seguir usando tu clase de estilos
+                      styles={customStyles} // opcional, si usas react-select custom styles
+                    />
                   </div>
                 )}
 

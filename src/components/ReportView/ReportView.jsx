@@ -9,6 +9,7 @@ import { FaClipboardList } from "react-icons/fa";
 import { FaPaperclip } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import withReactContent from "sweetalert2-react-content";
+import Select from "react-select"; // Importamos React Select
 
 const ReportView = () => {
   const [data, setData] = useState(null);
@@ -57,6 +58,57 @@ const ReportView = () => {
   const url_proyectos = `${back}/api/proyectos-idsns`;
 
   const navigate = useNavigate(); // Hook para navegación
+
+  // const customStyles = {
+  //   control: (base) => ({
+  //     ...base,
+  //     minWidth: "280px", // Ajusta el ancho mínimo
+  //     //maxWidth: "400px", // Opcional, limita el ancho máximo
+  //   }),
+  //   menu: (base) => ({
+  //     ...base,
+  //     zIndex: 5, // Asegura que el menú no se superponga
+  //   }),
+  //   option: (base) => ({
+  //     ...base,
+  //     whiteSpace: "nowrap", // Evita que el texto se parta
+  //   }),
+  //   multiValueLabel: (base) => ({
+  //     ...base,
+  //     whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
+  //   }),
+  // };
+
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      padding: "2px 5px",
+      width: "1000px",
+      fontSize: "16px",
+      border: state.isFocused ? "1px solid #007bff" : "1px solid #ccc",
+      borderRadius: "5px",
+      backgroundColor: "white",
+      boxShadow: "none", // elimina el sombreado por defecto
+      cursor: "pointer",
+      "&:hover": {
+        borderColor: "#007bff",
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      cursor: "pointer",
+      backgroundColor: state.isSelected
+        ? "#007bff"
+        : state.isFocused
+        ? "#e6f0ff"
+        : "white",
+      color: state.isSelected ? "white" : "black",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "black",
+    }),
+  };
 
   //Paginacion
 
@@ -552,7 +604,36 @@ const ReportView = () => {
         <div className={styles.container_label}>
           <label htmlFor="proyectoFilter">Filtrar por Proyecto IDSN:</label>
         </div>
-        <select
+
+        <Select
+          name="proyecto"
+          options={[
+            { value: "", label: "Todos los proyectos" }, // opción "Todos"
+            ...proyectos.map((option) => ({
+              value: option.proyecto,
+              label: option.proyecto,
+            })),
+          ]}
+          value={
+            filterValue
+              ? {
+                  value: filterValue,
+                  label:
+                    proyectos.find((p) => p.proyecto === filterValue)
+                      ?.proyecto || filterValue,
+                }
+              : { value: "", label: "Todos los proyectos" }
+          }
+          onChange={(selectedOption) => {
+            setFilterValue(selectedOption?.value || "");
+            setCurrentPage(1);
+          }}
+          placeholder="Seleccionar proyecto"
+          styles={customStyles} // opcional: puedes definir tu propio estilo
+          // className={styles.filterSelect} // o puedes seguir usando tus estilos CSS
+        />
+
+        {/* <select
           value={filterValue}
           onChange={(e) => {
             setFilterValue(e.target.value);
@@ -562,24 +643,20 @@ const ReportView = () => {
         >
           <option value="">Todos los proyectos</option>
 
-          {/* {projectOptions.map((option) => (
-            <option key={option.id || option} value={option}>
-              {option}
-            </option>
-          ))} */}
-
           {proyectos.map((option) => (
             <option key={option.id} value={option.proyecto}>
               {option.proyecto}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
+
       <div className={styles.filterContainer}>
         <div className={styles.container_label}>
           <label htmlFor="operatorFilter">Filtrar por Operador:</label>
         </div>
-        <select
+
+        {/* <select
           value={operatorFilterValue}
           onChange={(e) => {
             setOperatorFilterValue(e.target.value);
@@ -587,18 +664,47 @@ const ReportView = () => {
           }}
           className={styles.filterSelect}
         >
-          <option value="">Todos los operadores</option>
-          {/* {operatorOptions.map((option) => (
+          <option value="">Todos los operadores</option> */}
+        {/* {operatorOptions.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))} */}
-          {operadores.map((option) => (
+        {/* {operadores.map((option) => (
             <option key={option.id} value={option.operador_pic}>
               {option.operador_pic}
             </option>
           ))}
-        </select>
+        </select> */}
+
+        <Select
+          name="operador"
+          options={[
+            { value: "", label: "Todos los operadores" }, // opción "Todos"
+            ...operadores.map((option) => ({
+              value: option.operador_pic,
+              label: option.operador_pic,
+            })),
+          ]}
+          value={
+            operatorFilterValue
+              ? {
+                  value: operatorFilterValue,
+                  label:
+                    operadores.find(
+                      (o) => o.operador_pic === operatorFilterValue
+                    )?.operador_pic || operatorFilterValue,
+                }
+              : { value: "", label: "Todos los operadores" }
+          }
+          onChange={(selectedOption) => {
+            setOperatorFilterValue(selectedOption?.value || "");
+            setCurrentPage(1);
+          }}
+          placeholder="Seleccionar operador"
+          styles={customStyles}
+          // className={styles.filterSelect} // reutilizas tu clase si quieres
+        />
       </div>
       <div className={styles.formContainer}>
         {/* {filteredData?.map((row, index) => */}
