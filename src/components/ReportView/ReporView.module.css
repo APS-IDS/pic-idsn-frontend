@@ -195,3 +195,16 @@
   font-size: 16px;
   font-weight: bold;
 }
+
+.noDataMessage {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  color: #666; /* Color gris para el texto */
+  background-color: #f8f8f8; /* Fondo claro */
+  border: 1px solid #ddd; /* Borde sutil */
+  border-radius: 4px; /* Bordes redondeados */
+  margin: 20px auto; /* Centrar el mensaje con margen superior e inferior */
+  width: 100%;
+  /* max-width: 500px;  */
+}
