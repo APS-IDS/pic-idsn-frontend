@@ -66,53 +66,22 @@ function Register() {
     }),
   };
 
-  // const customStyles = {
-  //   control: (provided, state) => ({
-  //     ...provided,
-  //     padding: "2px 5px",
-  //     // width: "700px",
-  //     fontSize: "16px",
-  //     border: state.isFocused ? "1px solid #007bff" : "1px solid #ccc",
-  //     borderRadius: "5px",
-  //     backgroundColor: "white",
-  //     boxShadow: "none", // elimina el sombreado por defecto
-  //     cursor: "pointer",
-  //     "&:hover": {
-  //       borderColor: "#007bff",
-  //     },
-  //   }),
-  //   option: (provided, state) => ({
-  //     ...provided,
-  //     cursor: "pointer",
-  //     backgroundColor: state.isSelected
-  //       ? "#007bff"
-  //       : state.isFocused
-  //       ? "#e6f0ff"
-  //       : "white",
-  //     color: state.isSelected ? "white" : "black",
-  //   }),
-  //   singleValue: (provided) => ({
-  //     ...provided,
-  //     color: "black",
-  //   }),
-  // };
+  // useEffect(() => {
+  //   const fetch_operador = async () => {
+  //     try {
+  //       const response = await fetch(url_operadores, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (!response.ok) throw new Error("Error al obtener operadores.");
+  //       const data = await response.json();
+  //       setOperadores(data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching operadores:", error);
+  //     }
+  //   };
 
-  useEffect(() => {
-    const fetch_operador = async () => {
-      try {
-        const response = await fetch(url_operadores, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Error al obtener operadores.");
-        const data = await response.json();
-        setOperadores(data.data);
-      } catch (error) {
-        console.error("Error fetching operadores:", error);
-      }
-    };
-
-    fetch_operador();
-  }, [token]);
+  //   fetch_operador();
+  // }, [token]);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -194,9 +163,12 @@ function Register() {
     !form.password ||
     form.password !== form.confirmPassword ||
     !form.tipo_documento ||
+    !form.profesion ||
+    !form.cargo ||
+    !form.entidad ||
     !form.numero_documento ||
-    !form.custom_role_id ||
-    (selectedRoleName === "operador" && !form.operador_id); // <- operador obligatorio si es ese rol
+    !form.custom_role_id;
+  // (selectedRoleName === "operador" && !form.operador_id); // <- operador obligatorio si es ese rol
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -442,22 +414,9 @@ function Register() {
                 </div>
 
                 {/* Select de Operadores SOLO si el rol seleccionado es operador */}
-                {selectedRoleName === "operador" && (
+                {/* {selectedRoleName === "operador" && (
                   <div className="mb-4">
                     <label className="form-label">Operador</label>
-                    {/* <select
-                      name="operador_id"
-                      className="form-select"
-                      value={form.operador_id}
-                      onChange={changeHandler}
-                    >
-                      <option value="">Selecciona un operador</option>
-                      {operadores.map((op) => (
-                        <option key={op.id} value={op.id}>
-                          {op.operador_pic}
-                        </option>
-                      ))}
-                    </select> */}
 
                     <Select
                       name="operador_id"
@@ -492,7 +451,7 @@ function Register() {
                       styles={customStyles} // opcional, si usas react-select custom styles
                     />
                   </div>
-                )}
+                )} */}
 
                 <MDBBtn
                   color="success"
