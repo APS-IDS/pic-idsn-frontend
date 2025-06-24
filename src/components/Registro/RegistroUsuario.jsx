@@ -66,22 +66,22 @@ function Register() {
     }),
   };
 
-  // useEffect(() => {
-  //   const fetch_operador = async () => {
-  //     try {
-  //       const response = await fetch(url_operadores, {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-  //       if (!response.ok) throw new Error("Error al obtener operadores.");
-  //       const data = await response.json();
-  //       setOperadores(data.data);
-  //     } catch (error) {
-  //       console.error("Error fetching operadores:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetch_operador = async () => {
+      try {
+        const response = await fetch(url_operadores, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("Error al obtener operadores.");
+        const data = await response.json();
+        setOperadores(data.data);
+      } catch (error) {
+        console.error("Error fetching operadores:", error);
+      }
+    };
 
-  //   fetch_operador();
-  // }, [token]);
+    fetch_operador();
+  }, [token]);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -203,7 +203,7 @@ function Register() {
         blocked: false,
         role: {
           connect: [
-            { id: tipos.roles[0].id, documentId: tipos.roles[0].documentId },
+            { id: tipos.roles[1].id, documentId: tipos.roles[1].documentId },
           ],
         },
         custom_roles: {

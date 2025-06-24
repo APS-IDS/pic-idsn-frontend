@@ -66,7 +66,7 @@ const ActivityItem = ({
 
   const handleCronogramaChange = (value, key, itemIndex) => {
     const updatedCronograma = [...(activity.cronograma || [])];
-    console.log("cronograma", updatedCronograma);
+    // console.log("cronograma", updatedCronograma);
 
     // Asegurarse de que el elemento existe
     if (!updatedCronograma[itemIndex]) {
@@ -260,15 +260,15 @@ const ActivityItem = ({
                     <textarea
                       type="text"
                       name="descripcion_actividad"
-                      placeholder="Máximo numero de caracteres 400"
-                      maxLength={400}
+                      placeholder="Máximo numero de caracteres 600"
+                      maxLength={600}
                       value={activity.descripcion_actividad || ""}
                       onChange={(e) => handleActivityChange(e, index)}
                       className={styles.textarea_actividad}
                     />
                   </div>
                   <p>
-                    {activity.descripcion_actividad?.length || 0} / 400
+                    {activity.descripcion_actividad?.length || 0} / 600
                     caracteres
                   </p>
                 </td>
@@ -539,13 +539,15 @@ const ActivityItem = ({
                         );
                       }}
                       onKeyDown={(e) => {
+                        const isCtrlCombo = e.ctrlKey || e.metaKey;
                         if (
                           !/[0-9,]/.test(e.key) && // Solo números y coma
                           e.key !== "Backspace" && // Permitir borrar
                           e.key !== "Tab" && // Permitir Tab
                           e.key !== "ArrowLeft" && // Permitir flecha izquierda
                           e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
+                          e.key !== "Delete" &&
+                          !isCtrlCombo
                         ) {
                           e.preventDefault();
                         }
@@ -572,13 +574,15 @@ const ActivityItem = ({
                         );
                       }}
                       onKeyDown={(e) => {
+                        const isCtrlCombo = e.ctrlKey || e.metaKey;
                         if (
                           !/[0-9,]/.test(e.key) && // Solo números y coma
                           e.key !== "Backspace" && // Permitir borrar
                           e.key !== "Tab" && // Permitir Tab
                           e.key !== "ArrowLeft" && // Permitir flecha izquierda
                           e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
+                          e.key !== "Delete" && // Permitir tecla Delete
+                          !isCtrlCombo
                         ) {
                           e.preventDefault();
                         }

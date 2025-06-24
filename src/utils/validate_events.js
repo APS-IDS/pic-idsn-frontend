@@ -243,7 +243,7 @@ const validateEventsData = (events) => {
           return false;
         }
 
-        console.log("Soporte", actividad.array_soportes[0].tipo_soporte);
+        // console.log("Soporte", actividad.array_soportes[0].tipo_soporte);
 
         if (!actividad.array_soportes[0].tipo_soporte) {
           Swal.fire({
