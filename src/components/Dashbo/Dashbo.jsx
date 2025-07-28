@@ -33,6 +33,7 @@ import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
 import BarraPoblacion from "./BarraPoblacion";
 import LineaMes from "./LineaMeses";
 import RadarCheck from "./RadarCheck";
+import DonaEstado from "./DonaEstado";
 
 ChartJS.register(
   CategoryScale,
@@ -105,6 +106,10 @@ const Dashbo = () => {
 
           <div className={styles.dona_actividad}>
             <DonaActividad />
+          </div>
+
+          <div className={styles.dona_actividad_estado}>
+            <DonaEstado />
           </div>
 
           <div className={styles.linea_mes}>

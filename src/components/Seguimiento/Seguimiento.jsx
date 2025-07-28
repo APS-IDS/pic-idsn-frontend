@@ -104,7 +104,7 @@ const Seguimiento = () => {
 
         setEstados_operador(data.data);
 
-        // console.log("Estados operador_observacion:", data);
+        //console.log("Estados operador_observacion:", data);
       } catch (error) {
         console.error("Error fetching subregions:", error);
       }
@@ -162,11 +162,15 @@ const Seguimiento = () => {
     const value = event.target.value;
     setObservaciones({ ...observaciones, [property]: value });
 
+    //console.log("Observaciones:", observaciones);
+
     // validate({ ...observaciones, [property]: value });
   };
 
   const handle_send = async () => {
     // event.preventDefault();
+
+    //console.log("Porcentaaje:", status_porcentaje);
 
     const estado_seleccionado =
       usuario === "referente_instituto"
@@ -332,13 +336,11 @@ const Seguimiento = () => {
         setStatus((prev) => ({
           ...prev,
           estado_referente:
-            data.referente?.estado_referente.estado_actividad ?? "Sin Estado",
+            data.referente?.estado_referente?.estado_actividad ?? "Sin Estado",
           estado_operador:
-            data.operador?.estado_operador.estado_actividad ?? "Sin Estado",
-          porcentaje_operador:
-            data.operador?.porcentaje_completado ?? "Sin porcentaje",
-          porcentaje_referente:
-            data.referente?.porcentaje_completado ?? "Sin porcentaje",
+            data.operador?.estado_operador?.estado_actividad ?? "Sin Estado",
+          porcentaje_operador: data.operador?.porcentaje_completado ?? 0,
+          porcentaje_referente: data.referente?.porcentaje_completado ?? 0,
         }));
       } catch (error) {
         console.error("Error fetching observaciones", error);
@@ -812,13 +814,13 @@ const Seguimiento = () => {
                             {estados_referente?.map((estado) => (
                               <option
                                 key={estado.id}
-                                value={estado.estado_actividad}
+                                value={estado?.estado_actividad}
                                 // title={estado.descripcion_estado}
                               >
                                 {emojiPorEstadoReferente[
-                                  estado.estado_actividad
+                                  estado?.estado_actividad
                                 ] || "❓"}{" "}
-                                {estado.estado_actividad}
+                                {estado?.estado_actividad}
                               </option>
                             ))}
                           </select>
@@ -957,12 +959,12 @@ const Seguimiento = () => {
                             {estados_operador?.map((estado) => (
                               <option
                                 key={estado.id}
-                                value={estado.estado_actividad}
+                                value={estado?.estado_actividad}
                               >
                                 {emojiPorEstadoOperador[
-                                  estado.estado_actividad
+                                  estado?.estado_actividad
                                 ] || "❔"}{" "}
-                                {estado.estado_actividad}
+                                {estado?.estado_actividad}
                               </option>
                             ))}
                           </select>
