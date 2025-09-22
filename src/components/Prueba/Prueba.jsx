@@ -59,8 +59,6 @@ function Prueba() {
         user: form.identifier,
       };
 
-      console.log("Fetch POST Response:", data);
-
       sessionStorage.setItem("token", JSON.stringify(datos));
 
       dispatch(loginSuccess(datos));

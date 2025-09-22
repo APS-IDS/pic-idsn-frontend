@@ -64,15 +64,18 @@
 }
 
 .filterContainer {
-  position: sticky; /* Hace que el elemento sea fijo al hacer scroll */
+  /* Hace que el elemento sea fijo al hacer scroll */
+  /* position: sticky;  */
   top: 0; /* Se queda pegado al borde superior */
   background-color: white; /* Fondo blanco para que destaque */
   z-index: 100; /* Asegura que se superpone a otros elementos si es necesario */
   padding: 10px; /* Espaciado interno */
   border-bottom: 1px solid #ddd; /* Línea para separarlo visualmente */
   display: flex; /* Facilita alinear elementos */
-  justify-content: space-between; /* Espacia los elementos dentro del contenedor */
+  /* justify-content: space-between;  */
+  justify-content: flex-start;
   align-items: center; /* Centra los elementos verticalmente */
+  /* width: 100%; */
 }
 
 .container_label {
@@ -191,4 +194,17 @@
 .pagination span {
   font-size: 16px;
   font-weight: bold;
+}
+
+.noDataMessage {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  color: #666; /* Color gris para el texto */
+  background-color: #f8f8f8; /* Fondo claro */
+  border: 1px solid #ddd; /* Borde sutil */
+  border-radius: 4px; /* Bordes redondeados */
+  margin: 20px auto; /* Centrar el mensaje con margen superior e inferior */
+  width: 100%;
+  /* max-width: 500px;  */
 }

@@ -13,7 +13,6 @@ import Seguimiento from "./components/Seguimiento/Seguimiento.jsx";
 import { useSelector } from "react-redux";
 function App() {
   const token = useSelector((state) => state.token.token);
-  // console.log("Token", token);
 
   return (
     <Routes>

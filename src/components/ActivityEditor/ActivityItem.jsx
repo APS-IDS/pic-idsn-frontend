@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { NumericFormat } from "react-number-format";
 
 const ActivityItem = ({
   activity,
@@ -65,7 +66,7 @@ const ActivityItem = ({
 
   const handleCronogramaChange = (value, key, itemIndex) => {
     const updatedCronograma = [...(activity.cronograma || [])];
-    console.log("cronograma", updatedCronograma);
+    // console.log("cronograma", updatedCronograma);
 
     // Asegurarse de que el elemento existe
     if (!updatedCronograma[itemIndex]) {
@@ -111,7 +112,7 @@ const ActivityItem = ({
   const handleSoporteChange = (e, soporteIndex) => {
     const { name, value } = e.target;
     const newSoportes = [...activity.array_soportes];
-    console.log("soportes", newSoportes);
+
     newSoportes[soporteIndex][name] = value;
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
@@ -124,10 +125,6 @@ const ActivityItem = ({
   const selectedOptions = activity.array_soportes?.map(
     (soporte) => soporte.tipo_soporte
   );
-
-  // const formatNumberWithCommas = (number) => {
-  //   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  // };
 
   const handle_remove_soporte = (index) => {
     Swal.fire({
@@ -263,11 +260,17 @@ const ActivityItem = ({
                     <textarea
                       type="text"
                       name="descripcion_actividad"
-                      value={activity.descripcion_actividad}
+                      placeholder="Máximo numero de caracteres 600"
+                      maxLength={600}
+                      value={activity.descripcion_actividad || ""}
                       onChange={(e) => handleActivityChange(e, index)}
                       className={styles.textarea_actividad}
                     />
                   </div>
+                  <p>
+                    {activity.descripcion_actividad?.length || 0} / 600
+                    caracteres
+                  </p>
                 </td>
                 <td>
                   <div className={styles.inputContainer}>
@@ -438,7 +441,7 @@ const ActivityItem = ({
                                 <textarea
                                   type="text"
                                   name="descripcion_soporte"
-                                  value={soporte.descripcion_soporte}
+                                  value={soporte.descripcion_soporte || ""}
                                   onChange={(e) =>
                                     handleSoporteChange(e, soporteIndex)
                                   }
@@ -465,9 +468,6 @@ const ActivityItem = ({
                                     <button
                                       className={styles.removeButton}
                                       type="button"
-                                      // onClick={() =>
-                                      //   removeSoporte(soporteIndex)
-                                      // }
                                       onClick={() =>
                                         handle_remove_soporte(soporteIndex)
                                       }
@@ -524,31 +524,30 @@ const ActivityItem = ({
 
                 <td>
                   <div className={styles.input_valor_container}>
-                    <input
-                      type="text"
+                    <NumericFormat
                       name="valor_unitario"
-                      value={
-                        activity.valor_unitario
-                          ? new Intl.NumberFormat("es-ES").format(
-                              activity.valor_unitario
-                            )
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\./g, ""); // Elimina puntos
+                      value={activity.valor_unitario}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2} // Número de decimales permitidos
+                      fixedDecimalScale={true} // Mantener siempre el número de decimales
+                      onValueChange={(values) => {
+                        const { formattedValue, value } = values;
                         handleActivityChange(
-                          { target: { name: e.target.name, value: rawValue } },
+                          { target: { name: "valor_unitario", value } },
                           index
                         );
                       }}
                       onKeyDown={(e) => {
+                        const isCtrlCombo = e.ctrlKey || e.metaKey;
                         if (
-                          !/[0-9]/.test(e.key) && // Solo números
+                          !/[0-9,]/.test(e.key) && // Solo números y coma
                           e.key !== "Backspace" && // Permitir borrar
                           e.key !== "Tab" && // Permitir Tab
                           e.key !== "ArrowLeft" && // Permitir flecha izquierda
                           e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
+                          e.key !== "Delete" &&
+                          !isCtrlCombo
                         ) {
                           e.preventDefault();
                         }
@@ -558,37 +557,32 @@ const ActivityItem = ({
                     />
                   </div>
                 </td>
-
                 <td>
                   <div className={styles.input_valor_container}>
-                    <input
-                      type="text"
+                    <NumericFormat
                       name="valor_total"
-                      // value={new Intl.NumberFormat("es-ES").format(
-                      //   activity.valor_total
-                      // )}
-                      value={
-                        activity.valor_total
-                          ? new Intl.NumberFormat("es-ES").format(
-                              activity.valor_total
-                            )
-                          : ""
-                      }
-                      onChange={(e) => {
-                        const rawValue = e.target.value.replace(/\./g, ""); // Elimina puntos
+                      value={activity.valor_total}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                      decimalScale={2} // Número de decimales permitidos
+                      fixedDecimalScale={true} // Mantener siempre el número de decimales
+                      onValueChange={(values) => {
+                        const { formattedValue, value } = values;
                         handleActivityChange(
-                          { target: { name: e.target.name, value: rawValue } },
+                          { target: { name: "valor_total", value } },
                           index
                         );
                       }}
                       onKeyDown={(e) => {
+                        const isCtrlCombo = e.ctrlKey || e.metaKey;
                         if (
-                          !/[0-9]/.test(e.key) && // Solo números
+                          !/[0-9,]/.test(e.key) && // Solo números y coma
                           e.key !== "Backspace" && // Permitir borrar
                           e.key !== "Tab" && // Permitir Tab
                           e.key !== "ArrowLeft" && // Permitir flecha izquierda
                           e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" // Permitir tecla Delete
+                          e.key !== "Delete" && // Permitir tecla Delete
+                          !isCtrlCombo
                         ) {
                           e.preventDefault();
                         }

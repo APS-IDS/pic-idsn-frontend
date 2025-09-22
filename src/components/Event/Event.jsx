@@ -136,9 +136,6 @@ const Event = ({ events, setEvents, edit_button }) => {
         });
         if (!response.ok) throw new Error("Error al obtener usuarios.");
         const data = await response.json();
-        console.log("data_usuario", data);
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
       } catch (error) {
         console.error("Error fetching subregions:", error);
       }
@@ -146,10 +143,6 @@ const Event = ({ events, setEvents, edit_button }) => {
 
     fetch_user();
   }, [token]);
-
-  // console.log("Municipios", municipios);
-  // console.log("Operadores", operadores);
-  // console.log("proyectos", proyectos);
 
   const customStyles = {
     control: (base) => ({
@@ -160,6 +153,28 @@ const Event = ({ events, setEvents, edit_button }) => {
     menu: (base) => ({
       ...base,
       zIndex: 5, // Asegura que el menú no se superponga
+    }),
+    option: (base) => ({
+      ...base,
+      whiteSpace: "nowrap", // Evita que el texto se parta
+    }),
+    multiValueLabel: (base) => ({
+      ...base,
+      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
+    }),
+  };
+
+  const custom_styles_two = {
+    control: (base) => ({
+      ...base,
+      minWidth: "280px", // Ajusta el ancho mínimo
+      //maxWidth: "400px", // Opcional, limita el ancho máximo
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 5, // Asegura que el menú no se superponga
+      maxHeight: "200px", // Ajusta la altura máxima del menú
+      overflowY: "auto", // Activa la barra de desplazamiento si es necesario
     }),
     option: (base) => ({
       ...base,
@@ -240,8 +255,6 @@ const Event = ({ events, setEvents, edit_button }) => {
                   meta_producto: "",
                 },
               ],
-              // nombre_entidad: "",
-              // descripcion_operador: "",
             },
           ],
         },
@@ -372,20 +385,12 @@ const Event = ({ events, setEvents, edit_button }) => {
                       isMulti
                       value={event?.subregion?.map((subregion) => ({
                         value: subregion,
-                        //   label:
-                        //     municipios.find(
-                        //       (muni) => muni.documentId === subregion.documentId
-                        //     )?.label || subregion.documentId, // Muestra el label.
-                        // }))}
+
                         label:
                           municipios.find(
                             (muni) => muni.documentId === subregion
                           )?.label || subregion, // Muestra el label.
                       }))}
-                      // options={municipios.map((muni) => ({
-                      //   value: { documentId: muni.documentId, id: muni.id },
-                      //   label: muni.label,
-                      // }))}
                       options={municipios.map((muni) => ({
                         value: muni.documentId,
                         label: muni.label,
@@ -498,7 +503,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                   <td>
                     <textarea
                       className={styles.textarea}
-                      type="text"
+                      placeholder="Máximo numero de caracteres 300"
+                      maxLength={300}
                       value={event.perfil_profesional || ""}
                       onChange={(e) =>
                         handleEventChange(
@@ -508,10 +514,15 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>
+                      {event.perfil_profesional?.length || 0} / 300 caracteres
+                    </p>
                   </td>
                   <td>
                     <textarea
-                      className={styles.textarea}
+                      className={styles.textarea_perfil_operativo}
+                      placeholder="Máximo numero de caracteres 2000"
+                      maxLength={2000}
                       type="text"
                       value={event.perfil_operativo || ""}
                       onChange={(e) =>
@@ -522,6 +533,9 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>
+                      {event.perfil_operativo?.length || 0} / 2000 caracteres
+                    </p>
                   </td>
                   <td>
                     <Select
@@ -553,6 +567,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                     <textarea
                       className={styles.textarea}
                       type="text"
+                      placeholder="Máximo numero de caracteres 400"
+                      maxLength={400}
                       value={event.description_event || ""}
                       onChange={(e) =>
                         handleEventChange(
@@ -562,10 +578,15 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>
+                      {event.description_event?.length || 0} / 400 caracteres
+                    </p>
                   </td>
                   <td>
                     <textarea
                       className={styles.textarea}
+                      placeholder="Máximo numero de caracteres 400"
+                      maxLength={400}
                       type="text"
                       value={event.indicator_name || ""}
                       onChange={(e) =>
@@ -576,6 +597,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>{event.indicator_name?.length || 0} / 400 caracteres</p>
                   </td>
                   <td>
                     <textarea
@@ -606,8 +628,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                       onChange={(selectedOptions) =>
                         handleStrategicAxisChange(index, selectedOptions)
                       }
-                      placeholder="Seleccionar ejes..."
-                      styles={customStyles}
+                      placeholder="Seleccionar ejes"
+                      styles={custom_styles_two}
                     />
                   </td>
 

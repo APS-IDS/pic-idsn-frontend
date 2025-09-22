@@ -9,8 +9,6 @@ const Login = () => {
 
   const datos = useSelector((state) => state.token);
 
-  console.log("datos", datos);
-
   const changeHandler = (event) => {
     const property = event.target.name;
     const value = event.target.value;

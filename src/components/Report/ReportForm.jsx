@@ -7,6 +7,9 @@ import Spinner from "../Spinner/Spinner";
 
 import Swal from "sweetalert2";
 
+//Funcion de validacion
+import validateEventsData from "../../utils/validate_events";
+
 // URL PARA PETICION BACK
 // const url = `http://localhost:1337/api/labels`;
 const back = import.meta.env.VITE_APP_BACK;
@@ -97,8 +100,6 @@ const ReportForm = () => {
                   meta_producto: "",
                 },
               ],
-              // nombre_entidad: "",
-              // descripcion_operador: "",
             },
           ],
         },
@@ -135,10 +136,16 @@ const ReportForm = () => {
     fetchSubregions();
   }, [token]);
 
-  console.log("Datos eventos", events);
+  // console.log("Datos eventos", events);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const isValid = validateEventsData(events);
+    if (!isValid) {
+      // No seguir con el envío
+      return;
+    }
 
     try {
       setLoading(true);
@@ -157,17 +164,7 @@ const ReportForm = () => {
             equipo: event.equipo_operativo || null,
             perfiles_profesional: event.perfil_profesional || null,
             perfil_operativo: event.perfil_operativo || null,
-            // territorializacion:
-            //   {
-            //     numero_hogares: parseInt(event.total_hogares, 10) || null,
-            //     municipios: {
-            //       connect: (event.subregion || []).map((region) => ({
-            //         documentId: region || null,
-            //       })),
-            //     },
-            //     territorio: event.codigo_nombre_territorio || null,
-            //     microterritorio: event.codigo_micro_territorio || null,
-            //   } || null,
+
             territorializacion:
               event.total_hogares ||
               (Array.isArray(event.subregion) && event.subregion.length > 0) ||
@@ -197,18 +194,8 @@ const ReportForm = () => {
             ejes_estrategicos: (event.eje_estrategico || []).map((eje) => ({
               nombre: eje || null,
             })),
-            // lineas_operativa: (event.linea_operativa || []).map((linea) => ({
-            //   nombre: linea || null,
-            // })),
-            lineas_operativa: { nombre: event.linea_operativa || null },
 
-            // lineas_operativa: event.linea_operativa
-            //   ? [
-            //       {
-            //         nombre: event.linea_operativa,
-            //       },
-            //     ]
-            //   : [],
+            lineas_operativa: { nombre: event.linea_operativa || null },
 
             productos: event.product_data.producto.map((producto, index) => ({
               descripcion: producto.descripcion_producto || null,
@@ -256,7 +243,7 @@ const ReportForm = () => {
         },
       };
 
-      console.log("Transformed Data:", transformedData);
+      // console.log("Transformed Data:", transformedData);
 
       // Realizar la solicitud
       // const response = await fetch("http://localhost:1337/api/anexo-tecnicos", {
@@ -285,8 +272,9 @@ const ReportForm = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor revise que todos los datos esten completos !",
+        text: "Error al enviar la información!",
       });
+      setLoading(false);
       console.error(error);
     }
   };

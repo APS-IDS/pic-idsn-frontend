@@ -21,7 +21,7 @@ const Edit = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  console.log("Evento recibido:", evento);
+  // console.log("Evento recibido:", evento);
 
   useEffect(() => {
     Swal.fire({
@@ -41,9 +41,6 @@ const Edit = () => {
       const transformedData = {
         data: {
           eventos: events.map((event) => ({
-            // operador_pic: {
-            //   connect: [{ documentId: event.operador_pic }] || null,
-            // },
             operador_pic: event.operador_pic
               ? {
                   connect: [{ documentId: event.operador_pic }],
@@ -130,10 +127,10 @@ const Edit = () => {
         },
       };
 
-      console.log("Transformed Data:", transformedData);
+      // console.log("Transformed Data:", transformedData);
 
       // Realizar la solicitud
-      // const response = await fetch("http://localhost:1337/api/anexo-tecnicos", {
+
       const response = await fetch(
         `${back}/api/anexo-tecnicos/${evento.documentId}`,
         {
@@ -164,8 +161,9 @@ const Edit = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Por favor revise que todos los datos esten completos !",
+        text: "Ha ocurrido un error al enviar la información !",
       });
+      setLoading(false);
       console.error(error);
     }
   };
@@ -297,9 +295,9 @@ const Edit = () => {
   //   };
   // }, [isEdited]);
 
-  console.log("url", location.pathname);
+  // console.log("url", location.pathname);
 
-  console.log("Evento enviado", events);
+  // console.log("Evento enviado", events);
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
 
   return (

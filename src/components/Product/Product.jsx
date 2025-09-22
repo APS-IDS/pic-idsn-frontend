@@ -18,7 +18,7 @@ const Product = ({
   const [isIndicatorOpen, setIsIndicatorOpen] = useState({}); // Estado para gestionar los acordeones
 
   const toggleIndicator = (productIndex, indicatorIndex) => {
-    console.log("productIndex", productIndex);
+    // console.log("productIndex", productIndex);
 
     setIsIndicatorOpen((prevState) => ({
       ...prevState,
@@ -87,8 +87,6 @@ const Product = ({
           indicador_linea_base: "",
         },
       ],
-      // nombre_entidad: "",
-      // descripcion_operador: "",
     };
     const updatedProducts = [...(product_data.producto || []), newProduct];
     setProductData({ ...product_data, producto: updatedProducts });
@@ -189,6 +187,8 @@ const Product = ({
                         <textarea
                           className={styles.textarea}
                           type="text"
+                          placeholder="Máximo numero de caracteres 600"
+                          maxLength={600}
                           value={product.descripcion_producto || ""}
                           onChange={(e) =>
                             handleInputChange(
@@ -198,6 +198,10 @@ const Product = ({
                             )
                           }
                         />
+                        <p>
+                          {product.descripcion_producto?.length || 0} / 600
+                          caracteres
+                        </p>
                       </div>
                     </td>
                     <td>
@@ -326,14 +330,6 @@ const Product = ({
           )}
         </div>
       ))}
-      {/* 
-      <button
-        type="button"
-        onClick={handleAddProduct}
-        className={styles.buttonMain}
-      >
-        Agregar Producto
-      </button> */}
     </div>
   );
 };
