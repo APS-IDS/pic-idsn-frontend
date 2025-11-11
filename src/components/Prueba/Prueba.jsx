@@ -44,6 +44,7 @@ function Prueba() {
       // const response = await fetch("http://localhost:1337/api/auth/local", {
       const response = await fetch(`${back}/api/auth/local`, {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
