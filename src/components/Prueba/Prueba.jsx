@@ -46,7 +46,6 @@ function Prueba() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "referrer-Policy": "no-referrer-when-downgrade",
         },
         body: JSON.stringify(form), // Enviar el objeto directamente ya que tiene la estructura correcta
       });
