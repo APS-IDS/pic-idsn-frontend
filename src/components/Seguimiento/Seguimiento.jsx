@@ -248,6 +248,30 @@ const Seguimiento = () => {
     }
   };
 
+  const verSoporte = async (uuid) => {
+    try {
+      const response = await fetch(`${back}/api/seguimiento/get-file/${uuid}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`, // tu token JWT
+        },
+      });
+
+      if (!response.ok) throw new Error("Error al obtener el archivo");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al obtener el archivo!",
+      });
+    }
+  };
+
   const handle_send_check = async (id) => {
     // event.preventDefault();
 
@@ -547,15 +571,25 @@ const Seguimiento = () => {
                                 soportes[soporte.uuid].evidencias.map(
                                   (evidencia, i) => (
                                     <tr key={i}>
-                                      <td>{evidencia.archivo.name}</td>
+                                      <td>{evidencia.file_name}</td>
                                       <td>
-                                        <a
-                                          href={`${back}${evidencia.archivo.url}`}
+                                        <button
+                                          className={styles.edit_button}
+                                          onClick={() =>
+                                            verSoporte(evidencia.documentId)
+                                          }
+                                        >
+                                          Ver soporte
+                                        </button>
+
+                                        {/* <a
+                                          // href={`${back}${evidencia.archivo.url}`}
+                                          href={`${back}/api/seguimiento/get-file/${soporte.uuid}`}
                                           target="_blank"
                                           rel="noopener noreferrer"
                                         >
                                           Ver soporte
-                                        </a>
+                                        </a> */}
                                       </td>
                                       <td>{evidencia.municipio.label}</td>
                                     </tr>

@@ -275,7 +275,7 @@ const ReportView = () => {
         border-radius: 5px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
               <div  style="flex: 1; min-width: 200px;">
                 <p><strong>Soporte ${index + 1}:</strong></p>
-                <p><strong>Archivo:</strong> ${evidencia.archivo.name}</p>
+                <p><strong>Archivo:</strong> ${evidencia.file_name}</p>
                 <p><strong>Región:</strong> ${evidencia.municipio.label}</p> 
               </div>
            <div>
@@ -473,7 +473,7 @@ const ReportView = () => {
 
               if (!response.ok) throw new Error("Error al enviar los datos");
 
-              console.log("Evidencia enviada:", await response.json());
+              // console.log("Evidencia enviada:", await response.json());
               Swal.close();
             } catch (error) {
               console.error("Error:", error);
@@ -492,7 +492,7 @@ const ReportView = () => {
             "success"
           );
         } else {
-          console.log("El usuario canceló el popup");
+          // console.log("El usuario canceló el popup");
         }
       });
     } catch (error) {
@@ -502,9 +502,9 @@ const ReportView = () => {
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-    console.log("evidenciaId", evidenciaId);
-    console.log("documentId", documentId);
-    console.log("soporteId", soporteId);
+    // console.log("evidenciaId", evidenciaId);
+    // console.log("documentId", documentId);
+    // console.log("soporteId", soporteId);
 
     Swal.fire({
       title: "¿Estás seguro?",

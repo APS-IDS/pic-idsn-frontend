@@ -12,7 +12,8 @@ import Edit from "./components/EditView/Edit.jsx";
 import Seguimiento from "./components/Seguimiento/Seguimiento.jsx";
 import { useSelector } from "react-redux";
 function App() {
-  const token = useSelector((state) => state.token.token);
+  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  const token = token_object.token;
 
   return (
     <Routes>
