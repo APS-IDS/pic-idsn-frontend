@@ -503,9 +503,9 @@ const ReportView = () => {
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-    // console.log("evidenciaId", evidenciaId);
-    // console.log("documentId", documentId);
-    // console.log("soporteId", soporteId);
+    console.log("evidenciaId", evidenciaId);
+    console.log("documentId", documentId);
+    console.log("soporteId", soporteId);
 
     Swal.fire({
       title: "¿Estás seguro?",
