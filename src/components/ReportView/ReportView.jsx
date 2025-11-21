@@ -318,7 +318,8 @@ const ReportView = () => {
           document.querySelectorAll(".btn-delete").forEach((btn) => {
             btn.addEventListener("click", async (event) => {
               const evidenciaId =
-                event.target.getAttribute("data-evidencia-id");
+                // event.target.getAttribute("data-evidencia-id");
+                event.currentTarget.getAttribute("data-evidencia-id");
 
               await deleteEvidencia(evidenciaId, documentId, soporteId);
               document.getElementById(`evidencia-existente-${evidenciaId}`);
@@ -328,7 +329,7 @@ const ReportView = () => {
           // Evento para manejar la selección de archivos
           document.querySelectorAll("[id^=botonpersonal-]").forEach((btn) => {
             btn.addEventListener("click", (event) => {
-              const evidenciaId = event.target.id.split("-")[1];
+              const evidenciaId = event.currentTarget.id.split("-")[1];
               document.getElementById(`archivo-${evidenciaId}`).click();
             });
           });

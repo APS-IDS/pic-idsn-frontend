@@ -61,9 +61,8 @@ function Prueba() {
       };
 
       sessionStorage.setItem("token", JSON.stringify(datos));
-
-      dispatch(loginSuccess(datos));
       navigate("/dashbo");
+      dispatch(loginSuccess(datos));
     } catch (error) {
       console.error("Fetch POST Error:", error.message);
       Swal({

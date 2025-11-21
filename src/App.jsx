@@ -13,8 +13,8 @@ import Seguimiento from "./components/Seguimiento/Seguimiento.jsx";
 import { useSelector } from "react-redux";
 function App() {
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
-
+  const token_two = token_object.token;
+  const token = useSelector((state) => state.token.token);
   return (
     <Routes>
       <Route path="/" element={<Prueba />} />
@@ -23,11 +23,26 @@ function App() {
         path="/register"
         element={token ? <RegistroUsuario /> : <Prueba />}
       />
-      <Route path="/dashbo" element={token ? <Dashbo /> : <Prueba />} />
-      <Route path="/repo" element={token ? <ReportForm /> : <Prueba />} />
-      <Route path="/view" element={token ? <ReportView /> : <Prueba />} />
-      <Route path="/edit" element={token ? <Edit /> : <Prueba />} />
-      <Route path="/seg" element={token ? <Seguimiento /> : <Prueba />} />
+      <Route
+        path="/dashbo"
+        element={token || token_two ? <Dashbo /> : <Prueba />}
+      />
+      <Route
+        path="/repo"
+        element={token || token_two ? <ReportForm /> : <Prueba />}
+      />
+      <Route
+        path="/view"
+        element={token || token_two ? <ReportView /> : <Prueba />}
+      />
+      <Route
+        path="/edit"
+        element={token || token_two ? <Edit /> : <Prueba />}
+      />
+      <Route
+        path="/seg"
+        element={token || token_two ? <Seguimiento /> : <Prueba />}
+      />
     </Routes>
   );
 }
