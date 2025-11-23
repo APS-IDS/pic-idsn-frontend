@@ -61,6 +61,7 @@ function Prueba() {
       };
 
       sessionStorage.setItem("token", JSON.stringify(datos));
+      // console.log("DATOS:", datos);
       navigate("/dashbo");
       dispatch(loginSuccess(datos));
     } catch (error) {

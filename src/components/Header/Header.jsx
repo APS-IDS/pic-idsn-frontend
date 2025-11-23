@@ -12,7 +12,9 @@ const Header = () => {
 
   const dispatch = useDispatch();
 
+  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
   const usuario_redux = useSelector((state) => state.user.usuario);
+  const rol = usuarioSession.usuario || usuario_redux;
 
   const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
   const user = user_object.user;
@@ -44,7 +46,7 @@ const Header = () => {
           {isUserMenuOpen && (
             <div className={styles.menu}>
               <p className={styles.userInfo}>Usuario:{user}</p>
-              <p className={styles.userInfo}>Rol:{usuario_redux}</p>
+              <p className={styles.userInfo}>Rol:{rol}</p>
               <button className={styles.logout} onClick={handleLogout}>
                 Cerrar sesión
               </button>

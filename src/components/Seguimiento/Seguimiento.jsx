@@ -27,12 +27,13 @@ const Seguimiento = () => {
 
   const [soportes, setSoportes] = useState([]);
 
+  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
   const usuario_redux = useSelector((state) => state.user.usuario);
+  const usuario = usuarioSession.usuario || usuario_redux;
 
   const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
   // const usuario = usuario_object.usuario;
-  const usuario = usuario_redux;
 
   const user_name = usuario_object.user_name;
 

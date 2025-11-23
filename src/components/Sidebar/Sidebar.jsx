@@ -5,8 +5,11 @@ import { useSelector } from "react-redux";
 const Sidebar = () => {
   // const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
 
-  // const usuario_sesion = usuario_object.usuario;
-  const usuario_redux = useSelector((state) => state.user.usuario);
+  const usuarioRedux = useSelector((state) => state.user.usuario);
+  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
+
+  const usuario = usuarioSession.usuario || usuarioRedux;
+
   const super_user = useSelector((state) => state.user.user_name);
   // console.log("Usuario_sidebar:", usuario_redux);
 
@@ -20,7 +23,7 @@ const Sidebar = () => {
                 Inicio
               </NavLink>
             </li>
-            {(usuario_redux === "referente_instituto" ||
+            {(usuario === "referente_instituto" ||
               super_user === "superuser") && (
               <li>
                 <NavLink to="/repo" className={styles.active}>

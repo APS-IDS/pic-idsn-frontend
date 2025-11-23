@@ -20,11 +20,13 @@ const ReportView = () => {
 
   const [nombre, setNombre] = useState("");
 
-  const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
+  const usuarioRedux = useSelector((state) => state.user.usuario);
+  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
 
-  // const usuario = usuario_object.usuario;
+  const usuario = usuarioSession.usuario || usuarioRedux;
 
-  const usuario = useSelector((state) => state.user.usuario);
+  // console.log("Usuario session", usuario);
+  // console.log("Usuario Redux", usuarioRedux);
 
   const back = import.meta.env.VITE_APP_BACK;
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
@@ -58,26 +60,6 @@ const ReportView = () => {
   const url_proyectos = `${back}/api/proyectos-idsns`;
 
   const navigate = useNavigate(); // Hook para navegación
-
-  // const customStyles = {
-  //   control: (base) => ({
-  //     ...base,
-  //     minWidth: "280px", // Ajusta el ancho mínimo
-  //     //maxWidth: "400px", // Opcional, limita el ancho máximo
-  //   }),
-  //   menu: (base) => ({
-  //     ...base,
-  //     zIndex: 5, // Asegura que el menú no se superponga
-  //   }),
-  //   option: (base) => ({
-  //     ...base,
-  //     whiteSpace: "nowrap", // Evita que el texto se parta
-  //   }),
-  //   multiValueLabel: (base) => ({
-  //     ...base,
-  //     whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
-  //   }),
-  // };
 
   const customStyles = {
     control: (provided, state) => ({

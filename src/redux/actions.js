@@ -49,6 +49,8 @@ export const get_user = (token) => {
         user_name: data.username,
       };
 
+      sessionStorage.setItem("usuario_rol", JSON.stringify(datos));
+
       // console.log("data user:", datos);
       dispatch({ type: GET_USER, payload: datos });
     } catch (error) {
