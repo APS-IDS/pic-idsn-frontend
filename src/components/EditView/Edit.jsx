@@ -16,12 +16,16 @@ const Edit = () => {
 
   const location = useLocation();
 
-  const evento = location.state?.evento; // Recupera los datos enviados
+  // const evento = location.state?.evento.eventos[0]; // Recupera los datos enviados
+
+  const anexo = location.state?.evento; // el anexo completo
+  const eventos = anexo?.eventos || [];
+
   const [isEdited, setIsEdited] = useState(false); // Nuevo estado
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  // console.log("Evento recibido:", evento);
+  console.log("Evento recibido:", anexo);
 
   useEffect(() => {
     Swal.fire({
@@ -29,7 +33,7 @@ const Edit = () => {
       text: "Recuerda luego de realizar  cambios , dar clic en el boton Guardar para conservar los cambios",
       icon: "warning",
     });
-  }, [evento]);
+  }, [anexo]);
 
   const handle_send = async (event) => {
     // event.preventDefault();
@@ -132,7 +136,7 @@ const Edit = () => {
       // Realizar la solicitud
 
       const response = await fetch(
-        `${back}/api/anexo-tecnicos/${evento.documentId}`,
+        `${back}/api/anexo-tecnicos/${anexo.documentId}`,
         {
           method: "PUT",
           headers: {
@@ -275,29 +279,10 @@ const Edit = () => {
     };
   };
 
-  const [events, setEvents] = useState([transformEvent(evento)]);
+  // const [events, setEvents] = useState([transformEvent(evento)]);
 
-  //Use efect para cuando el usuario salga sin guardar
+  const [events, setEvents] = useState(eventos.map((ev) => transformEvent(ev)));
 
-  // useEffect(() => {
-  //   const handleBeforeUnload = (event) => {
-  //     if (!isEdited) {
-  //       event.preventDefault();
-  //       event.returnValue =
-  //         "¿Estás seguro de que diste clic en el botón Editar? De lo contrario, los cambios no se guardarán.";
-  //     }
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //   };
-  // }, [isEdited]);
-
-  // console.log("url", location.pathname);
-
-  // console.log("Evento enviado", events);
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
 
   return (

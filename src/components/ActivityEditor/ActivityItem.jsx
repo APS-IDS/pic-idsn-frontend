@@ -426,14 +426,14 @@ const ActivityItem = ({
                                     (option) => ({
                                       label: option,
                                       value: option,
-                                      isDisabled:
-                                        selectedOptions.includes(option) &&
-                                        option !== soporte.tipo_soporte,
+                                      // isDisabled:
+                                      //   selectedOptions.includes(option) &&
+                                      //   option !== soporte.tipo_soporte,
                                     })
                                   )}
-                                  isOptionDisabled={(option) =>
-                                    option.isDisabled
-                                  }
+                                  // isOptionDisabled={(option) =>
+                                  //   option.isDisabled
+                                  // }
                                   placeholder="Seleccionar Soporte"
                                 />
                               </td>

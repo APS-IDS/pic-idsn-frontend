@@ -208,3 +208,17 @@
   width: 100%;
   /* max-width: 500px;  */
 }
+.anexoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.anexoHeader h4 {
+  margin: 0;
+}
+.anexoContainer {
+  border: 4px solid #ddd; /* Borde sutil */
+  border-radius: 7px; /* Bordes redondeados */
+}
