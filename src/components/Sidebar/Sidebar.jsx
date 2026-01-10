@@ -11,7 +11,6 @@ const Sidebar = () => {
   const usuario = usuarioSession.usuario || usuarioRedux;
 
   const super_user = useSelector((state) => state.user.user_name);
-  // console.log("Usuario_sidebar:", usuario_redux);
 
   return (
     <div className={styles.side}>

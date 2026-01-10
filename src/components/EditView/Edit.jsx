@@ -25,7 +25,7 @@ const Edit = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  console.log("Evento recibido:", anexo);
+  // console.log("Evento recibido:", anexo);
 
   useEffect(() => {
     Swal.fire({

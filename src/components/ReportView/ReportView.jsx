@@ -41,13 +41,27 @@ const ReportView = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
+  // const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
+  //   filterValue
+  //     ? `&filters[eventos][proyectos_idsn][proyecto][$eq]=${filterValue}`
+  //     : ""
+  // }${
+  //   operatorFilterValue
+  //     ? `&filters[eventos][operador_pic][operador_pic][$eq]=${operatorFilterValue}`
+  //     : ""
+  // }`;
+
   const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
     filterValue
-      ? `&filters[eventos][proyectos_idsn][proyecto][$eq]=${filterValue}`
+      ? `&filters[eventos][proyectos_idsn][proyecto][$containsi]=${encodeURIComponent(
+          filterValue
+        )}`
       : ""
   }${
     operatorFilterValue
-      ? `&filters[eventos][operador_pic][operador_pic][$eq]=${operatorFilterValue}`
+      ? `&filters[eventos][operador_pic][operador_pic][$containsi]=${encodeURIComponent(
+          operatorFilterValue
+        )}`
       : ""
   }`;
 
@@ -55,7 +69,7 @@ const ReportView = () => {
   const url_soportes_get = `${back}/api/check-seguimiento?`;
   const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
 
-  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=100`;
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
 
   const url_proyectos = `${back}/api/proyectos-idsns`;
 

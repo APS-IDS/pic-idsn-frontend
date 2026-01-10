@@ -135,16 +135,16 @@ function Prueba() {
               >
                 INGRESAR
               </MDBBtn>
-              <a className={styles.etiqueta} href="#!">
+              {/* <a className={styles.etiqueta} href="#!">
                 Olvidaste tu contraseña?
-              </a>
-              <p className={styles.etiqueta} style={{ color: "#393f81" }}>
+              </a> */}
+              {/* <p className={styles.etiqueta} style={{ color: "#393f81" }}>
                 ¿No tienes cuenta ?
                 <a href="/register" style={{ color: "#393f81" }}>
                   Registrate Aqui
                 </a>
-              </p>
-
+              </p> */}
+              {/* 
               <div className="d-flex flex-row justify-content-start">
                 <a href="#!" className="small text-muted me-1">
                   Terms of use.
@@ -152,7 +152,7 @@ function Prueba() {
                 <a href="#!" className="small text-muted">
                   Privacy policy
                 </a>
-              </div>
+              </div> */}
             </MDBCardBody>
           </MDBCol>
         </MDBRow>

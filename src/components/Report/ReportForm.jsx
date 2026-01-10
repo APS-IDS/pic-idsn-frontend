@@ -246,7 +246,38 @@ const ReportForm = () => {
       // console.log("Transformed Data:", transformedData);
 
       // Realizar la solicitud
-      // const response = await fetch("http://localhost:1337/api/anexo-tecnicos", {
+
+      //   const response = await fetch(`${back}/api/anexo-tecnicos`, {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       Authorization: `Bearer ${token}`,
+      //     },
+      //     body: JSON.stringify(transformedData),
+      //   });
+
+      //   if (!response.ok) throw new Error("Error al enviar el reporte.");
+
+      //   // Reiniciar el formulario
+      //   setLoading(false);
+
+      //   Swal.fire({
+      //     icon: "success",
+      //     title: "¡Envío correcto!",
+      //     text: "Informacion agregada correctamente!",
+      //   });
+
+      //   resetForm();
+      // } catch (error) {
+      //   Swal.fire({
+      //     icon: "error",
+      //     title: "Error",
+      //     text: "Error al enviar la información!",
+      //   });
+      //   setLoading(false);
+      //   console.error(error);
+      // }
+
       const response = await fetch(`${back}/api/anexo-tecnicos`, {
         method: "POST",
         headers: {
@@ -256,26 +287,36 @@ const ReportForm = () => {
         body: JSON.stringify(transformedData),
       });
 
-      if (!response.ok) throw new Error("Error al enviar el reporte.");
+      const data = await response.json();
 
-      // Reiniciar el formulario
+      if (!response.ok) {
+        const serverMessage =
+          data?.error?.message ||
+          data?.message ||
+          "Error desconocido del servidor";
+
+        throw new Error(`(${response.status}) ${serverMessage}`);
+      }
+
       setLoading(false);
 
       Swal.fire({
         icon: "success",
         title: "¡Envío correcto!",
-        text: "Informacion agregada correctamente!",
+        text: "Información agregada correctamente!",
       });
 
       resetForm();
     } catch (error) {
+      setLoading(false);
+
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Error al enviar la información!",
+        title: "Error al enviar",
+        text: error.message, // 👈 mensaje REAL del backend
       });
-      setLoading(false);
-      console.error(error);
+
+      console.error("ERROR BACKEND:", error);
     }
   };
 

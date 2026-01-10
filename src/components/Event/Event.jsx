@@ -32,7 +32,7 @@ const Event = ({ events, setEvents, edit_button }) => {
   const url = `${back}/api/labels`;
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
   const url_proyectos = `${back}/api/proyectos-idsns`;
-  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=100`;
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
 
   const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
