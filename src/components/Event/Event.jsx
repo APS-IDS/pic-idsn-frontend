@@ -3,11 +3,12 @@ import Product from "../Product/Product";
 import styles from "./Event.module.css";
 import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
+import { useSelector } from "react-redux";
 
 const Event = ({ events, setEvents, edit_button }) => {
   const [expandedEvents, setExpandedEvents] = useState(
     // events.map(() => true) // Inicializamos todos como colapsados
-    events.map((_, index) => index === 0)
+    events.map((_, index) => index === 0),
   );
 
   // Estados
@@ -35,8 +36,12 @@ const Event = ({ events, setEvents, edit_button }) => {
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
 
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
 
   useEffect(() => {
     const fetch_data = async () => {
@@ -189,7 +194,7 @@ const Event = ({ events, setEvents, edit_button }) => {
   const handleStrategicAxisChange = (eventIndex, selectedOptions) => {
     const updatedEvents = [...events];
     updatedEvents[eventIndex].eje_estrategico = selectedOptions.map(
-      (option) => option.value
+      (option) => option.value,
     ); // Almacenar solo los valores seleccionados
     setEvents(updatedEvents);
   };
@@ -197,7 +202,7 @@ const Event = ({ events, setEvents, edit_button }) => {
   const handle_municipio = (eventIndex, selectedOptions) => {
     const updatedEvents = [...events];
     updatedEvents[eventIndex].subregion = selectedOptions.map(
-      (option) => option.value
+      (option) => option.value,
     ); // Guarda los valores seleccionados en un array
     setEvents(updatedEvents);
   };
@@ -388,7 +393,7 @@ const Event = ({ events, setEvents, edit_button }) => {
 
                         label:
                           municipios.find(
-                            (muni) => muni.documentId === subregion
+                            (muni) => muni.documentId === subregion,
                           )?.label || subregion, // Muestra el label.
                       }))}
                       options={municipios.map((muni) => ({
@@ -417,7 +422,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                               label:
                                 operadores.find(
                                   (operador) =>
-                                    operador.documentId === event.operador_pic
+                                    operador.documentId === event.operador_pic,
                                 )?.operador_pic || event.operador_pic,
                             }
                           : null
@@ -440,7 +445,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                           handleEventChange(
                             index,
                             "codigo_nombre_territorio",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                       />
@@ -456,7 +461,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                           handleEventChange(
                             index,
                             "codigo_micro_territorio",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                       />
@@ -472,7 +477,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "total_hogares",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -510,7 +515,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "perfil_profesional",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -529,7 +534,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "perfil_operativo",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -551,7 +556,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                               label:
                                 proyectos.find(
                                   (proyecto) =>
-                                    proyecto.documentId === event.proyecto
+                                    proyecto.documentId === event.proyecto,
                                 )?.proyecto || event.proyecto,
                             }
                           : null
@@ -574,7 +579,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "description_event",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -593,7 +598,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "indicator_name",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />
@@ -608,7 +613,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         handleEventChange(
                           index,
                           "meta_indicator",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                     />

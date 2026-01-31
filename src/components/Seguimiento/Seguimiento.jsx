@@ -12,8 +12,12 @@ const Seguimiento = () => {
   const actividad = location.state?.actividad;
 
   const back = import.meta.env.VITE_APP_BACK;
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
   const url_soportes = `${back}/api/check-seguimiento?`;
   const url_observaciones = `${back}/api/observacio/read?`;
   const url_post_observaciones = `${back}/api/observaciones/register`;
@@ -27,15 +31,9 @@ const Seguimiento = () => {
 
   const [soportes, setSoportes] = useState([]);
 
-  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
+  const usuarioSession = JSON.parse(localStorage.getItem("usuario_rol"));
   const usuario_redux = useSelector((state) => state.user.usuario);
   const usuario = usuarioSession.usuario || usuario_redux;
-
-  const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
-
-  // const usuario = usuario_object.usuario;
-
-  const user_name = usuario_object.user_name;
 
   const documentId = actividad?.documentId;
   const uuid = actividad?.uuid;
@@ -176,10 +174,10 @@ const Seguimiento = () => {
     const estado_seleccionado =
       usuario === "referente_instituto"
         ? estados_referente.find(
-            (e) => e.estado_actividad === status_porcentaje.estado_referente
+            (e) => e.estado_actividad === status_porcentaje.estado_referente,
           )
         : estados_operador.find(
-            (e) => e.estado_actividad === status_porcentaje.estado_operador
+            (e) => e.estado_actividad === status_porcentaje.estado_operador,
           );
 
     const documentId_estado = estado_seleccionado?.documentId || null;
@@ -277,7 +275,7 @@ const Seguimiento = () => {
     // event.preventDefault();
 
     const estado_seleccionado = estados_back.find(
-      (e) => e.estado_soporte === estadoSoportes[id]
+      (e) => e.estado_soporte === estadoSoportes[id],
     );
 
     try {
@@ -332,7 +330,7 @@ const Seguimiento = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
         if (!response.ok) throw new Error("Error al obtener observaciones.");
         const data = await response.json();
@@ -386,7 +384,7 @@ const Seguimiento = () => {
             `${url_soportes}anexo_id=${actividad.documentId}&soporte_id=${soporte.uuid}`,
             {
               headers: { Authorization: `Bearer ${token}` },
-            }
+            },
           );
           if (!response.ok) return null; // Si la respuesta no es OK, devuelve null
 
@@ -594,7 +592,7 @@ const Seguimiento = () => {
                                       </td>
                                       <td>{evidencia.municipio.label}</td>
                                     </tr>
-                                  )
+                                  ),
                                 )
                               ) : (
                                 <tr>
@@ -619,7 +617,7 @@ const Seguimiento = () => {
                                 onChange={(e) =>
                                   handleEstadoChange(
                                     soporte.uuid,
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                               >
@@ -680,7 +678,7 @@ const Seguimiento = () => {
               <td>
                 {actividad.valor_unitario
                   ? new Intl.NumberFormat("es-ES").format(
-                      actividad.valor_unitario
+                      actividad.valor_unitario,
                     )
                   : ""}
               </td>
@@ -708,8 +706,8 @@ const Seguimiento = () => {
                             <td>{mes}</td>
                             <td>{porcentaje}%</td>
                           </tr>
-                        ) : null
-                      )
+                        ) : null,
+                      ),
                     )}
                   </tbody>
                 </table>

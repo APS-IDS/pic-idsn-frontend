@@ -12,13 +12,26 @@ const Header = () => {
 
   const dispatch = useDispatch();
 
-  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
-  const usuario_redux = useSelector((state) => state.user.usuario);
-  const rol = usuarioSession.usuario || usuario_redux;
+  // const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
+  // const usuario_redux = useSelector((state) => state.user.usuario);
+  // const rol = usuarioSession.usuario || usuario_redux;
 
-  const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const user = user_object.user;
+  // const user_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const user = user_object.user;
+
+  const userRedux = useSelector((state) => state.user.user);
+  const rolRedux = useSelector((state) => state.user.usuario);
+
+  const tokenLS = JSON.parse(localStorage.getItem("token")) || {};
+  const userLS = tokenLS.user;
+
+  const rolLS =
+    JSON.parse(localStorage.getItem("usuario_rol"))?.usuario || null;
+
   // console.log("datos_usuario", user);
+
+  const user = userRedux || userLS || "";
+  const rol = rolRedux || rolLS || "";
 
   const handleHomeClick = () => {
     navigate("/dashbo"); // Redirigir al Home
@@ -29,7 +42,8 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    sessionStorage.clear();
+    // sessionStorage.clear();
+    localStorage.clear();
     dispatch(logout());
     navigate("/"); // Redirigir al login
   };

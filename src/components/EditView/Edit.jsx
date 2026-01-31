@@ -7,13 +7,16 @@ import styles from "../EditView/Edit.module.css";
 import { FaEdit } from "react-icons/fa"; // Si usas react-icons}
 import { FaSave } from "react-icons/fa";
 import Spinner from "../Spinner/Spinner";
+import { useSelector } from "react-redux";
 
 import { use } from "react";
 const Edit = () => {
   const back = import.meta.env.VITE_APP_BACK;
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
-
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
   const location = useLocation();
 
   // const evento = location.state?.evento.eventos[0]; // Recupera los datos enviados
@@ -144,7 +147,7 @@ const Edit = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(transformedData),
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Error al enviar el reporte.");
@@ -177,7 +180,7 @@ const Edit = () => {
     return {
       //subregion: evento.territorializacion.subregion,
       subregion: evento?.territorializacion?.municipios?.map(
-        (muni) => muni.documentId
+        (muni) => muni.documentId,
       ),
       operador_pic: evento?.operador_pic?.documentId,
       // municipio_priorizado: evento.territorializacion.municipio,
@@ -263,7 +266,7 @@ const Edit = () => {
               peso: actividad.cronograma[11].Dic,
             },
           ],
-        }))
+        })),
       ),
 
       product_data: {

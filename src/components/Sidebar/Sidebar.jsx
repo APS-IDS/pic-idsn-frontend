@@ -3,14 +3,25 @@ import { NavLink } from "react-router-dom";
 import styles from "./Sidebar.module.css";
 import { useSelector } from "react-redux";
 const Sidebar = () => {
-  // const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
+  // const usuarioRedux = useSelector((state) => state.user.usuario);
+  // const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
 
-  const usuarioRedux = useSelector((state) => state.user.usuario);
-  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
+  // const usuario = usuarioSession.usuario || usuarioRedux;
 
-  const usuario = usuarioSession.usuario || usuarioRedux;
+  // const super_user = useSelector((state) => state.user.user_name);
 
-  const super_user = useSelector((state) => state.user.user_name);
+  // Redux (principal)
+  const rolRedux = useSelector((state) => state.user.usuario);
+  const userRedux = useSelector((state) => state.user.user_name);
+
+  // localStorage (respaldo)
+  const usuarioRolLS = JSON.parse(localStorage.getItem("usuario_rol")) || {};
+  const rolLS = usuarioRolLS.usuario;
+  const userLS = usuarioRolLS.user_name;
+
+  // Resolver valores finales
+  const usuario = rolRedux || rolLS;
+  const super_user = userRedux || userLS;
 
   return (
     <div className={styles.side}>

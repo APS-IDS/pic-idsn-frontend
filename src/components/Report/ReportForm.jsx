@@ -17,8 +17,12 @@ const url = `${back}/api/labels`;
 
 const ReportForm = () => {
   //const token = useSelector((state) => state.token.token);
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
   // console.log("token", token_object.token);
 
   const [ejes, setEjes] = useState([]);

@@ -18,21 +18,36 @@ const ReportView = () => {
   const [error, setError] = useState(null);
   const [filterValue, setFilterValue] = useState(""); // Estado para el filtro
   const [operatorFilterValue, setOperatorFilterValue] = useState(""); // Filtro por operador
-  const anexoDate = '2026'
+
+  const anexoDate = "2025";
 
   const [nombre, setNombre] = useState("");
 
-  const usuarioRedux = useSelector((state) => state.user.usuario);
-  const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
+  // const usuarioRedux = useSelector((state) => state.user.usuario);
+  // const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
 
-  const usuario = usuarioSession.usuario || usuarioRedux;
+  // const usuario = usuarioSession.usuario || usuarioRedux;
+
+  const user_Redux = useSelector((state) => state.user.usuario);
+
+  const user_LS = JSON.parse(localStorage.getItem("usuario_rol"));
+
+  // console.log("datos_usuario", user);
+
+  const usuario = user_Redux || user_LS?.usuario || "";
 
   // console.log("Usuario session", usuario);
   // console.log("Usuario Redux", usuarioRedux);
 
   const back = import.meta.env.VITE_APP_BACK;
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+
+  // const token_redux = useSelector((state) => state.token.token);
+  // const token_object = JSON.parse(localStorage.getItem("token")) || {};
+  // const token = token_object.token;
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
 
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
   const [municipios, setMunicipios] = useState([]);
@@ -52,8 +67,10 @@ const ReportView = () => {
     }
     // Full date -> that day at UTC midnight
     const d = new Date(dateString);
-    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)).toISOString();
-  }
+    return new Date(
+      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0),
+    ).toISOString();
+  };
 
   const getLteDate = (dateString) => {
     // Year-only (e.g., '2025') -> Dec 31 at UTC midnight
@@ -63,35 +80,40 @@ const ReportView = () => {
     }
     // Full date -> that day at UTC midnight
     const d = new Date(dateString);
-    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)).toISOString();
-  }
+    return new Date(
+      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0),
+    ).toISOString();
+  };
 
   const anexosQuery = qs.stringify(
-  {
-    pLevel: 10,
-    pagination: { page: currentPage, pageSize },
-    filters: {
-      ...(anexoDate
+    {
+      pLevel: 10,
+      pagination: { page: currentPage, pageSize },
+      filters: {
+        ...(anexoDate
           ? {
               anexo_tecnico_date: {
                 $gte: getGteDate(anexoDate),
-                $lte: getLteDate(anexoDate)
-              }
+                $lte: getLteDate(anexoDate),
+              },
             }
           : {}),
-      eventos: {
-        ...(filterValue
-          ? { proyectos_idsn: { proyecto: { $containsi: filterValue } } }
-          : {}),
-        ...(operatorFilterValue
-          ? { operador_pic: { operador_pic: { $containsi: operatorFilterValue } } }
-          : {}),
-        
+        eventos: {
+          ...(filterValue
+            ? { proyectos_idsn: { proyecto: { $containsi: filterValue } } }
+            : {}),
+          ...(operatorFilterValue
+            ? {
+                operador_pic: {
+                  operador_pic: { $containsi: operatorFilterValue },
+                },
+              }
+            : {}),
+        },
       },
     },
-  },
-  { encodeValuesOnly: true }
-);
+    { encodeValuesOnly: true },
+  );
 
   const url_anexos = `${back}/api/anexo-tecnicos?${anexosQuery}`;
 
@@ -126,8 +148,8 @@ const ReportView = () => {
       backgroundColor: state.isSelected
         ? "#007bff"
         : state.isFocused
-        ? "#e6f0ff"
-        : "white",
+          ? "#e6f0ff"
+          : "white",
       color: state.isSelected ? "white" : "black",
     }),
     singleValue: (provided) => ({
@@ -151,8 +173,6 @@ const ReportView = () => {
       },
     });
   };
-
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -275,7 +295,7 @@ const ReportView = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       let existingData = null;
@@ -315,7 +335,7 @@ const ReportView = () => {
         </div> 
 
             </div>
-          `
+          `,
           )
           .join("");
       }
@@ -391,7 +411,7 @@ const ReportView = () => {
                     ${municipios
                       .map(
                         (muni) =>
-                          `<option value="${muni.documentId}">${muni.label}</option>`
+                          `<option value="${muni.documentId}">${muni.label}</option>`,
                       )
                       .join("")}
                   </select>
@@ -423,7 +443,7 @@ const ReportView = () => {
 
               extraEvidenciasDiv.insertAdjacentHTML(
                 "beforeend",
-                newEvidenciaHTML
+                newEvidenciaHTML,
               );
               nuevasEvidencias.push(evidenciaId);
 
@@ -442,7 +462,7 @@ const ReportView = () => {
                       ? event.target.files[0].name
                       : "No hay archivos adjuntos";
                   document.getElementById(
-                    `tagsmall-${evidenciaId}`
+                    `tagsmall-${evidenciaId}`,
                   ).textContent = fileName;
                 });
 
@@ -475,7 +495,7 @@ const ReportView = () => {
               Swal.fire(
                 "Error",
                 "Todos los soportes deben tener región y archivo. Por favor intente nuevamente",
-                "error"
+                "error",
               );
               return;
             }
@@ -483,7 +503,7 @@ const ReportView = () => {
             try {
               showLoadingSwal(
                 "Enviando soportes, por favor espera ...,",
-                "Enviando Soportes..."
+                "Enviando Soportes...",
               );
               // setLoading(true);
               const formData = new FormData();
@@ -509,7 +529,7 @@ const ReportView = () => {
               Swal.fire(
                 "Error",
                 "Hubo un problema al enviar los datos.",
-                "error"
+                "error",
               );
               return;
             }
@@ -518,7 +538,7 @@ const ReportView = () => {
           Swal.fire(
             "¡Éxito!",
             "Todos los soportes fueron enviados.",
-            "success"
+            "success",
           );
         } else {
           // console.log("El usuario canceló el popup");
@@ -549,7 +569,7 @@ const ReportView = () => {
         try {
           showLoadingSwal(
             "Eliminando soporte, por favor espera ...",
-            "Eliminado soportes..."
+            "Eliminado soportes...",
           );
           const response = await fetch(`${url_soportes_delete}`, {
             method: "PUT",
@@ -571,7 +591,7 @@ const ReportView = () => {
           Swal.fire(
             "Eliminado",
             "La evidencia ha sido eliminada con éxito.",
-            "success"
+            "success",
           );
 
           // Volver a cargar la lista de soportes después de eliminar
@@ -581,7 +601,7 @@ const ReportView = () => {
           Swal.fire(
             "Error",
             "Hubo un problema al eliminar la evidencia.",
-            "error"
+            "error",
           );
         }
       }
@@ -592,8 +612,8 @@ const ReportView = () => {
   const projectOptions = [
     ...new Set(
       data?.data?.flatMap((row) =>
-        row.eventos.map((evento) => evento.proyectos_idsn?.proyecto)
-      )
+        row.eventos.map((evento) => evento.proyectos_idsn?.proyecto),
+      ),
     ),
   ].filter(Boolean); // Filtrar valores no válidos (null, undefined)
 
@@ -605,9 +625,9 @@ const ReportView = () => {
         row.eventos.flatMap(
           (evento) =>
             // evento.productos.map((producto) => producto.operador_pic.operador_pic)
-            evento?.operador_pic?.operador_pic
-        )
-      )
+            evento?.operador_pic?.operador_pic,
+        ),
+      ),
     ),
   ].filter(Boolean);
 
@@ -619,7 +639,7 @@ const ReportView = () => {
         (evento) =>
           (!filterValue || evento.proyectos_idsn?.proyecto === filterValue) &&
           (!operatorFilterValue ||
-            evento?.operador_pic?.operador_pic === operatorFilterValue)
+            evento?.operador_pic?.operador_pic === operatorFilterValue),
       ),
     }))
     .filter((row) => row.eventos.length > 0);
@@ -683,7 +703,7 @@ const ReportView = () => {
                   value: operatorFilterValue,
                   label:
                     operadores.find(
-                      (o) => o.operador_pic === operatorFilterValue
+                      (o) => o.operador_pic === operatorFilterValue,
                     )?.operador_pic || operatorFilterValue,
                 }
               : { value: "", label: "Todos los operadores" }
@@ -745,7 +765,7 @@ const ReportView = () => {
                         <table>
                           <tbody>
                             {Array.isArray(
-                              evento?.territorializacion?.municipios
+                              evento?.territorializacion?.municipios,
                             ) &&
                             evento.territorializacion.municipios.length > 0 ? (
                               evento.territorializacion.municipios.map(
@@ -753,7 +773,7 @@ const ReportView = () => {
                                   <tr key={index}>
                                     <td>{muni.label}</td>
                                   </tr>
-                                )
+                                ),
                               )
                             ) : (
                               <tr>
@@ -848,7 +868,7 @@ const ReportView = () => {
                                                         }
                                                       </td>
                                                     </tr>
-                                                  )
+                                                  ),
                                                 )}
                                               </tbody>
                                             </table>
@@ -915,7 +935,7 @@ const ReportView = () => {
                                                                     }
                                                                   </td>
                                                                 </tr>
-                                                              )
+                                                              ),
                                                             )}
                                                           </tbody>
                                                         </table>
@@ -939,7 +959,7 @@ const ReportView = () => {
                                                                     }
                                                                   </td>
                                                                 </tr>
-                                                              )
+                                                              ),
                                                             )}
                                                           </tbody>
                                                         </table>
@@ -952,7 +972,7 @@ const ReportView = () => {
                                                             {actividad.poblaciones.map(
                                                               (
                                                                 poblacion,
-                                                                i
+                                                                i,
                                                               ) => (
                                                                 <tr
                                                                   key={
@@ -966,7 +986,7 @@ const ReportView = () => {
                                                                     }
                                                                   </td>
                                                                 </tr>
-                                                              )
+                                                              ),
                                                             )}
                                                           </tbody>
                                                         </table>
@@ -1029,7 +1049,7 @@ const ReportView = () => {
                                                                           onClick={() =>
                                                                             handle_soporte(
                                                                               row.documentId,
-                                                                              soporte.uuid
+                                                                              soporte.uuid,
                                                                             )
                                                                           }
                                                                           className={
@@ -1042,7 +1062,7 @@ const ReportView = () => {
                                                                       </td>
                                                                     )}
                                                                 </tr>
-                                                              )
+                                                              ),
                                                             )}
                                                           </tbody>
                                                         </table>
@@ -1060,9 +1080,9 @@ const ReportView = () => {
 
                                                                 {actividad.valor_unitario
                                                                   ? new Intl.NumberFormat(
-                                                                      "es-ES"
+                                                                      "es-ES",
                                                                     ).format(
-                                                                      actividad.valor_unitario
+                                                                      actividad.valor_unitario,
                                                                     )
                                                                   : ""}
                                                               </td>
@@ -1083,9 +1103,9 @@ const ReportView = () => {
                                                         >
                                                           {actividad.valor_total
                                                             ? new Intl.NumberFormat(
-                                                                "es-ES"
+                                                                "es-ES",
                                                               ).format(
-                                                                actividad.valor_total
+                                                                actividad.valor_total,
                                                               )
                                                             : ""}
                                                         </div>
@@ -1110,7 +1130,7 @@ const ReportView = () => {
                                                             {actividad.cronograma.map(
                                                               (crono, i) =>
                                                                 Object.entries(
-                                                                  crono
+                                                                  crono,
                                                                 ).map(
                                                                   ([
                                                                     mes,
@@ -1131,8 +1151,8 @@ const ReportView = () => {
                                                                           %
                                                                         </td>
                                                                       </tr>
-                                                                    ) : null
-                                                                )
+                                                                    ) : null,
+                                                                ),
                                                             )}
                                                           </tbody>
                                                         </table>
@@ -1150,7 +1170,7 @@ const ReportView = () => {
                                                                 ...actividad,
                                                                 documentId:
                                                                   row.documentId,
-                                                              }
+                                                              },
                                                             )
                                                           }
                                                         >
@@ -1166,7 +1186,7 @@ const ReportView = () => {
                                                     </tr>
                                                   </tbody>
                                                 </table>
-                                              )
+                                              ),
                                             )}
                                           </td>
                                         </tr>

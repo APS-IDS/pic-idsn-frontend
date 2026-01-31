@@ -45,20 +45,20 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  RadialLinearScale
+  RadialLinearScale,
 );
 
 const Dashbo = () => {
   const back = import.meta.env.VITE_APP_BACK;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(get_data(token));
-    dispatch(get_user(token));
+    dispatch(get_data());
+    dispatch(get_user());
   }, [dispatch]);
 
   const globalData = useSelector((state) => state.data);
@@ -70,10 +70,6 @@ const Dashbo = () => {
   // console.log("Estado loading", loading);
 
   if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
-
-  const usuario_object = JSON.parse(sessionStorage.getItem("usuario")) || {};
-
-  const usuario = usuario_object.usuario;
 
   // console.log("usuario_rol", usuario);
 

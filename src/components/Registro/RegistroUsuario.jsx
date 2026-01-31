@@ -14,6 +14,7 @@ import imagen from "../../assets/Logo2.jpg";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert";
 import Select from "react-select";
+import { useSelector } from "react-redux";
 
 function Register() {
   const [form, setForm] = useState({
@@ -44,8 +45,12 @@ function Register() {
 
   const navigate = useNavigate();
   const back = import.meta.env.VITE_APP_BACK;
-  const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  const token = token_object.token;
+  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
+  // const token = token_object.token;
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=100`;
 
   const url_custom_roles = `${back}/api/custom-roles`;
@@ -174,7 +179,7 @@ function Register() {
     event.preventDefault();
 
     const selectedRole = roles.find(
-      (r) => r.id === parseInt(form.custom_role_id)
+      (r) => r.id === parseInt(form.custom_role_id),
     );
     if (!selectedRole) {
       Swal({
@@ -395,7 +400,7 @@ function Register() {
                             value: form.custom_role_id,
                             label:
                               roles.find(
-                                (role) => role.id === form.custom_role_id
+                                (role) => role.id === form.custom_role_id,
                               )?.name || form.custom_role_id,
                           }
                         : { value: "", label: "Selecciona un rol" }
