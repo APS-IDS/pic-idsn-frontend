@@ -11,12 +11,14 @@ import { useSelector } from "react-redux";
 import withReactContent from "sweetalert2-react-content";
 import Select from "react-select"; // Importamos React Select
 
+import qs from "qs";
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterValue, setFilterValue] = useState(""); // Estado para el filtro
   const [operatorFilterValue, setOperatorFilterValue] = useState(""); // Filtro por operador
+  const anexoDate = '2026'
 
   const [nombre, setNombre] = useState("");
 
@@ -41,29 +43,57 @@ const ReportView = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
-  // const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
-  //   filterValue
-  //     ? `&filters[eventos][proyectos_idsn][proyecto][$eq]=${filterValue}`
-  //     : ""
-  // }${
-  //   operatorFilterValue
-  //     ? `&filters[eventos][operador_pic][operador_pic][$eq]=${operatorFilterValue}`
-  //     : ""
-  // }`;
 
-  const url_anexos = `${back}/api/anexo-tecnicos?pLevel=10&pagination[page]=${currentPage}&pagination[pageSize]=${pageSize}${
-    filterValue
-      ? `&filters[eventos][proyectos_idsn][proyecto][$containsi]=${encodeURIComponent(
-          filterValue
-        )}`
-      : ""
-  }${
-    operatorFilterValue
-      ? `&filters[eventos][operador_pic][operador_pic][$containsi]=${encodeURIComponent(
-          operatorFilterValue
-        )}`
-      : ""
-  }`;
+  const getGteDate = (dateString) => {
+    // Year-only (e.g., '2025') -> Jan 1 at UTC midnight
+    if (/^\d{4}$/.test(dateString)) {
+      const year = Number(dateString);
+      return new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0)).toISOString();
+    }
+    // Full date -> that day at UTC midnight
+    const d = new Date(dateString);
+    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)).toISOString();
+  }
+
+  const getLteDate = (dateString) => {
+    // Year-only (e.g., '2025') -> Dec 31 at UTC midnight
+    if (/^\d{4}$/.test(dateString)) {
+      const year = Number(dateString);
+      return new Date(Date.UTC(year, 11, 31, 0, 0, 0, 0)).toISOString();
+    }
+    // Full date -> that day at UTC midnight
+    const d = new Date(dateString);
+    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)).toISOString();
+  }
+
+  const anexosQuery = qs.stringify(
+  {
+    pLevel: 10,
+    pagination: { page: currentPage, pageSize },
+    filters: {
+      ...(anexoDate
+          ? {
+              anexo_tecnico_date: {
+                $gte: getGteDate(anexoDate),
+                $lte: getLteDate(anexoDate)
+              }
+            }
+          : {}),
+      eventos: {
+        ...(filterValue
+          ? { proyectos_idsn: { proyecto: { $containsi: filterValue } } }
+          : {}),
+        ...(operatorFilterValue
+          ? { operador_pic: { operador_pic: { $containsi: operatorFilterValue } } }
+          : {}),
+        
+      },
+    },
+  },
+  { encodeValuesOnly: true }
+);
+
+  const url_anexos = `${back}/api/anexo-tecnicos?${anexosQuery}`;
 
   const url_soportes = `${back}/api/seguimiento/upload-file`;
   const url_soportes_get = `${back}/api/check-seguimiento?`;
@@ -121,6 +151,8 @@ const ReportView = () => {
       },
     });
   };
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
