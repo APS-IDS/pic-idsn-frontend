@@ -5,7 +5,7 @@ import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 
-const Event = ({ events, setEvents, edit_button }) => {
+const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
   const [expandedEvents, setExpandedEvents] = useState(
     // events.map(() => true) // Inicializamos todos como colapsados
     events.map((_, index) => index === 0),
@@ -35,10 +35,6 @@ const Event = ({ events, setEvents, edit_button }) => {
   const url_proyectos = `${back}/api/proyectos-idsns`;
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
-
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
-
   const token =
     useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
@@ -365,6 +361,7 @@ const Event = ({ events, setEvents, edit_button }) => {
             <table className={styles.table}>
               <thead>
                 <tr>
+                  <th>Año Anexo</th>
                   <th>Nodo-Municipio Priorizado</th>
                   <th>Operador PIC</th>
                   <th>Código - Nombre de Territorio APS</th>
@@ -385,6 +382,30 @@ const Event = ({ events, setEvents, edit_button }) => {
               </thead>
               <tbody>
                 <tr>
+                  <td>
+                    <Select
+                      name="año"
+                      options={[
+                        { value: "2025", label: "2025" },
+                        { value: "2026", label: "2026" },
+                      ]}
+                      value={
+                        anexoYear
+                          ? {
+                              value: anexoYear.split("-")[0],
+                              label: anexoYear.split("-")[0],
+                            }
+                          : null
+                      }
+                      onChange={(selectedOption) =>
+                        setAnexoYear(
+                          selectedOption ? `${selectedOption.value}-01-01` : "",
+                        )
+                      }
+                      placeholder="Seleccionar Año"
+                      styles={customStyles}
+                    />
+                  </td>
                   <td>
                     <Select
                       isMulti
@@ -607,6 +628,8 @@ const Event = ({ events, setEvents, edit_button }) => {
                   <td>
                     <textarea
                       className={styles.textarea}
+                      placeholder="Máximo numero de caracteres 2000"
+                      maxLength={2000}
                       type="text"
                       value={event.meta_indicator || ""}
                       onChange={(e) =>
@@ -617,6 +640,7 @@ const Event = ({ events, setEvents, edit_button }) => {
                         )
                       }
                     />
+                    <p>{event.meta_indicator?.length || 0} / 2000 caracteres</p>
                   </td>
 
                   <td>

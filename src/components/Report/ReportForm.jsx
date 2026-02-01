@@ -16,10 +16,6 @@ const back = import.meta.env.VITE_APP_BACK;
 const url = `${back}/api/labels`;
 
 const ReportForm = () => {
-  //const token = useSelector((state) => state.token.token);
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
-
   const token =
     useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
@@ -35,6 +31,8 @@ const ReportForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [labels, setLabels] = useState([]);
+
+  const [anexoYear, setAnexoYear] = useState("");
 
   const [events, setEvents] = useState([
     {
@@ -156,10 +154,13 @@ const ReportForm = () => {
       // Transformar los datos al formato requerido
       const transformedData = {
         data: {
+          anexo_tecnico_date: anexoYear || null,
+
           eventos: events.map((event) => ({
             // operador_pic: {
             //   connect: [{ documentId: event.operador_pic }] || null,
             // },
+
             operador_pic: event.operador_pic
               ? {
                   connect: [{ documentId: event.operador_pic }],
@@ -247,41 +248,6 @@ const ReportForm = () => {
         },
       };
 
-      // console.log("Transformed Data:", transformedData);
-
-      // Realizar la solicitud
-
-      //   const response = await fetch(`${back}/api/anexo-tecnicos`, {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //     body: JSON.stringify(transformedData),
-      //   });
-
-      //   if (!response.ok) throw new Error("Error al enviar el reporte.");
-
-      //   // Reiniciar el formulario
-      //   setLoading(false);
-
-      //   Swal.fire({
-      //     icon: "success",
-      //     title: "¡Envío correcto!",
-      //     text: "Informacion agregada correctamente!",
-      //   });
-
-      //   resetForm();
-      // } catch (error) {
-      //   Swal.fire({
-      //     icon: "error",
-      //     title: "Error",
-      //     text: "Error al enviar la información!",
-      //   });
-      //   setLoading(false);
-      //   console.error(error);
-      // }
-
       const response = await fetch(`${back}/api/anexo-tecnicos`, {
         method: "POST",
         headers: {
@@ -343,6 +309,8 @@ const ReportForm = () => {
               poblaciones={poblaciones}
               soportes={soportes}
               cups={cups}
+              anexoYear={anexoYear}
+              setAnexoYear={setAnexoYear}
             />
           </div>
 

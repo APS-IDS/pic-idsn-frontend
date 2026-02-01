@@ -19,14 +19,11 @@ const ReportView = () => {
   const [filterValue, setFilterValue] = useState(""); // Estado para el filtro
   const [operatorFilterValue, setOperatorFilterValue] = useState(""); // Filtro por operador
 
-  const anexoDate = "2025";
+  // const anexoDate = "2025";
+
+  const [anexoDate, setYanexoDate] = useState("");
 
   const [nombre, setNombre] = useState("");
-
-  // const usuarioRedux = useSelector((state) => state.user.usuario);
-  // const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
-
-  // const usuario = usuarioSession.usuario || usuarioRedux;
 
   const user_Redux = useSelector((state) => state.user.usuario);
 
@@ -40,10 +37,6 @@ const ReportView = () => {
   // console.log("Usuario Redux", usuarioRedux);
 
   const back = import.meta.env.VITE_APP_BACK;
-
-  // const token_redux = useSelector((state) => state.token.token);
-  // const token_object = JSON.parse(localStorage.getItem("token")) || {};
-  // const token = token_object.token;
 
   const token =
     useSelector((state) => state.token.token) ||
@@ -197,7 +190,14 @@ const ReportView = () => {
     };
 
     fetchData();
-  }, [token, filterValue, operatorFilterValue, currentPage, pageSize]);
+  }, [
+    token,
+    filterValue,
+    operatorFilterValue,
+    anexoDate,
+    currentPage,
+    pageSize,
+  ]);
 
   useEffect(() => {
     const fetch_subregion = async () => {
@@ -267,7 +267,7 @@ const ReportView = () => {
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
-  // console.log("datos", data);
+  console.log("datos", data);
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -608,42 +608,6 @@ const ReportView = () => {
     });
   };
 
-  // Obtener lista única de valores para el menú desplegable
-  const projectOptions = [
-    ...new Set(
-      data?.data?.flatMap((row) =>
-        row.eventos.map((evento) => evento.proyectos_idsn?.proyecto),
-      ),
-    ),
-  ].filter(Boolean); // Filtrar valores no válidos (null, undefined)
-
-  // Obtener lista única de valores para el menú desplegable de operadores
-
-  const operatorOptions = [
-    ...new Set(
-      data?.data?.flatMap((row) =>
-        row.eventos.flatMap(
-          (evento) =>
-            // evento.productos.map((producto) => producto.operador_pic.operador_pic)
-            evento?.operador_pic?.operador_pic,
-        ),
-      ),
-    ),
-  ].filter(Boolean);
-
-  // Filtrar datos basados en los valores seleccionados
-  const filteredData = data?.data
-    ?.map((row) => ({
-      ...row,
-      eventos: row.eventos.filter(
-        (evento) =>
-          (!filterValue || evento.proyectos_idsn?.proyecto === filterValue) &&
-          (!operatorFilterValue ||
-            evento?.operador_pic?.operador_pic === operatorFilterValue),
-      ),
-    }))
-    .filter((row) => row.eventos.length > 0);
-
   return (
     <div className={styles.contenedor_principal}>
       <Header />
@@ -717,6 +681,33 @@ const ReportView = () => {
           // className={styles.filterSelect} // reutilizas tu clase si quieres
         />
       </div>
+
+      <div className={styles.filterContainer}>
+        <div className={styles.container_label}>
+          <label htmlFor="yearFilter">Filtrar por Año:</label>
+        </div>
+
+        <Select
+          name="year"
+          options={[
+            { value: "", label: "Todos los años" },
+            { value: "2025", label: "2025" },
+            { value: "2026", label: "2026" },
+          ]}
+          value={
+            anexoDate
+              ? { value: anexoDate, label: anexoDate }
+              : { value: "", label: "Todos los años" }
+          }
+          onChange={(selectedOption) => {
+            setYanexoDate(selectedOption?.value || "");
+            setCurrentPage(1);
+          }}
+          placeholder="Seleccionar año"
+          styles={customStyles}
+        />
+      </div>
+
       <div className={styles.formContainer}>
         {/* {filteredData?.map((row, index) => */}
 
@@ -739,6 +730,7 @@ const ReportView = () => {
                 <table key={`${index}-${evento.id}`} className={styles.table}>
                   <thead>
                     <tr>
+                      <th>Año Anexo</th>
                       <th>Nodo - Municipio Priorizado</th>
                       <th>Operador Pic</th>
                       <th>Código - Nombre de Territorio APS</th>
@@ -761,6 +753,7 @@ const ReportView = () => {
                   </thead>
                   <tbody>
                     <tr>
+                      <td>{row?.anexo_tecnico_date?.slice(0, 4)}</td>
                       <td>
                         <table>
                           <tbody>

@@ -24,6 +24,12 @@ const Edit = () => {
   const anexo = location.state?.evento; // el anexo completo
   const eventos = anexo?.eventos || [];
 
+  const [anexoYear, setAnexoYear] = useState(() => {
+    // si el anexo ya tiene fecha, la sacamos
+    const fecha = anexo?.anexo_tecnico_date;
+    return fecha ? fecha.slice(0, 4) : "";
+  });
+
   const [isEdited, setIsEdited] = useState(false); // Nuevo estado
   const navigate = useNavigate();
 
@@ -47,6 +53,7 @@ const Edit = () => {
       setLoading(true);
       const transformedData = {
         data: {
+          anexo_tecnico_date: anexoYear ? `${anexoYear}-01-01` : null,
           eventos: events.map((event) => ({
             operador_pic: event.operador_pic
               ? {
@@ -295,6 +302,8 @@ const Edit = () => {
         <Event
           events={events}
           setEvents={setEvents}
+          anexoYear={anexoYear}
+          setAnexoYear={setAnexoYear}
           edit_button={
             <button
               className={styles.edit_button}
