@@ -60,7 +60,7 @@ const Product = ({
     productIndex,
     indicatorIndex,
     field,
-    value
+    value,
   ) => {
     const updatedProducts = [...product_data.producto];
     const indicators = updatedProducts[productIndex].indicadores || [];
@@ -96,7 +96,7 @@ const Product = ({
 
   const handleRemoveProduct = (productIndex) => {
     const updatedProducts = product_data.producto.filter(
-      (_, index) => index !== productIndex
+      (_, index) => index !== productIndex,
     );
     setProductData({ ...product_data, producto: updatedProducts });
   };
@@ -187,19 +187,19 @@ const Product = ({
                         <textarea
                           className={styles.textarea}
                           type="text"
-                          placeholder="Máximo numero de caracteres 600"
-                          maxLength={600}
+                          placeholder="Máximo numero de caracteres 2000"
+                          maxLength={2000}
                           value={product.descripcion_producto || ""}
                           onChange={(e) =>
                             handleInputChange(
                               productIndex,
                               "descripcion_producto",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                         />
                         <p>
-                          {product.descripcion_producto?.length || 0} / 600
+                          {product.descripcion_producto?.length || 0} / 2000
                           caracteres
                         </p>
                       </div>
@@ -230,7 +230,7 @@ const Product = ({
                                     // )
                                     handle_remove_indicador(
                                       productIndex,
-                                      indicatorIndex
+                                      indicatorIndex,
                                     )
                                   }
                                   className={styles.removeButton_añadir}
@@ -259,7 +259,7 @@ const Product = ({
                                       productIndex,
                                       indicatorIndex,
                                       "meta_producto",
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                 />
@@ -273,7 +273,7 @@ const Product = ({
                                       productIndex,
                                       indicatorIndex,
                                       "cantidad",
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                 />
@@ -286,14 +286,14 @@ const Product = ({
                                       productIndex,
                                       indicatorIndex,
                                       "indicador_linea_base",
-                                      e.target.value
+                                      e.target.value,
                                     )
                                   }
                                 />
                               </div>
                             )}
                           </div>
-                        )
+                        ),
                       )}
                     </td>
 
