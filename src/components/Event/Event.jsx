@@ -529,8 +529,8 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                   <td>
                     <textarea
                       className={styles.textarea}
-                      placeholder="Máximo numero de caracteres 300"
-                      maxLength={300}
+                      placeholder="Máximo numero de caracteres 2000"
+                      maxLength={2000}
                       value={event.perfil_profesional || ""}
                       onChange={(e) =>
                         handleEventChange(
@@ -541,7 +541,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                       }
                     />
                     <p>
-                      {event.perfil_profesional?.length || 0} / 300 caracteres
+                      {event.perfil_profesional?.length || 0} / 2000 caracteres
                     </p>
                   </td>
                   <td>
@@ -593,8 +593,8 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                     <textarea
                       className={styles.textarea}
                       type="text"
-                      placeholder="Máximo numero de caracteres 400"
-                      maxLength={400}
+                      placeholder="Máximo numero de caracteres 2000"
+                      maxLength={2000}
                       value={event.description_event || ""}
                       onChange={(e) =>
                         handleEventChange(
@@ -605,14 +605,14 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                       }
                     />
                     <p>
-                      {event.description_event?.length || 0} / 400 caracteres
+                      {event.description_event?.length || 0} / 2000 caracteres
                     </p>
                   </td>
                   <td>
                     <textarea
                       className={styles.textarea}
-                      placeholder="Máximo numero de caracteres 400"
-                      maxLength={400}
+                      placeholder="Máximo numero de caracteres 2000"
+                      maxLength={2000}
                       type="text"
                       value={event.indicator_name || ""}
                       onChange={(e) =>
@@ -623,7 +623,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                         )
                       }
                     />
-                    <p>{event.indicator_name?.length || 0} / 400 caracteres</p>
+                    <p>{event.indicator_name?.length || 0} / 2000 caracteres</p>
                   </td>
                   <td>
                     <textarea
