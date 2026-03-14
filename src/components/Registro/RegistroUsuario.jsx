@@ -200,8 +200,8 @@ function Register() {
       !form.cargo ||
       !form.entidad ||
       !form.numero_documento ||
-      !form.custom_role_id,
-    // (selectedRoleName === "operador" && !form.operador_id); // <- operador obligatorio si es ese rol
+      !form.custom_role_id ||
+      (selectedRoleName === "operador" && !form.operador_id), // <- operador obligatorio si es ese rol
     [form],
   );
 
@@ -239,28 +239,14 @@ function Register() {
           entidad: form.entidad,
           confirmed: false,
           blocked: false,
-          role: {
-            connect: [
-              {
-                id: tipos.roles[1].id,
-                documentId: tipos.roles[1].documentId,
-              },
-            ],
-          },
-          custom_roles: {
-            connect: [
-              { id: selectedRole.id, documentId: selectedRole.documentId },
-            ],
-          },
+          custom_roles: [selectedRole.documentId],
         };
 
-        if (selectedRoleName === "operador") {
-          bodyData.operador = {
-            connect: [{ id: parseInt(form.operador_id) }],
-          };
+        if (selectedRoleName === "operador" && form.operador_id) {
+          bodyData.operador_pic = form.operador_id;
         }
 
-        const response = await fetch(`${back}/api/users`, {
+        const response = await fetch(`${back}/api/custom-roles/user/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -287,7 +273,7 @@ function Register() {
         });
       }
     },
-    [form, roles, tipos, selectedRoleName, back, token, navigate],
+    [form, roles, selectedRoleName, back, token, navigate],
   );
 
   // ─── Derived values for Select components ─────────────────────────────────
@@ -486,7 +472,7 @@ function Register() {
                 </div>
 
                 {/* Select de Operadores SOLO si el rol seleccionado es operador */}
-                {/* {selectedRoleName === "operador" && (
+                {selectedRoleName === "operador" && (
                   <div className="mb-4">
                     <label className="form-label">Operador</label>
 
@@ -495,7 +481,7 @@ function Register() {
                       options={[
                         { value: "", label: "Selecciona un operador" },
                         ...operadores.map((op) => ({
-                          value: op.id,
+                          value: op.documentId,
                           label: op.operador_pic,
                         })),
                       ]}
@@ -505,7 +491,7 @@ function Register() {
                               value: form.operador_id,
                               label:
                                 operadores.find(
-                                  (op) => op.id === form.operador_id
+                                  (op) => op.documentId === form.operador_id
                                 )?.operador_pic || form.operador_id,
                             }
                           : { value: "", label: "Selecciona un operador" }
@@ -520,10 +506,10 @@ function Register() {
                       }
                       placeholder="Selecciona un operador"
                       //className="form-select" // si quieres seguir usando tu clase de estilos
-                      styles={customStyles} // opcional, si usas react-select custom styles
+                      styles={CUSTOM_SELECT_STYLES} // opcional, si usas react-select custom styles
                     />
                   </div>
-                )} */}
+                )} 
 
                 <MDBBtn
                   color="success"
