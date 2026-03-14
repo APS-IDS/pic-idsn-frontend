@@ -9,6 +9,7 @@ import withReactContent from "sweetalert2-react-content";
 import qs from "qs";
 import FiltersPanel from "./FiltersPanel";
 import AnexoCard from "./AnexoCard";
+import { openSoporteModal } from "./soporteModal";
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -275,240 +276,63 @@ const ReportView = () => {
 
       const hasExistingData = existingData?.evidencias?.length > 0;
 
-      let evidenciasHTML = "";
+      const result = await openSoporteModal({
+        Swal,
+        municipios,
+        hasExistingData,
+        existingEvidencias: existingData?.evidencias || [],
+        onDeleteExisting: async (evidenciaId) => {
+          await deleteEvidencia(evidenciaId, documentId, soporteId);
+        },
+      });
 
-      // 🔹 Mostrar evidencias existentes con botón de eliminar
-      if (hasExistingData) {
-        evidenciasHTML = existingData.evidencias
-          .map(
-            (evidencia, index) => `
-            <div id="evidencia-existente-${
-              evidencia.documentId
-            }" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; 
-        border-radius: 5px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-              <div  style="flex: 1; min-width: 200px;">
-                <p><strong>Soporte ${index + 1}:</strong></p>
-                <p><strong>Archivo:</strong> ${evidencia.file_name}</p>
-                <p><strong>Región:</strong> ${evidencia.municipio.label}</p> 
-              </div>
-           <div>
-          <button class="swal2-confirm btn-delete" data-evidencia-id="${
-            evidencia.documentId
-          }" style="background-color: red; color: white; padding: 5px 10px; border: none; border-radius:5px ;cursor: pointer;">
-            <i class="fa-solid fa-trash"></i>
-          </button>
-        </div> 
-
-            </div>
-          `,
-          )
-          .join("");
+      if (!result.isConfirmed) {
+        return;
       }
 
-      // 🔹 Nueva lista para evidencias a enviar
-      let nuevasEvidencias = [];
+      const evidenciasAEnviar = result.value;
 
-      // 🔹 Formulario para agregar nuevas evidencias
-      evidenciasHTML += `
-        <button id="add-evidencia" class="swal2-confirm" style="background-color: green; color: white; margin-top: 10px; padding: 5px 10px; border: none;border-radius: 5px; pointer;">
-          Agregar Nuevo Soporte
-        </button>
-        <div id="extra-evidencias" style="margin-top: 10px;"></div>
-      `;
-
-      Swal.fire({
-        title: hasExistingData ? "Soportes Actuales" : "Ingrese la Información",
-        html: evidenciasHTML,
-        showCancelButton: true,
-        confirmButtonText: "Enviar",
-        cancelButtonText: "Cancelar",
-
-        didOpen: () => {
-          const extraEvidenciasDiv =
-            document.getElementById("extra-evidencias");
-
-          // Evento para eliminar evidencias existentes
-          document.querySelectorAll(".btn-delete").forEach((btn) => {
-            btn.addEventListener("click", async (event) => {
-              const evidenciaId =
-                // event.target.getAttribute("data-evidencia-id");
-                event.currentTarget.getAttribute("data-evidencia-id");
-
-              await deleteEvidencia(evidenciaId, documentId, soporteId);
-              document.getElementById(`evidencia-existente-${evidenciaId}`);
-            });
-          });
-
-          // Evento para manejar la selección de archivos
-          document.querySelectorAll("[id^=botonpersonal-]").forEach((btn) => {
-            btn.addEventListener("click", (event) => {
-              const evidenciaId = event.currentTarget.id.split("-")[1];
-              document.getElementById(`archivo-${evidenciaId}`).click();
-            });
-          });
-
-          // Evento para actualizar el texto del archivo adjunto
-          document.querySelectorAll("[id^=archivo-]").forEach((input) => {
-            input.addEventListener("change", (event) => {
-              const evidenciaId = event.target.id.split("-")[1];
-              const fileName =
-                event.target.files.length > 0
-                  ? event.target.files[0].name
-                  : "No hay archivos adjuntos";
-              document.getElementById(`tagsmall-${evidenciaId}`).textContent =
-                fileName;
-            });
-          });
-
-          // Evento para agregar nueva evidencia
-          document
-            .getElementById("add-evidencia")
-            .addEventListener("click", () => {
-              const evidenciaId = `evidencia-${nuevasEvidencias.length}`;
-              const newEvidenciaHTML = `
-              <div id="${evidenciaId}" style="margin-bottom: 10px; padding: 10px; border: 1px solid #ccc;
-                border-radius: 5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%;">
-        
-                <div style="flex: 1; min-width: 200px;">
-                  <label for="region-${evidenciaId}" style="margin-top: 10px;margin-left:40px">Seleccionar Región:</label>
-                  <select id="region-${evidenciaId}" class="swal2-select" style="width: 100%; margin-top: 5px;">
-                    <option value="">Selecciona una región</option>
-                    ${municipios
-                      .map(
-                        (muni) =>
-                          `<option value="${muni.documentId}">${muni.label}</option>`,
-                      )
-                      .join("")}
-                  </select>
-        
-                  <label for="archivo-${evidenciaId}" style="margin-top: 10px; margin-left:40px;">Archivo Soporte:</label>
-                  <input type="file" hidden id="archivo-${evidenciaId}" class="swal2-file">
-                  <button id="botonpersonal-${evidenciaId}" style="margin-left:40px; background-color:rgb(84, 138, 196); color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer;">
-                    Adjuntar documento
-                  </button>
-                <span id="tagsmall-${evidenciaId}" 
-                 style="margin-left:40px; display: block; margin-top:20px; 
-                 padding: 5px 10px; border: 1px solid #ccc; border-radius: 5px; 
-                 color: #333; font-size: 18px;">
-                 No hay archivos adjuntos
-                </span>
-
-                </div>
-        
-                <div style="display: flex; align-items: center; justify-content: flex-end; min-width: 80px;">
-                  <button class="swal2-confirm btn-delete-evidencia" data-id="${evidenciaId}"
-                    style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer;
-                    display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 5px;">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </div>
-        
-              </div>
-            `;
-
-              extraEvidenciasDiv.insertAdjacentHTML(
-                "beforeend",
-                newEvidenciaHTML,
-              );
-              nuevasEvidencias.push(evidenciaId);
-
-              // Agregar eventos a los nuevos elementos creados dinámicamente
-              document
-                .getElementById(`botonpersonal-${evidenciaId}`)
-                .addEventListener("click", () => {
-                  document.getElementById(`archivo-${evidenciaId}`).click();
-                });
-
-              document
-                .getElementById(`archivo-${evidenciaId}`)
-                .addEventListener("change", (event) => {
-                  const fileName =
-                    event.target.files.length > 0
-                      ? event.target.files[0].name
-                      : "No hay archivos adjuntos";
-                  document.getElementById(
-                    `tagsmall-${evidenciaId}`,
-                  ).textContent = fileName;
-                });
-
-              document
-                .querySelector(`[data-id="${evidenciaId}"]`)
-                .addEventListener("click", (event) => {
-                  const id = event.currentTarget.getAttribute("data-id");
-                  document.getElementById(id)?.remove();
-                  nuevasEvidencias = nuevasEvidencias.filter((e) => e !== id);
-                });
-            });
-        },
-        preConfirm: async () => {
-          if (nuevasEvidencias.length === 0) {
-            Swal.showValidationMessage("Debes agregar al menos una evidencia.");
-            return false;
-          }
-
-          return nuevasEvidencias.map((id) => ({
-            region: document.getElementById(`region-${id}`).value,
-            archivo: document.getElementById(`archivo-${id}`).files[0],
-          }));
-        },
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const evidenciasAEnviar = result.value;
-
-          for (const evidencia of evidenciasAEnviar) {
-            if (!evidencia.region || !evidencia.archivo) {
-              Swal.fire(
-                "Error",
-                "Todos los soportes deben tener región y archivo. Por favor intente nuevamente",
-                "error",
-              );
-              return;
-            }
-
-            try {
-              showLoadingSwal(
-                "Enviando soportes, por favor espera ...,",
-                "Enviando Soportes...",
-              );
-              // setLoading(true);
-              const formData = new FormData();
-              formData.append("anexo_id", documentId);
-              formData.append("soporte_id", soporteId);
-              formData.append("municipio_id", evidencia.region);
-              formData.append("files", evidencia.archivo);
-
-              const response = await fetch(`${url_soportes}`, {
-                method: "POST",
-                body: formData,
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-
-              if (!response.ok) throw new Error("Error al enviar los datos");
-
-              // console.log("Evidencia enviada:", await response.json());
-              Swal.close();
-            } catch (error) {
-              console.error("Error:", error);
-              Swal.fire(
-                "Error",
-                "Hubo un problema al enviar los datos.",
-                "error",
-              );
-              return;
-            }
-          }
-
+      for (const evidencia of evidenciasAEnviar) {
+        if (!evidencia.region || !evidencia.archivo) {
           Swal.fire(
-            "¡Éxito!",
-            "Todos los soportes fueron enviados.",
-            "success",
+            "Error",
+            "Todos los soportes deben tener región y archivo. Por favor intente nuevamente",
+            "error",
           );
-        } else {
-          // console.log("El usuario canceló el popup");
+          return;
         }
-      });
+
+        try {
+          showLoadingSwal(
+            "Enviando soportes, por favor espera ...,",
+            "Enviando Soportes...",
+          );
+
+          const formData = new FormData();
+          formData.append("anexo_id", documentId);
+          formData.append("soporte_id", soporteId);
+          formData.append("municipio_id", evidencia.region);
+          formData.append("files", evidencia.archivo);
+
+          const response = await fetch(`${url_soportes}`, {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) throw new Error("Error al enviar los datos");
+
+          Swal.close();
+        } catch (error) {
+          console.error("Error:", error);
+          Swal.fire("Error", "Hubo un problema al enviar los datos.", "error");
+          return;
+        }
+      }
+
+      Swal.fire("¡Éxito!", "Todos los soportes fueron enviados.", "success");
     } catch (error) {
       console.error("Error:", error);
       Swal.fire("Error", "No se pudieron obtener los datos.", "error");
