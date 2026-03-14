@@ -6,6 +6,9 @@ const escapeHtml = (value) =>
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_SIZE_MB = 10;
+
 const buildExistingEvidenciasHTML = (evidencias) =>
   evidencias
     .map(
@@ -147,15 +150,29 @@ export const openSoporteModal = async ({
         if (!input.id.startsWith("archivo-")) return;
 
         const evidenciaId = input.id.replace("archivo-", "");
-        const fileName =
-          input.files && input.files.length > 0
-            ? input.files[0].name
-            : "No hay archivos adjuntos";
+        const selectedFile = input.files?.[0];
+
+        if (selectedFile && selectedFile.size > MAX_FILE_SIZE_BYTES) {
+          input.value = "";
+          const label = popup.querySelector(`#tagsmall-${evidenciaId}`);
+          if (label) {
+            label.textContent = "No hay archivos adjuntos";
+          }
+          Swal.showValidationMessage(
+            `El archivo excede ${MAX_FILE_SIZE_MB} MB.`,
+          );
+          return;
+        }
+
+        const fileName = selectedFile?.name || "No hay archivos adjuntos";
 
         const label = popup.querySelector(`#tagsmall-${evidenciaId}`);
         if (label) {
           label.textContent = fileName;
         }
+
+        // Remove stale validation message once the user picks a valid file.
+        Swal.resetValidationMessage();
       });
     },
     preConfirm: async () => {
@@ -167,7 +184,7 @@ export const openSoporteModal = async ({
       const popup = Swal.getPopup();
       if (!popup) return false;
 
-      return nuevasEvidencias.map((id) => {
+      const evidencias = nuevasEvidencias.map((id) => {
         const regionSelect = popup.querySelector(`#region-${id}`);
         const fileInput = popup.querySelector(`#archivo-${id}`);
 
@@ -176,6 +193,19 @@ export const openSoporteModal = async ({
           archivo: fileInput?.files?.[0],
         };
       });
+
+      const invalidFile = evidencias.find(
+        (evidencia) => evidencia.archivo && evidencia.archivo.size > MAX_FILE_SIZE_BYTES,
+      );
+
+      if (invalidFile) {
+        Swal.showValidationMessage(
+          `Uno de los archivos excede ${MAX_FILE_SIZE_MB} MB.`,
+        );
+        return false;
+      }
+
+      return evidencias;
     },
   });
 
