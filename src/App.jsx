@@ -9,6 +9,7 @@ import ReportForm from "./components/Report/ReportForm.jsx";
 import ReportView from "./components/ReportView/ReportView.jsx";
 import Edit from "./components/EditView/Edit.jsx";
 import Seguimiento from "./components/Seguimiento/Seguimiento.jsx";
+import Perfil from "./components/Perfil/Perfil.jsx";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "./redux/actions";
@@ -40,6 +41,7 @@ function App() {
       <Route path="/view" element={token ? <ReportView /> : <Login />} />
       <Route path="/edit" element={token ? <Edit /> : <Login />} />
       <Route path="/seg" element={token ? <Seguimiento /> : <Login />} />
+      <Route path="/perfil" element={token ? <Perfil /> : <Login />} />
     </Routes>
   );
 }

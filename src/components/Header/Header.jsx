@@ -61,6 +61,12 @@ const Header = () => {
             <div className={styles.menu}>
               <p className={styles.userInfo}>Usuario:{user}</p>
               <p className={styles.userInfo}>Rol:{rol}</p>
+              <button
+                className={styles.logout}
+                onClick={() => { setIsUserMenuOpen(false); navigate("/perfil"); }}
+              >
+                Perfil
+              </button>
               <button className={styles.logout} onClick={handleLogout}>
                 Cerrar sesión
               </button>
