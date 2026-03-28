@@ -21,7 +21,7 @@ const Sidebar = () => {
 
   // Resolver valores finales
   const usuario = rolRedux || rolLS;
-  const super_user = userRedux || userLS;
+  const super_user = userRedux || userLS;//TODO: cambiar la forma en que se valida si es super usuario
 
   return (
     <div className={styles.side}>
