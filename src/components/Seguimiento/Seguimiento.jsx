@@ -262,6 +262,8 @@ const Seguimiento = () => {
         },
       });
 
+      console.log("Response status:", response);
+
       if (!response.ok) throw new Error("Error al obtener el archivo");
 
       const blob = await response.blob();
