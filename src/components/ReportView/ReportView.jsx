@@ -9,7 +9,7 @@ import withReactContent from "sweetalert2-react-content";
 import qs from "qs";
 import FiltersPanel from "./FiltersPanel";
 import AnexoCard from "./AnexoCard";
-import { openSoporteModal } from "./soporteModal";
+import { openSoporteModal } from "./soporteModal.jsx";
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

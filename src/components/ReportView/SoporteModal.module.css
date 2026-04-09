@@ -1,0 +1,104 @@
+.evidenciaCard {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.evidenciaInfo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.btnDelete {
+  background-color: red;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.newEvidenciaCard {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.newEvidenciaInfo {
+  flex: 1;
+  min-width: 200px;
+}
+
+.label {
+  display: block;
+  margin-top: 10px;
+  margin-left: 40px;
+}
+
+.regionSelect {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.btnAttach {
+  margin-left: 40px;
+  background-color: rgb(84, 138, 196);
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.fileTag {
+  margin-left: 40px;
+  display: block;
+  margin-top: 20px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: #333;
+  font-size: 18px;
+}
+
+.deleteCol {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 80px;
+}
+
+.btnDeleteNew {
+  background-color: red;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+.btnAdd {
+  background-color: green;
+  color: white;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
