@@ -40,15 +40,39 @@ export const openSoporteModal = async ({
 
       const evidencias = evidenciasRef.current.getData();
 
-      const invalidFile = evidencias.find(
-        (ev) => ev.archivo && ev.archivo.size > MAX_FILE_SIZE_BYTES,
-      );
+      for (const ev of evidencias) {
+        if (!ev.region) {
+          Swal.showValidationMessage("Todos los soportes deben tener una región seleccionada.");
+          return false;
+        }
 
-      if (invalidFile) {
-        Swal.showValidationMessage(
-          `Uno de los archivos excede ${MAX_FILE_SIZE_MB} MB.`,
-        );
-        return false;
+        if (ev.tipo === "link") {
+          if (!ev.file_name?.trim()) {
+            Swal.showValidationMessage("El nombre del archivo es obligatorio para soportes tipo enlace.");
+            return false;
+          }
+          if (!ev.evidencia_link?.trim()) {
+            Swal.showValidationMessage("El enlace de la evidencia es obligatorio.");
+            return false;
+          }
+          try {
+            new URL(ev.evidencia_link.trim());
+          } catch {
+            Swal.showValidationMessage("El enlace proporcionado no es una URL válida.");
+            return false;
+          }
+        } else {
+          if (!ev.archivo) {
+            Swal.showValidationMessage("Todos los soportes tipo archivo deben tener un archivo adjunto.");
+            return false;
+          }
+          if (ev.archivo.size > MAX_FILE_SIZE_BYTES) {
+            Swal.showValidationMessage(
+              `Uno de los archivos excede ${MAX_FILE_SIZE_MB} MB.`,
+            );
+            return false;
+          }
+        }
       }
 
       return evidencias;

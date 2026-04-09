@@ -34,6 +34,20 @@ const ExistingEvidencia = ({ evidencia, index, onDelete }) => (
 const NewEvidencia = ({ id, municipios, onRemove, onUpdate, onValidationError, onClearValidation }) => {
   const fileInputRef = useRef(null);
   const [fileName, setFileName] = useState("No hay archivos adjuntos");
+  const [tipo, setTipo] = useState("file");
+
+  const handleTipoChange = (e) => {
+    const newTipo = e.target.value;
+    setTipo(newTipo);
+    // Reset fields when switching type
+    if (newTipo === "link") {
+      setFileName("No hay archivos adjuntos");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      onUpdate(id, { tipo: "link", archivo: null, file_name: "", evidencia_link: "" });
+    } else {
+      onUpdate(id, { tipo: "file", file_name: null, evidencia_link: null, archivo: null });
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -56,6 +70,16 @@ const NewEvidencia = ({ id, municipios, onRemove, onUpdate, onValidationError, o
   return (
     <div className={styles.newEvidenciaCard}>
       <div className={styles.newEvidenciaInfo}>
+        <label className={styles.label}>Tipo de evidencia:</label>
+        <select
+          className={`swal2-select ${styles.regionSelect}`}
+          value={tipo}
+          onChange={handleTipoChange}
+        >
+          <option value="file">Archivo</option>
+          <option value="link">Enlace</option>
+        </select>
+
         <label className={styles.label}>Seleccionar Región:</label>
         <select
           className={`swal2-select ${styles.regionSelect}`}
@@ -70,21 +94,42 @@ const NewEvidencia = ({ id, municipios, onRemove, onUpdate, onValidationError, o
           ))}
         </select>
 
-        <label className={styles.label}>Archivo Soporte:</label>
-        <input
-          type="file"
-          hidden
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
-        <button
-          type="button"
-          className={styles.btnAttach}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          Adjuntar documento
-        </button>
-        <span className={styles.fileTag}>{fileName}</span>
+        {tipo === "file" ? (
+          <>
+            <label className={styles.label}>Archivo Soporte:</label>
+            <input
+              type="file"
+              hidden
+              ref={fileInputRef}
+              onChange={handleFileChange}
+            />
+            <button
+              type="button"
+              className={styles.btnAttach}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Adjuntar documento
+            </button>
+            <span className={styles.fileTag}>{fileName}</span>
+          </>
+        ) : (
+          <>
+            <label className={styles.label}>Nombre del archivo:</label>
+            <input
+              type="text"
+              className={styles.textInput}
+              placeholder="Ej: Mi documento"
+              onChange={(e) => onUpdate(id, { file_name: e.target.value })}
+            />
+            <label className={styles.label}>Enlace de la evidencia:</label>
+            <input
+              type="url"
+              className={styles.textInput}
+              placeholder="https://ejemplo.com/recurso"
+              onChange={(e) => onUpdate(id, { evidencia_link: e.target.value })}
+            />
+          </>
+        )}
       </div>
 
       <div className={styles.deleteCol}>
@@ -116,7 +161,7 @@ const SoporteModalContent = ({
 
   const addEvidencia = useCallback(() => {
     const id = `evidencia-${Date.now()}-${counter.current++}`;
-    dataMap.current.set(id, { region: "", archivo: null });
+    dataMap.current.set(id, { tipo: "file", region: "", archivo: null, file_name: null, evidencia_link: null });
     setNuevas((prev) => [...prev, id]);
   }, []);
 
@@ -133,7 +178,7 @@ const SoporteModalContent = ({
   // Expose data to the parent (preConfirm) via ref
   evidenciasRef.current = {
     getData: () =>
-      nuevas.map((id) => dataMap.current.get(id) || { region: "", archivo: null }),
+      nuevas.map((id) => dataMap.current.get(id) || { tipo: "file", region: "", archivo: null, file_name: null, evidencia_link: null }),
     count: () => nuevas.length,
   };
 

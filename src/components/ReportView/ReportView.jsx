@@ -295,36 +295,46 @@ const ReportView = () => {
       const evidenciasAEnviar = result.value;
 
       for (const evidencia of evidenciasAEnviar) {
-        if (!evidencia.region || !evidencia.archivo) {
-          Swal.fire(
-            "Error",
-            "Todos los soportes deben tener región y archivo. Por favor intente nuevamente",
-            "error",
-          );
-          return;
-        }
-
         try {
           showLoadingSwal(
             "Enviando soportes, por favor espera ...,",
             "Enviando Soportes...",
           );
 
-          const formData = new FormData();
-          formData.append("anexo_id", documentId);
-          formData.append("soporte_id", soporteId);
-          formData.append("municipio_id", evidencia.region);
-          formData.append("files", evidencia.archivo);
+          if (evidencia.tipo === "link") {
+            const response = await fetch(`${back}/api/seguimiento/upload-link`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                anexo_id: documentId,
+                soporte_id: soporteId,
+                municipio_id: evidencia.region,
+                file_name: evidencia.file_name,
+                evidencia_link: evidencia.evidencia_link,
+              }),
+            });
 
-          const response = await fetch(`${url_soportes}`, {
-            method: "POST",
-            body: formData,
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+            if (!response.ok) throw new Error("Error al enviar el enlace");
+          } else {
+            const formData = new FormData();
+            formData.append("anexo_id", documentId);
+            formData.append("soporte_id", soporteId);
+            formData.append("municipio_id", evidencia.region);
+            formData.append("files", evidencia.archivo);
 
-          if (!response.ok) throw new Error("Error al enviar los datos");
+            const response = await fetch(`${url_soportes}`, {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (!response.ok) throw new Error("Error al enviar los datos");
+          }
 
           Swal.close();
         } catch (error) {
