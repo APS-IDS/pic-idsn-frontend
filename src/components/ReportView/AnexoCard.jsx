@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
 import EventoTable from "./EventoTable";
+import { CustomRoles } from "../Login/constant";
 
 const AnexoCard = ({
   row,
@@ -20,7 +21,7 @@ const AnexoCard = ({
     <div className={styles.anexoContainer}>
       <div className={styles.anexoHeader}>
         <h4>Anexo</h4>
-        {usuario === "referente_instituto" && (
+        {usuario === CustomRoles.REFERENTE_INSTITUTO && (
           <button className={styles.edit_button} onClick={() => onEdit(row)}>
             <FaEdit /> Editar anexo
           </button>
