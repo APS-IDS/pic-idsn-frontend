@@ -10,20 +10,25 @@ const ActivityList = ({
   poblaciones,
   soportes,
   cups,
+  cursos_vida,
+  anexoYear,
 }) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
 
   // console.log("actividades_en_activitylist", activities);
-  console.log("Prueba");
+  // console.log("Prueba", cursos_vida);
   const initialActivity = {
     descripcion_actividad: "",
     cantidad: "",
     unidad_medida: "",
     entorno: [],
     tecnologia: [],
+    cursos_vida: [],
     poblacion_sujeto: [],
     codigo_cups: "",
     valor_unitario: "",
+    costo_directo: "",
+    costo_indirecto: "",
     valor_total: "",
     array_soportes: [
       {
@@ -102,6 +107,8 @@ const ActivityList = ({
             poblaciones={poblaciones}
             soportes={soportes}
             cups={cups}
+            cursos_vida={cursos_vida}
+            anexoYear={anexoYear}
           />
         ))}
       </ul>

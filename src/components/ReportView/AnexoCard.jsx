@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
 import EventoTable from "./EventoTable";
@@ -13,6 +14,8 @@ const AnexoCard = ({
   onSoporte,
   onActividad,
 }) => {
+  console.log("row", row);
+
   return (
     <div className={styles.anexoContainer}>
       <div className={styles.anexoHeader}>
@@ -24,7 +27,7 @@ const AnexoCard = ({
         )}
       </div>
 
-      {row.eventos.map((evento) => (
+      {row?.eventos?.map((evento) => (
         <EventoTable
           key={`${index}-${evento.id}`}
           evento={evento}

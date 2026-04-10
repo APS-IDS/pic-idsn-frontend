@@ -70,6 +70,8 @@ const Edit = () => {
               event.codigo_micro_territorio
                 ? {
                     numero_hogares: parseInt(event.total_hogares, 10) || null,
+                    numero_pobalcion_intervenir:
+                      parseInt(event.poblacion, 10) || null,
                     municipios:
                       Array.isArray(event.subregion) &&
                       event.subregion.length > 0
@@ -94,6 +96,7 @@ const Edit = () => {
             lineas_operativa: { nombre: event.linea_operativa || null },
 
             productos: event.product_data.producto.map((producto, index) => ({
+              problematica_priorizada: producto.problematica || null,
               descripcion: producto.descripcion_producto || null,
 
               actividades: (event.activities[index] || []).map((activity) => ({
@@ -110,10 +113,16 @@ const Edit = () => {
                   nombre: tecno || null,
                 })),
 
+                curso_de_vida: activity.cursos_vida.map((curso) => ({
+                  nombre: curso || null,
+                })),
+
                 poblaciones: activity.poblacion_sujeto.map((poblacion) => ({
                   nombre: poblacion || null,
                 })),
                 cups: { codigo: activity.codigo_cups } || null,
+                costos_directos: activity.costo_directo || null,
+                costos_indirectos: activity.costo_indirecto || null,
                 soportes: activity.array_soportes.map((soporte) => ({
                   tipo: soporte.tipo_soporte || null,
                   descripcion: soporte.descripcion_soporte || null,
@@ -194,6 +203,7 @@ const Edit = () => {
       codigo_nombre_territorio: evento?.territorializacion?.territorio,
       codigo_micro_territorio: evento?.territorializacion?.microterritorio,
       total_hogares: evento?.territorializacion?.numero_hogares,
+      poblacion: evento?.territorializacion?.numero_pobalcion_intervenir,
       equipo_operativo: evento?.equipo,
       perfil_profesional: evento?.perfiles_profesional,
       perfil_operativo: evento?.perfil_operativo,
@@ -212,9 +222,12 @@ const Edit = () => {
           unidad_medida: actividad.unidad_medida,
           entorno: actividad.entornos.map((entorno) => entorno.nombre),
           tecnologia: actividad.tecnologias.map((tecno) => tecno.nombre),
+          cursos_vida: actividad.curso_de_vida.map((curso) => curso.nombre),
           poblacion_sujeto: actividad.poblaciones.map((pobla) => pobla.nombre),
           codigo_cups: actividad.cups.codigo,
           valor_unitario: actividad.valor_unitario,
+          costo_directo: actividad.costos_directos,
+          costo_indirecto: actividad.costos_indirectos,
           valor_total: actividad.valor_total,
           array_soportes: actividad.soportes.map((soporte) => ({
             tipo_soporte: soporte.tipo,
@@ -278,6 +291,7 @@ const Edit = () => {
 
       product_data: {
         producto: evento.productos.map((producto) => ({
+          problematica: producto.problematica_priorizada,
           descripcion_producto: producto.descripcion,
           indicadores: producto.indicadores.map((indicador) => ({
             cantidad: indicador.cantidad,
@@ -293,6 +307,8 @@ const Edit = () => {
 
   const [events, setEvents] = useState(eventos.map((ev) => transformEvent(ev)));
 
+  console.log("Anexo:", anexo);
+
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
 
   return (
@@ -302,7 +318,7 @@ const Edit = () => {
         <Event
           events={events}
           setEvents={setEvents}
-          anexoYear={anexoYear}
+          anexoYear={anexo.anexo_tecnico_date}
           setAnexoYear={setAnexoYear}
           edit_button={
             <button

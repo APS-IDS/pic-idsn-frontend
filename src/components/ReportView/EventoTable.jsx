@@ -14,6 +14,8 @@ const EventoTable = ({
 }) => {
   const showProductos = (filterValue || operatorFilterValue) !== "";
 
+  console.log("Evento en EventoTable", row);
+
   return (
     <table className={styles.table}>
       <thead>
@@ -23,7 +25,12 @@ const EventoTable = ({
           <th>Operador Pic</th>
           <th>Código - Nombre de Territorio APS</th>
           <th>Código Micro-Territorio</th>
-          <th>Total número de Hogares Beneficiarios</th>
+          {row.anexo_tecnico_date == "2025-01-01" && (
+            <th>Total número de Hogares Beneficiarios</th>
+          )}
+          {row.anexo_tecnico_date == "2026-01-01" && (
+            <th>N° De Poblacion a Intervenir</th>
+          )}
           <th>Equipo Operativo</th>
           <th>Perfil Profesional</th>
           <th>Perfil Operativo</th>
@@ -64,9 +71,17 @@ const EventoTable = ({
           <td>
             {evento?.territorializacion?.microterritorio || "Falta ingresar "}
           </td>
-          <td>
-            {evento?.territorializacion?.numero_hogares || "No hay hogares"}
-          </td>
+          {row.anexo_tecnico_date == "2025-01-01" && (
+            <td>
+              {evento?.territorializacion?.numero_hogares || "No hay hogares"}
+            </td>
+          )}
+          {row.anexo_tecnico_date == "2026-01-01" && (
+            <td>
+              {evento?.territorializacion?.numero_pobalcion_intervenir ||
+                "No hay poblacion"}
+            </td>
+          )}
           <td>{evento?.equipo}</td>
           <td>{evento?.perfiles_profesional}</td>
           <td>{evento?.perfil_operativo}</td>
@@ -97,6 +112,7 @@ const EventoTable = ({
                 usuario={usuario}
                 onSoporte={onSoporte}
                 onActividad={onActividad}
+                anexo_year={row.anexo_tecnico_date}
               />
             </td>
           )}

@@ -14,6 +14,8 @@ const Product = ({
   poblaciones,
   soportes,
   cups,
+  cursos_vida,
+  anexoYear,
 }) => {
   const [isIndicatorOpen, setIsIndicatorOpen] = useState({}); // Estado para gestionar los acordeones
 
@@ -79,6 +81,7 @@ const Product = ({
 
   const handleAddProduct = () => {
     const newProduct = {
+      problematica: "",
       descripcion_producto: "",
       indicadores: [
         {
@@ -174,7 +177,12 @@ const Product = ({
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    {anexoYear == "2026-01-01" && (
+                      <th>Problematica Priorizada</th>
+                    )}
+
                     <th>Descripción del Producto</th>
+
                     <th>Indicadores</th>
                     <th>Actividades</th>
                     <th>Acciones</th>
@@ -182,6 +190,31 @@ const Product = ({
                 </thead>
                 <tbody>
                   <tr>
+                    {anexoYear == "2026-01-01" && (
+                      <td>
+                        <div className={styles.cellWrapper}>
+                          <textarea
+                            className={styles.textarea}
+                            type="text"
+                            placeholder="Máximo numero de caracteres 2000"
+                            maxLength={2000}
+                            value={product.problematica || ""}
+                            onChange={(e) =>
+                              handleInputChange(
+                                productIndex,
+                                "problematica",
+                                e.target.value,
+                              )
+                            }
+                          />
+                          <p>
+                            {product.descripcion_producto?.length || 0} / 2000
+                            caracteres
+                          </p>
+                        </div>
+                      </td>
+                    )}
+
                     <td>
                       <div className={styles.cellWrapper}>
                         <textarea
@@ -204,6 +237,7 @@ const Product = ({
                         </p>
                       </div>
                     </td>
+
                     <td>
                       {(product.indicadores || []).map(
                         (indicator, indicatorIndex) => (
@@ -300,10 +334,12 @@ const Product = ({
                     <td>
                       <ActivityList
                         entornos={entornos}
+                        anexoYear={anexoYear}
                         tecnologias={tecnologias}
                         poblaciones={poblaciones}
                         soportes={soportes}
                         cups={cups}
+                        cursos_vida={cursos_vida}
                         activities={activities[productIndex] || []}
                         setActivities={(updatedActivities) => {
                           const newActivities = [...activities];

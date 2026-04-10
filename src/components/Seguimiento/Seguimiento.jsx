@@ -10,6 +10,9 @@ import { useLocation } from "react-router-dom";
 const Seguimiento = () => {
   const location = useLocation();
   const actividad = location.state?.actividad;
+  const anexo_date = location.state?.anexoDate;
+  console.log("Actividad en Seguimiento:", actividad);
+  console.log("año", anexo_date);
 
   const back = import.meta.env.VITE_APP_BACK;
   // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
@@ -473,10 +476,12 @@ const Seguimiento = () => {
               <th>Unidad de Medida</th>
               <th>Entornos</th>
               <th>Tecnologías</th>
+              <th>Curso de Vida</th>
               <th>Población Sujeto</th>
               <th>Soportes</th>
               <th>Código Cups</th>
-              <th>Valor Unitario</th>
+              {anexo_date == "2026-01-01" && <th>Valor Unitario</th>}
+              {anexo_date == "2025-01-01" && <th>Valor Unitario</th>}
               <th>Valor Total</th>
               <th>Cronograma</th>
               <th>Observación Referente</th>
@@ -501,6 +506,13 @@ const Seguimiento = () => {
                   <p key={index}>{tecno.nombre}</p>
                 ))}
               </td>
+              {anexo_date == "2026-01-01" && (
+                <td>
+                  {actividad.curso_de_vida.map((curso, index) => (
+                    <p key={index}>{curso.nombre}</p>
+                  ))}
+                </td>
+              )}
               <td>
                 {actividad.poblaciones.map((poblacion, index) => (
                   <p key={index}>{poblacion.nombre}</p>
@@ -675,13 +687,35 @@ const Seguimiento = () => {
               </td>
 
               <td>{actividad.cups.codigo}</td>
-              <td>
-                {actividad.valor_unitario
-                  ? new Intl.NumberFormat("es-ES").format(
-                      actividad.valor_unitario,
-                    )
-                  : ""}
-              </td>
+              {anexo_date == "2025-01-01" && (
+                <td>
+                  {actividad.valor_unitario
+                    ? new Intl.NumberFormat("es-ES").format(
+                        actividad.valor_unitario,
+                      )
+                    : ""}
+                </td>
+              )}
+
+              {anexo_date == "2026-01-01" && (
+                <td>
+                  <table className={styles.subTable}>
+                    <thead>
+                      <tr>
+                        <th>Costos Directos</th>
+                        <th>Costos Indirectos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>{actividad.costos_directos}</td>
+                        <td>{actividad.costos_indirectos}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              )}
+
               <td>
                 {actividad.valor_total
                   ? new Intl.NumberFormat("es-ES").format(actividad.valor_total)

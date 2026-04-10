@@ -8,7 +8,9 @@ const ProductosSection = ({
   usuario,
   onSoporte,
   onActividad,
+  anexo_year,
 }) => {
+  console.log("productos", productos);
   return (
     <table>
       <tbody>
@@ -18,15 +20,22 @@ const ProductosSection = ({
               <table className={styles.subTable}>
                 <thead>
                   <tr>
+                    {anexo_year == "2026-01-01" && (
+                      <th>Problematica Priorizada</th>
+                    )}
                     <th>Descripcion del producto</th>
+
                     <th>Indicadores</th>
                     <th>Actividades</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{producto.descripcion}</td>
+                    {anexo_year == "2026-01-01" && (
+                      <td>{producto.problematica_priorizada}</td>
+                    )}
 
+                    <td>{producto.descripcion}</td>
                     {/* Indicadores */}
                     <td>
                       <table className={styles.subTable}>
@@ -63,10 +72,19 @@ const ProductosSection = ({
                               <th>Unidad de Medida</th>
                               <th>Entornos</th>
                               <th>Tecnologías</th>
+                              {anexo_year == "2026-01-01" && (
+                                <th>Curso de Vida</th>
+                              )}
+
                               <th>Población Sujeto</th>
                               <th>Soportes</th>
                               <th>Código Cups</th>
-                              <th>Valor Unitario</th>
+                              {anexo_year == "2025-01-01" && (
+                                <th>Valor Unitario</th>
+                              )}
+                              {anexo_year == "2026-01-01" && (
+                                <th>Valor Unitario</th>
+                              )}
                               <th>Valor Total</th>
                               <th>Cronograma</th>
                               <th>Acciones</th>
@@ -103,6 +121,23 @@ const ProductosSection = ({
                                   </tbody>
                                 </table>
                               </td>
+                              {/* Curso de vida */}
+
+                              {anexo_year == "2026-01-01" && (
+                                <td>
+                                  <table>
+                                    <tbody>
+                                      {actividad.curso_de_vida.map(
+                                        (curso, i) => (
+                                          <tr key={curso.id || i}>
+                                            <td>{curso.nombre}</td>
+                                          </tr>
+                                        ),
+                                      )}
+                                    </tbody>
+                                  </table>
+                                </td>
+                              )}
 
                               {/* Poblaciones */}
                               <td>
@@ -163,21 +198,41 @@ const ProductosSection = ({
                               <td>{actividad.cups.codigo}</td>
 
                               {/* Valor Unitario */}
-                              <td>
-                                <table>
-                                  <tbody>
-                                    <tr>
-                                      <td>
-                                        {actividad.valor_unitario
-                                          ? new Intl.NumberFormat(
-                                              "es-ES",
-                                            ).format(actividad.valor_unitario)
-                                          : ""}
-                                      </td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                              </td>
+                              {anexo_year == "2025-01-01" && (
+                                <td>
+                                  <table>
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          {actividad.valor_unitario
+                                            ? new Intl.NumberFormat(
+                                                "es-ES",
+                                              ).format(actividad.valor_unitario)
+                                            : ""}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </td>
+                              )}
+                              {anexo_year == "2026-01-01" && (
+                                <td>
+                                  <table className={styles.subTable}>
+                                    <thead>
+                                      <tr>
+                                        <th>Costos Directos</th>
+                                        <th>Costos Indirectos</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td>{actividad.costos_directos}</td>
+                                        <td>{actividad.costos_indirectos}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </td>
+                              )}
 
                               {/* Valor Total */}
                               <td>
@@ -226,10 +281,13 @@ const ProductosSection = ({
                                 <button
                                   className={styles.seguimiento_button}
                                   onClick={() =>
-                                    onActividad({
-                                      ...actividad,
-                                      documentId,
-                                    })
+                                    onActividad(
+                                      {
+                                        ...actividad,
+                                        documentId,
+                                      },
+                                      anexo_year,
+                                    )
                                   }
                                 >
                                   <FaClipboardList

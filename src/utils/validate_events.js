@@ -1,5 +1,7 @@
 import Swal from "sweetalert2";
-const validateEventsData = (events) => {
+const validateEventsData = (events, anexoYear) => {
+  // console.log("Validando eventos", events, anexoYear);
+
   for (let i = 0; i < events.length; i++) {
     const event = events[i];
     // event.subregion.length > 0
@@ -289,7 +291,7 @@ const validateEventsData = (events) => {
           return false;
         }
 
-        if (!actividad.valor_unitario) {
+        if (!actividad.valor_unitario && anexoYear == "2025-01-01") {
           Swal.fire({
             icon: "warning",
             title: "Campo Incompleto",
@@ -312,7 +314,7 @@ const validateEventsData = (events) => {
         }
 
         const cronogramaValido = actividad.cronograma?.some(
-          (item) => item.peso > 0
+          (item) => item.peso > 0,
         );
 
         if (!cronogramaValido) {

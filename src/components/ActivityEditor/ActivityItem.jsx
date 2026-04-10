@@ -17,6 +17,8 @@ const ActivityItem = ({
   poblaciones,
   soportes,
   cups,
+  cursos_vida,
+  anexoYear,
 }) => {
   const options = {
     tipo_soporte: soportes,
@@ -81,7 +83,7 @@ const ActivityItem = ({
 
     handleActivityChange(
       { target: { name: "cronograma", value: updatedCronograma } },
-      index
+      index,
     );
   };
 
@@ -93,18 +95,18 @@ const ActivityItem = ({
     ];
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
-      index
+      index,
     );
   };
 
   // Eliminar soporte
   const removeSoporte = (soporteIndex) => {
     const newSoportes = activity.array_soportes.filter(
-      (_, idx) => idx !== soporteIndex
+      (_, idx) => idx !== soporteIndex,
     );
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
-      index
+      index,
     );
   };
 
@@ -116,14 +118,14 @@ const ActivityItem = ({
     newSoportes[soporteIndex][name] = value;
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
-      index
+      index,
     );
   };
 
   // Obtener todas las opciones seleccionadas para deshabilitarlas
 
   const selectedOptions = activity.array_soportes?.map(
-    (soporte) => soporte.tipo_soporte
+    (soporte) => soporte.tipo_soporte,
   );
 
   const handle_remove_soporte = (index) => {
@@ -168,7 +170,7 @@ const ActivityItem = ({
     // Inicializa el cronograma si no existe
     const cronograma = allMonths.map((mes) => {
       const existing = (activity.cronograma || []).find(
-        (item) => item.mes === mes
+        (item) => item.mes === mes,
       );
       return existing || { mes, peso: "" }; // Crea un item vacío si no existe
     });
@@ -189,7 +191,7 @@ const ActivityItem = ({
                     e.target.value,
                     "peso",
                     itemIndex,
-                    index
+                    index,
                   )
                 }
                 min="0"
@@ -245,10 +247,12 @@ const ActivityItem = ({
                 <th>Unidad de Medida</th>
                 <th>Entornos</th>
                 <th>Tecnologías</th>
+                {anexoYear == "2026-01-01" && <th>Curso de Vida</th>}
                 <th>Población Sujeto</th>
                 <th>Soportes</th>
                 <th>Código Cups</th>
-                <th>Valor Unitario</th>
+                {anexoYear == "2025-01-01" && <th>Valor Unitario</th>}
+                {anexoYear == "2026-01-01" && <th>Valor Unitario</th>}
                 <th>Valor Total</th>
                 <th>Cronograma</th>
               </tr>
@@ -306,7 +310,7 @@ const ActivityItem = ({
                     value={entornos
                       .map((option) => ({ value: option, label: option }))
                       .filter((option) =>
-                        activity.entorno.includes(option.value)
+                        activity.entorno.includes(option.value),
                       )}
                     onChange={(selectedOptions) =>
                       handleActivityChange(
@@ -314,11 +318,11 @@ const ActivityItem = ({
                           target: {
                             name: "entorno",
                             value: selectedOptions.map(
-                              (option) => option.value
+                              (option) => option.value,
                             ),
                           },
                         },
-                        index
+                        index,
                       )
                     }
                     placeholder="Seleccionar Entornos"
@@ -336,7 +340,7 @@ const ActivityItem = ({
                     value={tecnologias
                       .map((option) => ({ value: option, label: option }))
                       .filter((option) =>
-                        activity.tecnologia.includes(option.value)
+                        activity.tecnologia.includes(option.value),
                       )}
                     onChange={(selectedOptions) =>
                       handleActivityChange(
@@ -344,17 +348,49 @@ const ActivityItem = ({
                           target: {
                             name: "tecnologia",
                             value: selectedOptions.map(
-                              (option) => option.value
+                              (option) => option.value,
                             ),
                           },
                         },
-                        index
+                        index,
                       )
                     }
                     placeholder="Seleccionar Tecnologia"
                     styles={custom_styles_cups}
                   />
                 </td>
+                {anexoYear == "2026-01-01" && (
+                  <td>
+                    <Select
+                      isMulti
+                      name="cursos_vida"
+                      options={cursos_vida.map((option) => ({
+                        value: option,
+                        label: option,
+                      }))}
+                      value={cursos_vida
+                        .map((option) => ({ value: option, label: option }))
+                        .filter((option) =>
+                          activity?.cursos_vida?.includes(option.value),
+                        )}
+                      onChange={(selectedOptions) =>
+                        handleActivityChange(
+                          {
+                            target: {
+                              name: "cursos_vida",
+                              value: selectedOptions.map(
+                                (option) => option.value,
+                              ),
+                            },
+                          },
+                          index,
+                        )
+                      }
+                      placeholder="Seleccionar Curso de Vida"
+                      styles={custom_styles_cups}
+                    />
+                  </td>
+                )}
                 <td>
                   <Select
                     isMulti
@@ -366,7 +402,7 @@ const ActivityItem = ({
                     value={poblaciones
                       .map((option) => ({ value: option, label: option }))
                       .filter((option) =>
-                        activity.poblacion_sujeto.includes(option.value)
+                        activity.poblacion_sujeto.includes(option.value),
                       )}
                     onChange={(selectedOptions) =>
                       handleActivityChange(
@@ -374,11 +410,11 @@ const ActivityItem = ({
                           target: {
                             name: "poblacion_sujeto",
                             value: selectedOptions.map(
-                              (option) => option.value
+                              (option) => option.value,
                             ),
                           },
                         },
-                        index
+                        index,
                       )
                     }
                     placeholder="Seleccionar Poblacion"
@@ -419,7 +455,7 @@ const ActivityItem = ({
                                           value: selectedOption?.value,
                                         },
                                       },
-                                      soporteIndex
+                                      soporteIndex,
                                     )
                                   }
                                   options={options.tipo_soporte.map(
@@ -429,7 +465,7 @@ const ActivityItem = ({
                                       // isDisabled:
                                       //   selectedOptions.includes(option) &&
                                       //   option !== soporte.tipo_soporte,
-                                    })
+                                    }),
                                   )}
                                   // isOptionDisabled={(option) =>
                                   //   option.isDisabled
@@ -485,7 +521,7 @@ const ActivityItem = ({
                                 </div>
                               </td>
                             </tr>
-                          )
+                          ),
                         )}
                       </tbody>
                     </table>
@@ -514,49 +550,147 @@ const ActivityItem = ({
                             value: selectedOption ? selectedOption.value : null,
                           },
                         },
-                        index
+                        index,
                       )
                     }
                     placeholder="Seleccionar Cups"
                     styles={custom_styles_cups}
                   />
                 </td>
+                {anexoYear == "2025-01-01" && (
+                  <td>
+                    <div className={styles.input_valor_container}>
+                      <NumericFormat
+                        name="valor_unitario"
+                        value={activity.valor_unitario}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        decimalScale={2} // Número de decimales permitidos
+                        fixedDecimalScale={true} // Mantener siempre el número de decimales
+                        onValueChange={(values) => {
+                          const { formattedValue, value } = values;
+                          handleActivityChange(
+                            { target: { name: "valor_unitario", value } },
+                            index,
+                          );
+                        }}
+                        onKeyDown={(e) => {
+                          const isCtrlCombo = e.ctrlKey || e.metaKey;
+                          if (
+                            !/[0-9,]/.test(e.key) && // Solo números y coma
+                            e.key !== "Backspace" && // Permitir borrar
+                            e.key !== "Tab" && // Permitir Tab
+                            e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                            e.key !== "ArrowRight" && // Permitir flecha derecha
+                            e.key !== "Delete" &&
+                            !isCtrlCombo
+                          ) {
+                            e.preventDefault();
+                          }
+                        }}
+                        className={styles.input_valor}
+                        min="0"
+                      />
+                    </div>
+                  </td>
+                )}
 
-                <td>
-                  <div className={styles.input_valor_container}>
-                    <NumericFormat
-                      name="valor_unitario"
-                      value={activity.valor_unitario}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      decimalScale={2} // Número de decimales permitidos
-                      fixedDecimalScale={true} // Mantener siempre el número de decimales
-                      onValueChange={(values) => {
-                        const { formattedValue, value } = values;
-                        handleActivityChange(
-                          { target: { name: "valor_unitario", value } },
-                          index
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        const isCtrlCombo = e.ctrlKey || e.metaKey;
-                        if (
-                          !/[0-9,]/.test(e.key) && // Solo números y coma
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" &&
-                          !isCtrlCombo
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td>
+                {anexoYear == "2026-01-01" && (
+                  <td>
+                    {" "}
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Costos Directos</th>
+                          <th>Costos Indirectos</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div className={styles.input_valor_container}>
+                              <NumericFormat
+                                name="costo_directo"
+                                value={activity.costo_directo}
+                                thousandSeparator="."
+                                decimalSeparator=","
+                                decimalScale={2} // Número de decimales permitidos
+                                fixedDecimalScale={true} // Mantener siempre el número de decimales
+                                onValueChange={(values) => {
+                                  const { formattedValue, value } = values;
+                                  handleActivityChange(
+                                    {
+                                      target: { name: "costo_directo", value },
+                                    },
+                                    index,
+                                  );
+                                }}
+                                onKeyDown={(e) => {
+                                  const isCtrlCombo = e.ctrlKey || e.metaKey;
+                                  if (
+                                    !/[0-9,]/.test(e.key) && // Solo números y coma
+                                    e.key !== "Backspace" && // Permitir borrar
+                                    e.key !== "Tab" && // Permitir Tab
+                                    e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                                    e.key !== "ArrowRight" && // Permitir flecha derecha
+                                    e.key !== "Delete" &&
+                                    !isCtrlCombo
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                className={styles.input_valor}
+                                min="0"
+                              />
+                            </div>
+                          </td>
+
+                          <td>
+                            <div className={styles.input_valor_container}>
+                              <NumericFormat
+                                name="costo_indirecto"
+                                value={activity.costo_indirecto}
+                                thousandSeparator="."
+                                decimalSeparator=","
+                                decimalScale={2} // Número de decimales permitidos
+                                fixedDecimalScale={true} // Mantener siempre el número de decimales
+                                onValueChange={(values) => {
+                                  const { formattedValue, value } = values;
+                                  handleActivityChange(
+                                    {
+                                      target: {
+                                        name: "costo_indirecto",
+                                        value,
+                                      },
+                                    },
+                                    index,
+                                  );
+                                }}
+                                onKeyDown={(e) => {
+                                  const isCtrlCombo = e.ctrlKey || e.metaKey;
+                                  if (
+                                    !/[0-9,]/.test(e.key) && // Solo números y coma
+                                    e.key !== "Backspace" && // Permitir borrar
+                                    e.key !== "Tab" && // Permitir Tab
+                                    e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                                    e.key !== "ArrowRight" && // Permitir flecha derecha
+                                    e.key !== "Delete" &&
+                                    !isCtrlCombo
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                className={styles.input_valor}
+                                min="0"
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                )}
+
                 <td>
                   <div className={styles.input_valor_container}>
                     <NumericFormat
@@ -570,7 +704,7 @@ const ActivityItem = ({
                         const { formattedValue, value } = values;
                         handleActivityChange(
                           { target: { name: "valor_total", value } },
-                          index
+                          index,
                         );
                       }}
                       onKeyDown={(e) => {

@@ -42,6 +42,7 @@ const ReportForm = () => {
       codigo_nombre_territorio: "",
       codigo_micro_territorio: "",
       total_hogares: "",
+      poblacion: "",
       equipo_operativo: "",
       perfil_profesional: "",
       perfil_operativo: "",
@@ -55,6 +56,7 @@ const ReportForm = () => {
       product_data: {
         producto: [
           {
+            problematica: "",
             descripcion_producto: "",
             indicadores: [
               {
@@ -81,6 +83,7 @@ const ReportForm = () => {
         codigo_nombre_territorio: "",
         codigo_micro_territorio: "",
         total_hogares: "",
+        poblacion: "",
         equipo_operativo: "",
         perfil_profesional: "",
         perfil_operativo: "",
@@ -94,6 +97,7 @@ const ReportForm = () => {
         product_data: {
           producto: [
             {
+              problematica: "",
               descripcion_producto: "",
               indicadores: [
                 {
@@ -138,12 +142,12 @@ const ReportForm = () => {
     fetchSubregions();
   }, [token]);
 
-  // console.log("Datos eventos", events);
+  console.log("Datos eventos", events);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const isValid = validateEventsData(events);
+    const isValid = validateEventsData(events, anexoYear);
     if (!isValid) {
       // No seguir con el envío
       return;
@@ -178,6 +182,7 @@ const ReportForm = () => {
                 ? {
                     // numero_hogares: parseInt(event.total_hogares, 10) || null,
                     numero_hogares: event.total_hogares || null,
+                    numero_pobalcion_intervenir: event.poblacion || null,
                     municipios:
                       Array.isArray(event.subregion) &&
                       event.subregion.length > 0
@@ -204,12 +209,14 @@ const ReportForm = () => {
 
             productos: event.product_data.producto.map((producto, index) => ({
               descripcion: producto.descripcion_producto || null,
-
+              problematica_priorizada: producto.problematica || null,
               actividades: (event.activities[index] || []).map((activity) => ({
                 descripcion: activity.descripcion_actividad || null,
                 cantidad_a_ejecutar: activity.cantidad || null,
                 unidad_medida: activity.unidad_medida || null,
                 valor_unitario: activity.valor_unitario || null,
+                costos_directos: activity.costo_directo || null,
+                costos_indirectos: activity.costo_indirecto || null,
                 valor_total: activity.valor_total || null,
                 entornos: activity.entorno.map((entorno) => ({
                   nombre: entorno || null,
@@ -218,6 +225,11 @@ const ReportForm = () => {
                 tecnologias: activity.tecnologia.map((tecno) => ({
                   nombre: tecno || null,
                 })),
+                curso_de_vida: activity.cursos_vida.map((curso) => ({
+                  nombre: curso || null,
+                })),
+
+                // curso_de_vida: activity.cursos_vida[0] || null,
 
                 poblaciones: activity.poblacion_sujeto.map((poblacion) => ({
                   nombre: poblacion || null,
@@ -283,7 +295,7 @@ const ReportForm = () => {
       Swal.fire({
         icon: "error",
         title: "Error al enviar",
-        text: error.message, // 👈 mensaje REAL del backend
+        text: error.message,
       });
 
       console.error("ERROR BACKEND:", error);

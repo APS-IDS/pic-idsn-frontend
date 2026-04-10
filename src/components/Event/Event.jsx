@@ -11,6 +11,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
     events.map((_, index) => index === 0),
   );
 
+  console.log("año en event", anexoYear);
   // Estados
   const [ejes, setEjes] = useState([]);
   const [lineas, setLineas] = useState([]);
@@ -26,6 +27,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
   const [municipios, setMunicipios] = useState([]);
   const [proyectos, setProyectos] = useState([]);
   const [operadores, setOperadores] = useState([]);
+  const [cursos_vida, setCursos] = useState([]);
 
   const [usuario, setUsuario] = useState("");
 
@@ -50,7 +52,9 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
         if (!response.ok) throw new Error("Error al obtener subregiones.");
         const data = await response.json();
         //setSubregions(data.data);
+        // console.log("labels", data);
         setLabels(data);
+        setCursos(data.curso_de_vida);
         setCups(data.cups);
         setEjes(data.ejes);
         setEntornos(data.entornos);
@@ -235,6 +239,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
         codigo_nombre_territorio: "",
         codigo_micro_territorio: "",
         total_hogares: "",
+        poblacion: "",
         equipo_operativo: "",
         perfil_profesional: "",
         perfil_operativo: "",
@@ -248,6 +253,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
         product_data: {
           producto: [
             {
+              problematica: "",
               descripcion_producto: "",
               indicadores: [
                 {
@@ -316,6 +322,8 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
     });
   };
 
+  // console.log("año", anexoYear);
+
   return (
     <div>
       {events.map((event, index) => (
@@ -366,7 +374,12 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                   <th>Operador PIC</th>
                   <th>Código - Nombre de Territorio APS</th>
                   <th>Código Micro-Territorio</th>
-                  <th>Total número de Hogares Beneficiarios</th>
+                  {anexoYear == "2025-01-01" && (
+                    <th>Total número de Hogares Beneficiarios</th>
+                  )}
+                  {anexoYear == "2026-01-01" && (
+                    <th>N° De Poblacion a Intervenir</th>
+                  )}
                   <th>Equipo Operativo</th>
                   <th>Perfil Profesional</th>
                   <th>Perfil Operativo</th>
@@ -488,21 +501,36 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                       />
                     </div>
                   </td>
-                  <td>
-                    <input
-                      className={styles.input_hogares}
-                      type="number"
-                      min="0"
-                      value={event.total_hogares || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "total_hogares",
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </td>
+                  {anexoYear == "2025-01-01" && (
+                    <td>
+                      <input
+                        className={styles.input_hogares}
+                        type="number"
+                        min="0"
+                        value={event.total_hogares || ""}
+                        onChange={(e) =>
+                          handleEventChange(
+                            index,
+                            "total_hogares",
+                            e.target.value,
+                          )
+                        }
+                      />
+                    </td>
+                  )}
+                  {anexoYear == "2026-01-01" && (
+                    <td>
+                      <input
+                        className={styles.input_hogares}
+                        type="number"
+                        min="0"
+                        value={event.poblacion || ""}
+                        onChange={(e) =>
+                          handleEventChange(index, "poblacion", e.target.value)
+                        }
+                      />
+                    </td>
+                  )}
                   <td>
                     <Select
                       name="equipo_operativo"
@@ -688,11 +716,13 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
                   <td>
                     <Product
                       product_data={event.product_data}
+                      anexoYear={anexoYear}
                       entornos={entornos}
                       tecnologias={tecnologias}
                       poblaciones={poblaciones}
                       soportes={soportes}
                       cups={cups}
+                      cursos_vida={cursos_vida}
                       setProductData={(updatedProductData) => {
                         const updatedEvents = [...events];
                         updatedEvents[index].product_data = updatedProductData;
