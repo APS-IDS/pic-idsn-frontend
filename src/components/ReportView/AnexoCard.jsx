@@ -14,7 +14,7 @@ const AnexoCard = ({
   onSoporte,
   onActividad,
 }) => {
-  console.log("row", row);
+  //console.log("row", row);
 
   return (
     <div className={styles.anexoContainer}>

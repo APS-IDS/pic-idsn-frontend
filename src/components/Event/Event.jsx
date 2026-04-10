@@ -11,7 +11,7 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
     events.map((_, index) => index === 0),
   );
 
-  console.log("año en event", anexoYear);
+  //console.log("año en event", anexoYear);
   // Estados
   const [ejes, setEjes] = useState([]);
   const [lineas, setLineas] = useState([]);

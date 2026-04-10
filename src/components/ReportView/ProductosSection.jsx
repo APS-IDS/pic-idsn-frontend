@@ -10,7 +10,7 @@ const ProductosSection = ({
   onActividad,
   anexo_year,
 }) => {
-  console.log("productos", productos);
+  //console.log("productos", productos);
   return (
     <table>
       <tbody>

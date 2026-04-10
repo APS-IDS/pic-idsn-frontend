@@ -307,7 +307,7 @@ const Edit = () => {
 
   const [events, setEvents] = useState(eventos.map((ev) => transformEvent(ev)));
 
-  console.log("Anexo:", anexo);
+  //console.log("Anexo:", anexo);
 
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
 

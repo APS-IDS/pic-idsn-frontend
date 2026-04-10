@@ -142,7 +142,7 @@ const ReportForm = () => {
     fetchSubregions();
   }, [token]);
 
-  console.log("Datos eventos", events);
+  //console.log("Datos eventos", events);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

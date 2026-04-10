@@ -11,8 +11,8 @@ const Seguimiento = () => {
   const location = useLocation();
   const actividad = location.state?.actividad;
   const anexo_date = location.state?.anexoDate;
-  console.log("Actividad en Seguimiento:", actividad);
-  console.log("año", anexo_date);
+  //console.log("Actividad en Seguimiento:", actividad);
+  // console.log("año", anexo_date);
 
   const back = import.meta.env.VITE_APP_BACK;
   // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};

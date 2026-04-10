@@ -14,7 +14,7 @@ const EventoTable = ({
 }) => {
   const showProductos = (filterValue || operatorFilterValue) !== "";
 
-  console.log("Evento en EventoTable", row);
+  //console.log("Evento en EventoTable", row);
 
   return (
     <table className={styles.table}>

@@ -233,7 +233,7 @@ const ReportView = () => {
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
 
-  console.log("datos", data);
+  //console.log("datos", data);
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -242,7 +242,7 @@ const ReportView = () => {
       },
     });
   };
-  console.log("Year", anexoDate);
+  //console.log("Year", anexoDate);
 
   const handle_click_actividad = (actividad, anexoDate) => {
     navigate("/seg", {
