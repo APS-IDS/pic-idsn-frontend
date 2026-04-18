@@ -4,9 +4,12 @@ import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import { FaSave } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { CustomRoles } from "../Login/constant";
-
 import { useLocation } from "react-router-dom";
+import SoportesTable from "./SoportesTable";
+import ObservacionPanel from "./ObservacionPanel";
+import EstadoPanel from "./EstadoPanel";
+import CronogramaTable from "./CronogramaTable";
+import { CustomRoles } from "../../components/Login/constant";
 
 const Seguimiento = () => {
   const location = useLocation();
@@ -260,6 +263,8 @@ const Seguimiento = () => {
         },
       });
 
+      console.log("Response status:", response);
+
       if (!response.ok) throw new Error("Error al obtener el archivo");
 
       const blob = await response.blob();
@@ -440,15 +445,7 @@ const Seguimiento = () => {
     fetchSoportes();
   }, [token, actividad]); // Se ejecuta cuando `actividad` o `token` cambian
 
-  const getEmojiEstado = (estado) => {
-    if (estado.includes("No Aprobado soporte fisico")) return "❌";
-    if (estado.includes("No aprobado")) return "❌";
-    if (estado.includes("Aprobado soporte fisico")) return "✅";
-    if (estado.includes("Aprobado")) return "✅";
-    return "❔";
-  };
-
-  const emojiPorEstadoReferente = {
+  const EMOJI_REFERENTE = {
     "Sin Reporte": "📄",
     "No aplica para periodo": "🚫",
     "Avance Limitado": "⚠️",
@@ -457,7 +454,7 @@ const Seguimiento = () => {
     "Ajustar soportes": "🛠️",
   };
 
-  const emojiPorEstadoOperador = {
+  const EMOJI_OPERADOR = {
     "No Aplica para periodo": "🚫",
     "Reporte Actualizado": "♻️",
     "Reporte de avance": "📈",
@@ -521,170 +518,16 @@ const Seguimiento = () => {
               </td>
 
               <td>
-                <table
-                  className={styles.table_soportes}
-                  style={{ marginBottom: "1rem" }}
-                >
-                  <thead>
-                    <tr>
-                      <th>Tipo Soporte</th>
-                      <th>Descripción</th>
-                      <th>Cantidad</th>
-                      <th>Soportes</th>
-                      {/* {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Check</th>} */}
-                      <th>Check</th>
-                      {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Guardar</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {actividad.soportes.map((soporte, index) => (
-                      <tr key={index}>
-                        <td
-                          style={{
-                            width: "200px",
-                            maxWidth: "200px",
-                            wordWrap: "break-word",
-                            overflowWrap: "break-word",
-                            whiteSpace: "normal",
-                          }}
-                        >
-                          {soporte.tipo}
-                        </td>
-                        <td
-                          style={{
-                            wordWrap: "break-word",
-                            whiteSpace: "normal",
-                            maxWidth: "150px",
-                          }}
-                        >
-                          <p
-                            style={{
-                              margin: 0,
-                              wordWrap: "break-word",
-                              whiteSpace: "normal",
-                            }}
-                          >
-                            {soporte.descripcion}
-                          </p>
-                        </td>
-                        <td>{soporte.cantidad}</td>
-                        <td>
-                          <table className={styles.table_evidencias}>
-                            <thead>
-                              <tr>
-                                <th>Nombre</th>
-                                <th>Archivo</th>
-                                <th>Región</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {soportes[soporte.uuid]?.evidencias?.length >
-                              0 ? (
-                                soportes[soporte.uuid].evidencias.map(
-                                  (evidencia, i) => (
-                                    <tr key={i}>
-                                      <td>{evidencia.file_name}</td>
-                                      <td>
-                                        <button
-                                          className={styles.edit_button}
-                                          onClick={() =>
-                                            verSoporte(evidencia.documentId)
-                                          }
-                                        >
-                                          Ver soporte
-                                        </button>
-
-                                        {/* <a
-                                          // href={`${back}${evidencia.archivo.url}`}
-                                          href={`${back}/api/seguimiento/get-file/${soporte.uuid}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                        >
-                                          Ver soporte
-                                        </a> */}
-                                      </td>
-                                      <td>{evidencia.municipio.label}</td>
-                                    </tr>
-                                  ),
-                                )
-                              ) : (
-                                <tr>
-                                  <td
-                                    colSpan="3"
-                                    style={{ textAlign: "center" }}
-                                  >
-                                    No hay archivos
-                                  </td>
-                                </tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </td>
-
-                        <td>
-                          {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
-                            soportes[soporte.uuid]?.evidencias?.length > 0 ? (
-                              <select
-                                className={styles.select}
-                                value={estadoSoportes[soporte.uuid] || ""}
-                                onChange={(e) =>
-                                  handleEstadoChange(
-                                    soporte.uuid,
-                                    e.target.value,
-                                  )
-                                }
-                              >
-                                <option value="" disabled>
-                                  🟡 Selecciona un estado
-                                </option>
-                                {estados_back.map((estado) => (
-                                  // <option
-                                  //   key={estado.id}
-                                  //   value={estado.estado_soporte}
-                                  // >
-                                  //   {estado.estado_soporte}
-                                  // </option>
-                                  <option
-                                    key={estado.id}
-                                    value={estado.estado_soporte}
-                                  >
-                                    {getEmojiEstado(estado.estado_soporte)}{" "}
-                                    {estado.estado_soporte}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : null
-                          ) : (
-                            <p>
-                              {estadoSoportes[soporte.uuid] ? (
-                                <>
-                                  {getEmojiEstado(estadoSoportes[soporte.uuid])}{" "}
-                                  {estadoSoportes[soporte.uuid]}
-                                </>
-                              ) : (
-                                <>❔ Sin check</>
-                              )}
-                            </p>
-                          )}
-                        </td>
-
-                        {usuario === CustomRoles.REFERENTE_INSTITUTO && (
-                          //Boton envio de estado_check
-                          <td>
-                            {soportes[soporte.uuid]?.evidencias?.length > 0 && (
-                              <button
-                                className={styles.edit_button}
-                                onClick={() => handle_send_check(soporte.uuid)}
-                              >
-                                <FaSave />
-                              </button>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <SoportesTable
+                  soportes={actividad.soportes}
+                  soportesData={soportes}
+                  estadoSoportes={estadoSoportes}
+                  estadosBack={estados_back}
+                  usuario={usuario}
+                  onVerSoporte={verSoporte}
+                  onEstadoChange={handleEstadoChange}
+                  onSendCheck={handle_send_check}
+                />
               </td>
 
               <td>{actividad.cups.codigo}</td>
@@ -723,335 +566,51 @@ const Seguimiento = () => {
                   : ""}
               </td>
               <td>
-                <table
-                  className={styles.subTable}
-                  style={{ marginBottom: "1rem" }}
-                >
-                  <thead>
-                    <tr>
-                      <th>Mes</th>
-                      <th>Porcentaje</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {actividad.cronograma.map((crono, index) =>
-                      Object.entries(crono).map(([mes, porcentaje]) =>
-                        porcentaje > 0 ? (
-                          <tr key={`${index}-${mes}`}>
-                            <td>{mes}</td>
-                            <td>{porcentaje}%</td>
-                          </tr>
-                        ) : null,
-                      ),
-                    )}
-                  </tbody>
-                </table>
+                <CronogramaTable cronograma={actividad.cronograma} />
               </td>
               <td>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Observacion</th>
-                      {observaciones.fecha_referente && <th>Fecha</th>}
-                      {observaciones.usuario_referente && <th>Usuario</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
-                          <textarea
-                            className={styles.textarea}
-                            name="observacion_referente"
-                            type="text"
-                            value={observaciones.observacion_referente}
-                            onChange={onChange_observaciones}
-                          />
-                        ) : (
-                          <p
-                            style={{
-                              margin: 0,
-                              padding: "5px",
-                              fontSize: "16px",
-                              width: "200px",
-                            }}
-                          >
-                            {observaciones.observacion_referente}
-                          </p>
-                        )}
-                      </td>
-                      {observaciones.fecha_referente && (
-                        <td>
-                          {/* <span
-                          style={{ display: "inline-block", width: "200px" }}
-                        >
-                          {observaciones.fecha_referente}
-                        </span> */}
-
-                          <p
-                            style={{
-                              margin: 0,
-                              padding: "5px",
-                              fontSize: "16px",
-                              width: "200px",
-                            }}
-                          >
-                            {observaciones.fecha_referente}
-                          </p>
-
-                          {/* {observaciones.fecha_referente} */}
-                        </td>
-                      )}
-                      {observaciones.usuario_referente && (
-                        <td>
-                          <p
-                            style={{
-                              margin: 0,
-                              padding: "5px",
-                              fontSize: "16px",
-                              width: "200px",
-                            }}
-                          >
-                            {observaciones.usuario_referente}
-                          </p>
-                        </td>
-                      )}
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-
-              <td>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Porcentaje</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
-                          <select
-                            id="referente_porcentaje"
-                            name="porcentaje_referente"
-                            className={styles.select}
-                            value={status_porcentaje.porcentaje_referente}
-                            onChange={onchange_status}
-                          >
-                            <option value="0">0%</option>
-                            <option value="5">5%</option>
-                            <option value="10">10%</option>
-                            <option value="15">15%</option>
-                            <option value="20">20%</option>
-                            <option value="25">25%</option>
-                            <option value="30">30%</option>
-                            <option value="35">35%</option>
-                            <option value="40">40%</option>
-                            <option value="45">45%</option>
-                            <option value="50">50%</option>
-                            <option value="55">55%</option>
-                            <option value="60">60%</option>
-                            <option value="65">65%</option>
-                            <option value="70">70%</option>
-                            <option value="75">75%</option>
-                            <option value="80">80%</option>
-                            <option value="85">85%</option>
-                            <option value="90">90%</option>
-                            <option value="95">95%</option>
-                            <option value="100">100%</option>
-                          </select>
-                        ) : (
-                          <p>{status_porcentaje.porcentaje_referente}%</p>
-                        )}
-                      </td>
-
-                      <td>
-                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
-                          <select
-                            id="referente"
-                            name="estado_referente"
-                            className={styles.select}
-                            value={status_porcentaje.estado_referente}
-                            onChange={onchange_status}
-                          >
-                            <option value="Sin Estado" disabled>
-                              🟡 Selecciona un estado
-                            </option>
-                            {estados_referente?.map((estado) => (
-                              <option
-                                key={estado.id}
-                                value={estado?.estado_actividad}
-                                // title={estado.descripcion_estado}
-                              >
-                                {emojiPorEstadoReferente[
-                                  estado?.estado_actividad
-                                ] || "❓"}{" "}
-                                {estado?.estado_actividad}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <p>
-                            {status_porcentaje.estado_referente && (
-                              <>
-                                {emojiPorEstadoReferente[
-                                  status_porcentaje.estado_referente
-                                ] || "❓"}{" "}
-                                {status_porcentaje.estado_referente}
-                              </>
-                            )}
-                          </p>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ObservacionPanel
+                  observacion={observaciones.observacion_referente}
+                  fecha={observaciones.fecha_referente}
+                  usuarioAutor={observaciones.usuario_referente}
+                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
+                  name="observacion_referente"
+                  onChange={onChange_observaciones}
+                />
               </td>
               <td>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Observacion</th>
-                      {observaciones.fecha_operador && <th>Fecha</th>}
-                      {observaciones.usuario_operador && <th>Usuario</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {usuario === "operador" ? (
-                          <textarea
-                            className={styles.textarea}
-                            name="observacion_operador"
-                            type="text"
-                            value={observaciones.observacion_operador}
-                            onChange={onChange_observaciones}
-                          />
-                        ) : (
-                          <p>{observaciones.observacion_operador}</p>
-                        )}
-                      </td>
-                      {observaciones.fecha_operador && (
-                        <td>
-                          <p
-                            style={{
-                              margin: 0,
-                              padding: "5px",
-                              fontSize: "16px",
-                              width: "200px",
-                            }}
-                          >
-                            {observaciones.fecha_operador}
-                          </p>
-                        </td>
-                      )}
-                      {observaciones.usuario_operador && (
-                        <td>
-                          <p
-                            style={{
-                              margin: 0,
-                              padding: "5px",
-                              fontSize: "16px",
-                              width: "200px",
-                            }}
-                          >
-                            {observaciones.usuario_operador}
-                          </p>
-                        </td>
-                      )}
-                    </tr>
-                  </tbody>
-                </table>
+                <EstadoPanel
+                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
+                  porcentaje={status_porcentaje.porcentaje_referente}
+                  estado={status_porcentaje.estado_referente}
+                  porcentajeName="porcentaje_referente"
+                  estadoName="estado_referente"
+                  estados={estados_referente}
+                  emojiMap={EMOJI_REFERENTE}
+                  onChange={onchange_status}
+                />
               </td>
               <td>
-                {" "}
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Porcentaje</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        {usuario === "operador" ? (
-                          <select
-                            id="operador"
-                            name="porcentaje_operador"
-                            className={styles.select}
-                            value={status_porcentaje.porcentaje_operador}
-                            onChange={onchange_status}
-                          >
-                            <option value="0">0%</option>
-                            <option value="5">5%</option>
-                            <option value="10">10%</option>
-                            <option value="15">15%</option>
-                            <option value="20">20%</option>
-                            <option value="25">25%</option>
-                            <option value="30">30%</option>
-                            <option value="35">35%</option>
-                            <option value="40">40%</option>
-                            <option value="45">45%</option>
-                            <option value="50">50%</option>
-                            <option value="55">55%</option>
-                            <option value="60">60%</option>
-                            <option value="65">65%</option>
-                            <option value="70">70%</option>
-                            <option value="75">75%</option>
-                            <option value="80">80%</option>
-                            <option value="85">85%</option>
-                            <option value="90">90%</option>
-                            <option value="95">95%</option>
-                            <option value="100">100%</option>
-                          </select>
-                        ) : (
-                          <p>{status_porcentaje.porcentaje_operador}%</p>
-                        )}
-                      </td>
-
-                      <td>
-                        {usuario === "operador" ? (
-                          <select
-                            id="operador_status"
-                            name="estado_operador"
-                            className={styles.select}
-                            value={status_porcentaje.estado_operador}
-                            onChange={onchange_status}
-                          >
-                            <option value="Sin Estado" disabled>
-                              🟡 Selecciona un estado
-                            </option>
-                            {estados_operador?.map((estado) => (
-                              <option
-                                key={estado.id}
-                                value={estado?.estado_actividad}
-                              >
-                                {emojiPorEstadoOperador[
-                                  estado?.estado_actividad
-                                ] || "❔"}{" "}
-                                {estado?.estado_actividad}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <p>
-                            {status_porcentaje.estado_operador && (
-                              <>
-                                {emojiPorEstadoOperador[
-                                  status_porcentaje.estado_operador
-                                ] || "❔"}{" "}
-                                {status_porcentaje.estado_operador}
-                              </>
-                            )}
-                          </p>
-                        )}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <ObservacionPanel
+                  observacion={observaciones.observacion_operador}
+                  fecha={observaciones.fecha_operador}
+                  usuarioAutor={observaciones.usuario_operador}
+                  canEdit={usuario === "operador"}
+                  name="observacion_operador"
+                  onChange={onChange_observaciones}
+                />
+              </td>
+              <td>
+                <EstadoPanel
+                  canEdit={usuario === "operador"}
+                  porcentaje={status_porcentaje.porcentaje_operador}
+                  estado={status_porcentaje.estado_operador}
+                  porcentajeName="porcentaje_operador"
+                  estadoName="estado_operador"
+                  estados={estados_operador}
+                  emojiMap={EMOJI_OPERADOR}
+                  onChange={onchange_status}
+                />
               </td>
 
               <td>
