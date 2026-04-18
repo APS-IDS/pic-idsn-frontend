@@ -4,6 +4,7 @@ import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import { FaSave } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { CustomRoles } from "../Login/constant";
 
 import { useLocation } from "react-router-dom";
 
@@ -175,7 +176,7 @@ const Seguimiento = () => {
     //console.log("Porcentaaje:", status_porcentaje);
 
     const estado_seleccionado =
-      usuario === "referente_instituto"
+      usuario === CustomRoles.REFERENTE_INSTITUTO
         ? estados_referente.find(
             (e) => e.estado_actividad === status_porcentaje.estado_referente,
           )
@@ -198,33 +199,33 @@ const Seguimiento = () => {
         },
         body: JSON.stringify({
           observacion:
-            usuario === "referente_instituto"
+            usuario === CustomRoles.REFERENTE_INSTITUTO
               ? observaciones.observacion_referente
               : observaciones.observacion_operador,
           anexo_id: documentId,
           porcentaje_completado:
-            usuario === "referente_instituto"
+            usuario === CustomRoles.REFERENTE_INSTITUTO
               ? status_porcentaje.porcentaje_referente
               : status_porcentaje.porcentaje_operador,
 
           estado_referente:
-            usuario === "referente_instituto"
+            usuario === CustomRoles.REFERENTE_INSTITUTO
               ? documentId_estado
               : // : "mqmr6ffj6imh24gareavq2q2",
                 null,
           estado_operador:
-            usuario === "referente_instituto"
+            usuario === CustomRoles.REFERENTE_INSTITUTO
               ? // ? "mm4070563cltcc6ie9yu5hjt"
                 null
               : documentId_estado,
 
           // estado:
-          //   usuario === "referente_instituto"
+          //   usuario === CustomRoles.REFERENTE_INSTITUTO
           //     ? status_porcentaje.estado_referente
           //     : status_porcentaje.estado_operador,
 
           id_actividad: uuid,
-          // tipo: usuario === "referente_instituto" ? "referente" : "operador",
+          // tipo: usuario === CustomRoles.REFERENTE_INSTITUTO ? "referente" : "operador",
         }),
       });
 
@@ -530,9 +531,9 @@ const Seguimiento = () => {
                       <th>Descripción</th>
                       <th>Cantidad</th>
                       <th>Soportes</th>
-                      {/* {usuario === "referente_instituto" && <th>Check</th>} */}
+                      {/* {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Check</th>} */}
                       <th>Check</th>
-                      {usuario === "referente_instituto" && <th>Guardar</th>}
+                      {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Guardar</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -621,7 +622,7 @@ const Seguimiento = () => {
                         </td>
 
                         <td>
-                          {usuario === "referente_instituto" ? (
+                          {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                             soportes[soporte.uuid]?.evidencias?.length > 0 ? (
                               <select
                                 className={styles.select}
@@ -667,7 +668,7 @@ const Seguimiento = () => {
                           )}
                         </td>
 
-                        {usuario === "referente_instituto" && (
+                        {usuario === CustomRoles.REFERENTE_INSTITUTO && (
                           //Boton envio de estado_check
                           <td>
                             {soportes[soporte.uuid]?.evidencias?.length > 0 && (
@@ -758,7 +759,7 @@ const Seguimiento = () => {
                   <tbody>
                     <tr>
                       <td>
-                        {usuario === "referente_instituto" ? (
+                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                           <textarea
                             className={styles.textarea}
                             name="observacion_referente"
@@ -831,7 +832,7 @@ const Seguimiento = () => {
                   <tbody>
                     <tr>
                       <td>
-                        {usuario === "referente_instituto" ? (
+                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                           <select
                             id="referente_porcentaje"
                             name="porcentaje_referente"
@@ -867,7 +868,7 @@ const Seguimiento = () => {
                       </td>
 
                       <td>
-                        {usuario === "referente_instituto" ? (
+                        {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                           <select
                             id="referente"
                             name="estado_referente"
