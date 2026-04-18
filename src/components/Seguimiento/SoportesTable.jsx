@@ -2,6 +2,8 @@ import React from "react";
 import { FaSave } from "react-icons/fa";
 import styles from "./Seguimiento.module.css";
 import EvidenciasTable from "./EvidenciasTable";
+import { CustomRoles } from "../../components/Login/constant";
+
 
 const getEmojiEstado = (estado) => {
   if (estado.includes("No Aprobado soporte fisico")) return "❌";
@@ -29,7 +31,7 @@ const SoportesTable = ({
         <th>Cantidad</th>
         <th>Soportes</th>
         <th>Check</th>
-        {usuario === "referente_instituto" && <th>Guardar</th>}
+        {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Guardar</th>}
       </tr>
     </thead>
     <tbody>
@@ -75,7 +77,7 @@ const SoportesTable = ({
               />
             </td>
             <td>
-              {usuario === "referente_instituto" ? (
+              {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                 hasEvidencias ? (
                   <select
                     className={styles.select}
@@ -108,7 +110,7 @@ const SoportesTable = ({
                 </p>
               )}
             </td>
-            {usuario === "referente_instituto" && (
+            {usuario === CustomRoles.REFERENTE_INSTITUTO && (
               <td>
                 {hasEvidencias && (
                   <button

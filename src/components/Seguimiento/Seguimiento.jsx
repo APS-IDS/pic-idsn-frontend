@@ -9,6 +9,7 @@ import SoportesTable from "./SoportesTable";
 import ObservacionPanel from "./ObservacionPanel";
 import EstadoPanel from "./EstadoPanel";
 import CronogramaTable from "./CronogramaTable";
+import { CustomRoles } from "../../components/Login/constant";
 
 const Seguimiento = () => {
   const location = useLocation();
@@ -572,14 +573,14 @@ const Seguimiento = () => {
                   observacion={observaciones.observacion_referente}
                   fecha={observaciones.fecha_referente}
                   usuarioAutor={observaciones.usuario_referente}
-                  canEdit={usuario === "referente_instituto"}
+                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
                   name="observacion_referente"
                   onChange={onChange_observaciones}
                 />
               </td>
               <td>
                 <EstadoPanel
-                  canEdit={usuario === "referente_instituto"}
+                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
                   porcentaje={status_porcentaje.porcentaje_referente}
                   estado={status_porcentaje.estado_referente}
                   porcentajeName="porcentaje_referente"
