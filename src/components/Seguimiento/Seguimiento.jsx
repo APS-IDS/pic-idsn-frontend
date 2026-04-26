@@ -479,7 +479,6 @@ const Seguimiento = () => {
               <th>Soportes</th>
               <th>Código Cups</th>
               {anexo_date == "2026-01-01" && <th>Valor Unitario</th>}
-              {anexo_date == "2025-01-01" && <th>Valor Unitario</th>}
               <th>Valor Total</th>
               <th>Cronograma</th>
               <th>Observación Referente</th>
