@@ -52,43 +52,51 @@ const Dashbo = () => {
   const back = import.meta.env.VITE_APP_BACK;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
   const [anioSeleccionado, setAnioSeleccionado] = useState("2026");
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(get_data(anioSeleccionado));
-    // dispatch(get_user());
-  }, [anioSeleccionado, dispatch]);
-
   const globalData = useSelector((state) => state.data);
   const usuario_redux = useSelector((state) => state.user);
+  const loading_redux = useSelector((state) => state.GET_DATA);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(!globalData || Object.keys(globalData).length === 0);
 
-  const loading = !globalData || Object.keys(globalData).length === 0;
+  const error = () => {
+    return 
+      <Spinner envio={"Error al cargar los datos"} />;
+  }
+  
+  useEffect(() => {
+      const waitForLoadDataAnio = async () => {
+      setLoading(true); 
+      try {
+        await dispatch(get_data(anioSeleccionado));
+      } catch (error) {
+        error();
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      } 
+    }
+    waitForLoadDataAnio();
+    dispatch(get_user());
+  }, [anioSeleccionado, dispatch]);
+
+
+
 
   const handleSelectChange = (event) => {
     const selectedValue = event.target.value;
     setAnioSeleccionado(selectedValue);
   }
 
-  // console.log("Usuario_Reduxxx:", usuario_redux);
-  // console.log("Estado loading", loading);
-
   if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
-
-  // console.log("usuario_rol", usuario);
   return (
     <div className={styles.dashboard}>
       <Header />
-
       <div className={styles.main}>
         <Sidebar />
-        <main className={styles.main_dashboard}>
 
-
-          <div style={{ padding: "20px", marginLeft: "20px", marginRight: "20px" }}>
-            <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
+        <div className={styles.container}>
+          <div className={styles.select_container}>
+             <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
             <div>
               <label htmlFor="">Selecciona el Año</label>
               <select name="" id="" onChange={handleSelectChange} value={anioSeleccionado}>
@@ -96,46 +104,43 @@ const Dashbo = () => {
                 <option value="2026">2026</option>
               </select>
             </div>
-
           </div>
-          <div className={styles.container}>
-            <div className={styles.barra_poblacion}>
-              <BarraPoblacion />
-            </div>
-            <div className={styles.radar_entorno}>
-              <RadarEntorno />
-            </div>
-            <div className={styles.dona_producto}>
-              <Dona />
-            </div>|
-            <div className={styles.radar_check}>
-              <RadarCheck />
-            </div>
-            <div className={styles.dona_producto}>
-              <Dona />
-            </div>
 
-            <div className={styles.radar_check}>
-              <RadarCheck />
-            </div>
-
-            <div className={styles.dona_actividad}>
-              <DonaActividad />
-            </div>
-
-            <div className={styles.dona_actividad_estado}>
-              <DonaEstado />
-            </div>
-
-            <div className={styles.linea_mes}>
-              <LineaMes />
-            </div>
+          <div className={styles.bardouble}>
+            <Bardouble />
           </div>
-        </main>
+
+          <div className={styles.barra_poblacion}>
+            <BarraPoblacion />
+          </div>
+
+          <div className={styles.radar_entorno}>
+            <RadarEntorno />
+          </div>
+
+          <div className={styles.dona_producto}>
+            <Dona />
+          </div>
+
+          <div className={styles.radar_check}>
+            <RadarCheck />
+          </div>
+
+          <div className={styles.dona_actividad}>
+            <DonaActividad />
+          </div>
+
+          <div className={styles.dona_actividad_estado}>
+            <DonaEstado />
+          </div>
+
+          <div className={styles.linea_mes}>
+            <LineaMes />
+          </div>
+        </div>
       </div>
-
-
     </div>
+
   );
 };
 
