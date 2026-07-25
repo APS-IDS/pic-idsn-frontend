@@ -38,13 +38,21 @@ const getAuthToken = () => {
 //   };
 // };
 
-export const get_data = () => {
+export const get_data = (anio) => {
   return async function (dispatch) {
     const token = getAuthToken();
     if (!token) return;
 
+    let url_builder = "";
+
+    if (anio) {
+      url_builder = `${url_data_total}?dateFilter=${anio}`;
+    } else {
+      url_builder = `${url_data_total}`;
+    }
+
     try {
-      const response = await fetch(url_data_total, {
+      const response = await fetch(url_builder, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
