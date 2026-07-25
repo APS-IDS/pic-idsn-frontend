@@ -57,29 +57,23 @@ const Dashbo = () => {
   const loading_redux = useSelector((state) => state.GET_DATA);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(!globalData || Object.keys(globalData).length === 0);
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  const error = () => {
-    return 
-      <Spinner envio={"Error al cargar los datos"} />;
-  }
-  
   useEffect(() => {
-      const waitForLoadDataAnio = async () => {
-      setLoading(true); 
+    const waitForLoadDataAnio = async () => {
+      setLoading(true);
+      setErrorMsg(null);
       try {
         await dispatch(get_data(anioSeleccionado));
-      } catch (error) {
-        error();
-        console.error("Error:", error);
+      } catch (err) {
+        setErrorMsg(err.message || "Error al cargar los datos");
       } finally {
         setLoading(false);
-      } 
+      }
     }
     waitForLoadDataAnio();
     dispatch(get_user());
   }, [anioSeleccionado, dispatch]);
-
-
 
 
   const handleSelectChange = (event) => {
@@ -88,6 +82,9 @@ const Dashbo = () => {
   }
 
   if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
+
+  if (errorMsg) { return <Spinner envio={errorMsg} />;}
+
   return (
     <div className={styles.dashboard}>
       <Header />
@@ -96,7 +93,7 @@ const Dashbo = () => {
 
         <div className={styles.container}>
           <div className={styles.select_container}>
-             <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
+            <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
             <div>
               <label htmlFor="">Selecciona el Año</label>
               <select name="" id="" onChange={handleSelectChange} value={anioSeleccionado}>
