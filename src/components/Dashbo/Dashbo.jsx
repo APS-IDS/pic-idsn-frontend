@@ -35,6 +35,8 @@ import LineaMes from "./LineaMeses";
 import RadarCheck from "./RadarCheck";
 import DonaEstado from "./DonaEstado";
 
+const ANIOS_DISPONIBLES = ["2025", "2026"];
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -56,34 +58,21 @@ const Dashbo = () => {
   const usuario_redux = useSelector((state) => state.user);
   const loading_redux = useSelector((state) => state.GET_DATA);
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(!globalData || Object.keys(globalData).length === 0);
+  const loading = !globalData || Object.keys(globalData).length === 0;
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    const waitForLoadDataAnio = async () => {
-      setLoading(true);
-      setErrorMsg(null);
-      try {
-        await dispatch(get_data(anioSeleccionado));
-      } catch (err) {
-        setErrorMsg(err.message || "Error al cargar los datos");
-      } finally {
-        setLoading(false);
-      }
-    }
-    waitForLoadDataAnio();
-    dispatch(get_user());
-  }, [anioSeleccionado, dispatch]);
+    dispatch(get_data(anioSeleccionado));
+  }, [anioSeleccionado]);
 
+  useEffect(() => {
+    dispatch(get_user());
+  }, [dispatch]);
 
   const handleSelectChange = (event) => {
     const selectedValue = event.target.value;
     setAnioSeleccionado(selectedValue);
-  }
-
-  if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
-
-  if (errorMsg) { return <Spinner envio={errorMsg} />;}
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -96,9 +85,17 @@ const Dashbo = () => {
             <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
             <div>
               <label htmlFor="">Selecciona el Año</label>
-              <select name="" id="" onChange={handleSelectChange} value={anioSeleccionado}>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
+              <select
+                name=""
+                id=""
+                onChange={handleSelectChange}
+                value={anioSeleccionado}
+              >
+                {ANIOS_DISPONIBLES.map((anio) => (
+                  <option key={anio} value={anio}>
+                    {anio}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -137,7 +134,6 @@ const Dashbo = () => {
         </div>
       </div>
     </div>
-
   );
 };
 
