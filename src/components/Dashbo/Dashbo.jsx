@@ -35,6 +35,8 @@ import LineaMes from "./LineaMeses";
 import RadarCheck from "./RadarCheck";
 import DonaEstado from "./DonaEstado";
 
+const ANIOS_DISPONIBLES = ["2025", "2026"];
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -51,27 +53,26 @@ ChartJS.register(
 const Dashbo = () => {
   const back = import.meta.env.VITE_APP_BACK;
   const url_usuarios = `${back}/api/users/me?pLevel=2`;
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
-
+  const [anioSeleccionado, setAnioSeleccionado] = useState("2026");
+  const globalData = useSelector((state) => state.data);
+  const usuario_redux = useSelector((state) => state.user);
+  const loading_redux = useSelector((state) => state.GET_DATA);
   const dispatch = useDispatch();
+  const loading = !globalData || Object.keys(globalData).length === 0;
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    dispatch(get_data());
+    dispatch(get_data(anioSeleccionado));
+  }, [anioSeleccionado]);
+
+  useEffect(() => {
     dispatch(get_user());
   }, [dispatch]);
 
-  const globalData = useSelector((state) => state.data);
-  const usuario_redux = useSelector((state) => state.user);
-
-  const loading = !globalData || Object.keys(globalData).length === 0;
-
-  // console.log("Usuario_Reduxxx:", usuario_redux);
-  // console.log("Estado loading", loading);
-
-  if (loading) return <Spinner envio={"Cargando datos desde el servidor..."} />;
-
-  // console.log("usuario_rol", usuario);
+  const handleSelectChange = (event) => {
+    const selectedValue = event.target.value;
+    setAnioSeleccionado(selectedValue);
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -80,6 +81,25 @@ const Dashbo = () => {
         <Sidebar />
 
         <div className={styles.container}>
+          <div className={styles.select_container}>
+            <h1 style={{ marginBottom: "30px" }}>Filtros de Búsqueda</h1>
+            <div>
+              <label htmlFor="">Selecciona el Año</label>
+              <select
+                name=""
+                id=""
+                onChange={handleSelectChange}
+                value={anioSeleccionado}
+              >
+                {ANIOS_DISPONIBLES.map((anio) => (
+                  <option key={anio} value={anio}>
+                    {anio}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className={styles.bardouble}>
             <Bardouble />
           </div>
