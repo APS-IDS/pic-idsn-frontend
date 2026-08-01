@@ -10,30 +10,40 @@ import qs from "qs";
 import FiltersPanel from "./FiltersPanel";
 import AnexoCard from "./AnexoCard";
 import { openSoporteModal } from "./soporteModal.jsx";
+import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
+
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState(null);
-  const [filterValue, setFilterValue] = useState(""); // Estado para el filtro
-  const [operatorFilterValue, setOperatorFilterValue] = useState(""); // Filtro por operador
+  const [filterValue, setFilterValue] = useState("");
+  const [operatorFilterValue, setOperatorFilterValue] = useState("");
+  const [filterState, setFilterState] = useState(
+    {
+      project: null,
+      operator: null,
+      municipality: null,
+      dependence: null,
+      anio: null,
+    });
 
-  // const anexoDate = "2025";
+  const [appliedFilters, setAppliedFilters] = useState({
+    proyecto: null,
+    operador: null,
+    municipality: null,
+    dependence: null,
+    anio: null,
+  });
+
 
   const [anexoDate, setYanexoDate] = useState("");
-
   const [nombre, setNombre] = useState("");
 
+  const [openIndex, setOpenIndex] = useState(null);
   const user_Redux = useSelector((state) => state.user.usuario);
-
   const user_LS = JSON.parse(localStorage.getItem("usuario_rol"));
-
-  // console.log("datos_usuario", user);
-
   const usuario = user_Redux || user_LS?.usuario || "";
-
-  // console.log("Usuario session", usuario);
-  // console.log("Usuario Redux", usuarioRedux);
-
   const back = import.meta.env.VITE_APP_BACK;
 
   const token =
@@ -41,11 +51,15 @@ const ReportView = () => {
     JSON.parse(localStorage.getItem("token"))?.token;
 
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
-  const [municipios, setMunicipios] = useState([]);
 
-  const [operadores, setOperadores] = useState([]);
 
+  // filtros traidos de backend
   const [proyectos, setProyectos] = useState([]);
+  const [municipios, setMunicipios] = useState([]);
+  const [operadores, setOperadores] = useState([]);
+  const [dependences, setDependences] = useState([]);
+  const anios = ANIOS_DISPONIBLES;
+  const [isOpen, setIsOpen] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
@@ -76,48 +90,15 @@ const ReportView = () => {
     ).toISOString();
   };
 
-  const anexosQuery = qs.stringify(
-    {
-      pLevel: 10,
-      pagination: { page: currentPage, pageSize },
-      filters: {
-        ...(anexoDate
-          ? {
-              anexo_tecnico_date: {
-                $gte: getGteDate(anexoDate),
-                $lte: getLteDate(anexoDate),
-              },
-            }
-          : {}),
-        eventos: {
-          ...(filterValue
-            ? { proyectos_idsn: { proyecto: { $containsi: filterValue } } }
-            : {}),
-          ...(operatorFilterValue
-            ? {
-                operador_pic: {
-                  operador_pic: { $containsi: operatorFilterValue },
-                },
-              }
-            : {}),
-        },
-      },
-    },
-    { encodeValuesOnly: true },
-  );
 
-  const url_anexos = `${back}/api/anexo-tecnicos?${anexosQuery}`;
-
+  const url_anexos = `${back}/api/anexo-tecnicos?`;
   const url_soportes = `${back}/api/seguimiento/upload-file`;
   const url_soportes_get = `${back}/api/check-seguimiento?`;
   const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
-
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
-
   const url_proyectos = `${back}/api/proyectos-idsns`;
 
-  const navigate = useNavigate(); // Hook para navegación
-
+  const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
   const showLoadingSwal = (mensaje, mensaje_2) => {
@@ -133,107 +114,104 @@ const ReportView = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFilterOptions = async () => {
       try {
-        const response = await fetch(url_anexos, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        setLoading(true);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        setData(result);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [
-    token,
-    filterValue,
-    operatorFilterValue,
-    anexoDate,
-    currentPage,
-    pageSize,
-  ]);
-
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
+        // Traer Toda la Consulta de Filtros
         const response = await fetch(`${url_municipios}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setMunicipios(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
 
-    fetch_subregion();
-  }, [token]);
+        setProyectos([]);
+        setMunicipios([]);
+        setOperadores([]);
+        setDependences([]);
+
+        if (response.ok)
+          throw new Error(`HTTP error! Status:`);
+
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFilterOptions();
+  }, []);
+
+
+  const fetchData = async () => {
+
+    setLoadingData(true);
+
+    const cleanParams = Object.fromEntries(
+      Object.entries(appliedFilters).filter(([_, val]) => val !== null && val !== "")
+    );
+
+    const anexosQuery = qs.stringify(
+      {
+        pLevel: 10,
+        pagination: { page: currentPage, pageSize },
+        filters: {
+          ...(cleanParams.anio
+            ? {
+              anexo_tecnico_date: {
+                $gte: getGteDate(cleanParams.anio),
+                $lte: getLteDate(cleanParams.anio),
+              },
+            }
+            : {}),
+          eventos: {
+            ...(cleanParams.project
+              ? { proyectos_idsn: { proyecto: { $containsi: cleanParams.project } } }
+              : {}),
+            ...(cleanParams.operator
+              ? {
+                operador_pic: {
+                  operador_pic: { $containsi: cleanParams.operator },
+                },
+              }
+              : {}),
+          },
+        },
+      },
+      { encodeValuesOnly: true },
+    );
+
+    try {
+      //const response = await fetch(`${url_anexos}${anexosQuery}`);
+
+      const response = await fetch("/anexo-tecnico-response.json");
+      console.log(response);
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error("Error consultando datos:", error);
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
   useEffect(() => {
-    const fetch_operador = async () => {
-      try {
-        const response = await fetch(`${url_operadores}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
+    fetchData();
+  }, [
+    token,
+    appliedFilters,
+    currentPage,
+    pageSize,
+    filterState,
+  ]);
 
-        setOperadores(data.data);
-        // console.log("Operadores", data.data);
-      } catch (error) {
-        console.error("Error fetching operador:", error);
-      }
-    };
 
-    fetch_operador();
-  }, [token]);
-
-  // console.log("Operadores_Estado:", operadores);
-
-  useEffect(() => {
-    const fetch_proyectos = async () => {
-      try {
-        const response = await fetch(`${url_proyectos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
-        setProyectos(data.data);
-      } catch (error) {
-        console.error("Error fetching operador:", error);
-      }
-    };
-
-    fetch_proyectos();
-  }, [token]);
-
-  // console.log("proyectos_estado:", proyectos);
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
 
-  //console.log("datos", data);
+
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -242,7 +220,7 @@ const ReportView = () => {
       },
     });
   };
-  //console.log("Year", anexoDate);
+
 
   const handle_click_actividad = (actividad, anexoDate) => {
     navigate("/seg", {
@@ -409,36 +387,87 @@ const ReportView = () => {
     });
   };
 
+  const handleFilterChange = (key, value) => {
+    setFilterState((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleApplyFilters = () => {
+    setAppliedFilters(filterState);
+    setCurrentPage(1);
+  };
+
+
+
+  const handleToggle = (index) => {
+    setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const handleClear = () => {
+  setFilterState({
+    project: null,
+    municipality: null,
+    anio: null,
+    operator: null,
+    dependence: null,
+    filterState: null,
+  });
+};
+
   return (
-    <div className={styles.contenedor_principal}>
+    <>
       <Header />
+      <div class="w-full h-[1050px] bg-app-bg pt-4">
+        <FiltersPanel
+          filters={[
+            {
+              key: "project",
+              label: "Proyecto",
+              text: "Todos los proyectos",
+              optionsList: proyectos,
+              value: filterState.project,
+            },
+            {
+              key: "municipality",
+              label: "Municipio",
+              text: "Todos los municipios",
+              optionsList: municipios,
+              value: filterState.municipality,
+            },
+            {
+              key: "anio",
+              label: "Año",
+              text: "Todos los años",
+              optionsList: anios,
+              value: filterState.anio,
+            },
 
-      <FiltersPanel
-        proyectos={proyectos}
-        operadores={operadores}
-        filterValue={filterValue}
-        operatorFilterValue={operatorFilterValue}
-        anexoDate={anexoDate}
-        onProjectChange={(val) => {
-          setFilterValue(val);
-          setCurrentPage(1);
-        }}
-        onOperatorChange={(val) => {
-          setOperatorFilterValue(val);
-          setCurrentPage(1);
-        }}
-        onYearChange={(val) => {
-          setYanexoDate(val);
-          setCurrentPage(1);
-        }}
-      />
+            {
+              key: "operator",
+              label: "Operador",
+              text: "Todos los operadores",
+              optionsList: operadores,
+              value: filterState.operator,
+            },
+            {
+              key: "dependence",
+              label: "Dependencia",
+              text: "Todas las dependencias",
+              optionsList: dependences,
+              value: filterState.dependence,
+            },
+          ]}
+          onChange={handleFilterChange}
+          onApply={handleApplyFilters}
+          loading={loadingData}
+          onClear={handleClear}
+        />
 
-      <div className={styles.formContainer}>
-        {data?.data && data.data.length > 0 ? (
-          data.data.map((row, index) => (
+        {loadingData ? (
+          <Spinner envio={"Cargando datos, por favor espera..."} />
+        ) : (
+          data?.data && data.data.length > 0 ? (data?.data?.map((anexo, index) => (
             <AnexoCard
-              key={row.documentId}
-              row={row}
+              key={anexo.documentId}
+              row={anexo}
               index={index}
               usuario={usuario}
               filterValue={filterValue}
@@ -446,33 +475,59 @@ const ReportView = () => {
               onEdit={handle_click}
               onSoporte={handle_soporte}
               onActividad={handle_click_actividad}
+              handleToggle={handleToggle}
+              openIndex={openIndex}
             />
-          ))
-        ) : (
-          <div className={styles.noDataMessage}>
-            No hay información para mostrar
+          ))) : (
+            <div class={styles.noDataMessage}>
+              No hay información para mostrar
+            </div>
+          ))}
+        {/*
+        <div class={styles.formContainer}>
+          {data?.data && data.data.length > 0 ? (
+            data.data.map((row, index) => (
+              <AnexoCard
+                key={row.documentId}
+                row={row}
+                index={index}
+                usuario={usuario}
+                filterValue={filterValue}
+                operatorFilterValue={operatorFilterValue}
+                onEdit={handle_click}
+                onSoporte={handle_soporte}
+                onActividad={handle_click_actividad}
+              />
+            ))
+          ) : (
+            <div class={styles.noDataMessage}>
+              No hay información para mostrar
+            </div>
+          )}
+
+          <div class={styles.pagination}>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </button>
+
+            <span>Página {currentPage}</span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={data?.meta?.pagination?.pageCount === currentPage}
+            >
+              Siguiente
+            </button>
           </div>
-        )}
-
-        <div className={styles.pagination}>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-
-          <span>Página {currentPage}</span>
-
-          <button
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            disabled={data?.meta?.pagination?.pageCount === currentPage}
-          >
-            Siguiente
-          </button>
         </div>
+*/}
       </div>
-    </div>
+
+
+    </>
   );
 };
 

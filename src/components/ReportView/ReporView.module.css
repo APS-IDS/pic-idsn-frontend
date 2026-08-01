@@ -1,224 +1,30 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
-.table {
-  /* width: fit-content; */
-  border-collapse: collapse;
-  /* margin: 20px 0; */
-  font-size: 1rem;
-  text-align: center;
-  font-family: "Roboto", sans-serif;
+:root{
+    --navy:#1c3a5e;
+    --navy-dark:#152c48;
+    --teal:#0f7a68;
+    --teal-dark:#0b5c4d;
+    --teal-light:#e3f4ef;
+    --green:#8bc34a;
+    --yellow:#f2c94c;
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --border:#dfe3e8;
+    --text:#1f2937;
+    --text-mut:#5b6673;
+  }
 
-  /* max-width: 100%; */
-}
+thead th{
+    background:var(--teal);color:#fff;font-weight:600;text-align:left;padding:12px 14px;
+    position:sticky;top:0;white-space:nowrap;font-size:12.5px;
+  }
 
-.table th,
-.table td {
-  border: 1px solid #c0bcbc;
-  padding: 10px;
-  vertical-align: top;
-}
+thead th.id-col{background:var(--teal-dark);}
 
-.table th {
-  background-color: #079486;
-  color: rgb(243, 243, 243);
-}
+td.id-col{
+    font-weight:700;color:var(--teal-dark);background:#f0f9f6;text-align:center;white-space:nowrap;
+  }
 
-.table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.contenedor {
-  display: flex;
-  align-items: center;
-  background-color: #f5f5f5;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  margin-bottom: 5px;
-  gap: 2px;
-
-  justify-content: space-between;
-}
-
-.formContainer {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  margin: 20px auto;
-  font-family: "Roboto", sans-serif;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  /* width: fit-content; */
-  overflow-x: auto;
-}
-
-.eje_contenedor {
-  display: flex;
-  align-items: center;
-}
-
-.filterContainer {
-  /* Hace que el elemento sea fijo al hacer scroll */
-  /* position: sticky;  */
-  top: 0; /* Se queda pegado al borde superior */
-  background-color: white; /* Fondo blanco para que destaque */
-  z-index: 100; /* Asegura que se superpone a otros elementos si es necesario */
-  padding: 10px; /* Espaciado interno */
-  border-bottom: 1px solid #ddd; /* Línea para separarlo visualmente */
-  display: flex; /* Facilita alinear elementos */
-  /* justify-content: space-between;  */
-  justify-content: flex-start;
-  align-items: center; /* Centra los elementos verticalmente */
-  /* width: 100%; */
-}
-
-.container_label {
-  /* background-color: aqua; */
-  width: 200px;
-}
-
-.filterSelect {
-  padding: 5px 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: white;
-  cursor: pointer;
-}
-
-.filterSelect:focus {
-  border-color: #007bff; /* Cambia el color del borde al enfocarse */
-  outline: none;
-}
-
-.contenedor_principal {
-  width: fit-content;
-}
-
-.edit_button {
-  background-color: #09766d;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px; /* Espacio entre el icono y el texto */
-  transition: background 0.3s ease-in-out;
-}
-
-.edit_button:hover {
-  background-color: #08b5a7;
-  transform: scale(1.05);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.seguimiento_button {
-  background-color: #09766d;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.3s ease;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.seguimiento_button:hover {
-  background-color: #08b5a7;
-  transform: scale(1.05);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.delete_button {
-  background-color: #b80a0a;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 0px;
-  display: flex;
-  align-items: center;
-  gap: 5px; /* Espacio entre el icono y el texto */
-  transition: background 0.3s ease-in-out;
-}
-
-.delete_button:hover {
-  background-color: #ec1010;
-  transform: scale(1.05);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-  /* background-color: #08b5a7; */
-}
-
-.pagination button {
-  background-color: #0d7861;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-  font-weight: bold;
-}
-
-.pagination button:hover {
-  background-color: #10a190;
-}
-
-.pagination button:disabled {
-  background-color: #c4bebe;
-  cursor: not-allowed;
-}
-
-.pagination span {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.noDataMessage {
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-  color: #666; /* Color gris para el texto */
-  background-color: #f8f8f8; /* Fondo claro */
-  border: 1px solid #ddd; /* Borde sutil */
-  border-radius: 4px; /* Bordes redondeados */
-  margin: 20px auto; /* Centrar el mensaje con margen superior e inferior */
-  width: 100%;
-  /* max-width: 500px;  */
-}
-.anexoHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.anexoHeader h4 {
-  margin: 0;
-}
-.anexoContainer {
-  border: 4px solid #ddd; /* Borde sutil */
-  border-radius: 7px; /* Bordes redondeados */
-}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+tbody tr:nth-child(even){background:#f8fafb;}
+tbody tr:hover{background:var(--teal-light);}
