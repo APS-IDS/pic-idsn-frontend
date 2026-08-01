@@ -12,6 +12,14 @@ import AnexoCard from "./AnexoCard";
 import { openSoporteModal } from "./soporteModal.jsx";
 import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
 
+const FILTROS_VACIOS = {
+  project: null,
+  operator: null,
+  municipality: null,
+  dependence: null,
+  anio: null,
+};
+
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,23 +27,8 @@ const ReportView = () => {
   const [error, setError] = useState(null);
   const [filterValue, setFilterValue] = useState("");
   const [operatorFilterValue, setOperatorFilterValue] = useState("");
-  const [filterState, setFilterState] = useState(
-    {
-      project: null,
-      operator: null,
-      municipality: null,
-      dependence: null,
-      anio: null,
-    });
-
-  const [appliedFilters, setAppliedFilters] = useState({
-    proyecto: null,
-    operador: null,
-    municipality: null,
-    dependence: null,
-    anio: null,
-  });
-
+  const [filterState, setFilterState] = useState(FILTROS_VACIOS);
+  const [appliedFilters, setAppliedFilters] = useState(FILTROS_VACIOS);
 
   const [anexoDate, setYanexoDate] = useState("");
   const [nombre, setNombre] = useState("");
@@ -51,14 +44,22 @@ const ReportView = () => {
     JSON.parse(localStorage.getItem("token"))?.token;
 
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
-
+  const url_anexos = `${back}/api/anexo-tecnicos?`;
+  const url_soportes = `${back}/api/seguimiento/upload-file`;
+  const url_soportes_get = `${back}/api/check-seguimiento?`;
+  const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
+  const url_proyectos = `${back}/api/proyectos-idsns`;
 
   // filtros traidos de backend
   const [proyectos, setProyectos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [operadores, setOperadores] = useState([]);
   const [dependences, setDependences] = useState([]);
-  const anios = ANIOS_DISPONIBLES;
+  const anios = ANIOS_DISPONIBLES.map((anio) => ({
+    value: anio,
+    label: anio,
+  }));
   const [isOpen, setIsOpen] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,14 +91,6 @@ const ReportView = () => {
     ).toISOString();
   };
 
-
-  const url_anexos = `${back}/api/anexo-tecnicos?`;
-  const url_soportes = `${back}/api/seguimiento/upload-file`;
-  const url_soportes_get = `${back}/api/check-seguimiento?`;
-  const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
-  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
-  const url_proyectos = `${back}/api/proyectos-idsns`;
-
   const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
@@ -119,75 +112,90 @@ const ReportView = () => {
         setLoading(true);
 
         // Traer Toda la Consulta de Filtros
-        const response = await fetch(`${url_municipios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const fetchJson = async (url) => {
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        };
 
-        setProyectos([]);
-        setMunicipios([]);
-        setOperadores([]);
+        const [municipiosResult, operadoresResult, proyectosResult] =
+          await Promise.allSettled([
+            fetchJson(url_municipios),
+            fetchJson(url_operadores),
+            fetchJson(url_proyectos),
+          ]);
+
+        const toOptions = (result, campo) =>
+          (result.value?.data || []).map((item) => ({
+            value: item[campo],
+            label: item[campo],
+          }));
+
+        setMunicipios(toOptions(municipiosResult, "label"));
+        setOperadores(toOptions(operadoresResult, "operador_pic"));
+        setProyectos(toOptions(proyectosResult, "proyecto"));
         setDependences([]);
-
-        if (response.ok)
-          throw new Error(`HTTP error! Status:`);
-
       } catch (error) {
         setError(error.message);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchFilterOptions();
   }, []);
 
-
   const fetchData = async () => {
-
     setLoadingData(true);
 
-    const cleanParams = Object.fromEntries(
-      Object.entries(appliedFilters).filter(([_, val]) => val !== null && val !== "")
-    );
+    const { anio, project, operator } = appliedFilters;
+  
+
+
+    const eventos = {};
+    if (project) {
+      eventos.proyectos_idsn = { proyecto: { $containsi: project } };
+    }
+    if (operator) {
+      eventos.operador_pic = { operador_pic: { $containsi: operator } };
+    }
+
+    const filters = {};
+    if (anio) {
+      filters.anexo_tecnico_date = {
+        $gte: getGteDate(anio), 
+        $lte: getLteDate(anio), 
+      };
+    }
+    if (Object.keys(eventos).length > 0) {
+      filters.eventos = eventos;
+    }
 
     const anexosQuery = qs.stringify(
       {
         pLevel: 10,
         pagination: { page: currentPage, pageSize },
-        filters: {
-          ...(cleanParams.anio
-            ? {
-              anexo_tecnico_date: {
-                $gte: getGteDate(cleanParams.anio),
-                $lte: getLteDate(cleanParams.anio),
-              },
-            }
-            : {}),
-          eventos: {
-            ...(cleanParams.project
-              ? { proyectos_idsn: { proyecto: { $containsi: cleanParams.project } } }
-              : {}),
-            ...(cleanParams.operator
-              ? {
-                operador_pic: {
-                  operador_pic: { $containsi: cleanParams.operator },
-                },
-              }
-              : {}),
-          },
-        },
+        filters,
       },
       { encodeValuesOnly: true },
     );
 
     try {
-      //const response = await fetch(`${url_anexos}${anexosQuery}`);
+      const response = await fetch(`${url_anexos}${anexosQuery}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const response = await fetch("/anexo-tecnico-response.json");
-      console.log(response);
+      // const response = await fetch("/anexo-tecnico-response.json");
       const result = await response.json();
+      console.log(result);
       setData(result);
     } catch (error) {
       console.error("Error consultando datos:", error);
@@ -198,20 +206,10 @@ const ReportView = () => {
 
   useEffect(() => {
     fetchData();
-  }, [
-    token,
-    appliedFilters,
-    currentPage,
-    pageSize,
-    filterState,
-  ]);
-
-
+  }, [token, appliedFilters, currentPage, pageSize]);
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
-
-
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -220,7 +218,6 @@ const ReportView = () => {
       },
     });
   };
-
 
   const handle_click_actividad = (actividad, anexoDate) => {
     navigate("/seg", {
@@ -280,20 +277,23 @@ const ReportView = () => {
           );
 
           if (evidencia.tipo === "link") {
-            const response = await fetch(`${back}/api/seguimiento/upload-link`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
+            const response = await fetch(
+              `${back}/api/seguimiento/upload-link`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  anexo_id: documentId,
+                  soporte_id: soporteId,
+                  municipio_id: evidencia.region,
+                  file_name: evidencia.file_name,
+                  evidencia_link: evidencia.evidencia_link,
+                }),
               },
-              body: JSON.stringify({
-                anexo_id: documentId,
-                soporte_id: soporteId,
-                municipio_id: evidencia.region,
-                file_name: evidencia.file_name,
-                evidencia_link: evidencia.evidencia_link,
-              }),
-            });
+            );
 
             if (!response.ok) throw new Error("Error al enviar el enlace");
           } else {
@@ -395,22 +395,15 @@ const ReportView = () => {
     setCurrentPage(1);
   };
 
-
-
   const handleToggle = (index) => {
     setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
   const handleClear = () => {
-  setFilterState({
-    project: null,
-    municipality: null,
-    anio: null,
-    operator: null,
-    dependence: null,
-    filterState: null,
-  });
-};
+    setFilterState(FILTROS_VACIOS);
+    setAppliedFilters(FILTROS_VACIOS);
+    setCurrentPage(1);
+  };
 
   return (
     <>
@@ -463,8 +456,8 @@ const ReportView = () => {
 
         {loadingData ? (
           <Spinner envio={"Cargando datos, por favor espera..."} />
-        ) : (
-          data?.data && data.data.length > 0 ? (data?.data?.map((anexo, index) => (
+        ) : data?.data && data.data.length > 0 ? (
+          data?.data?.map((anexo, index) => (
             <AnexoCard
               key={anexo.documentId}
               row={anexo}
@@ -478,11 +471,12 @@ const ReportView = () => {
               handleToggle={handleToggle}
               openIndex={openIndex}
             />
-          ))) : (
-            <div class={styles.noDataMessage}>
-              No hay información para mostrar
-            </div>
-          ))}
+          ))
+        ) : (
+          <div class={styles.noDataMessage}>
+            No hay información para mostrar
+          </div>
+        )}
         {/*
         <div class={styles.formContainer}>
           {data?.data && data.data.length > 0 ? (
@@ -525,8 +519,6 @@ const ReportView = () => {
         </div>
 */}
       </div>
-
-
     </>
   );
 };

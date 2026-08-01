@@ -17,9 +17,9 @@ const FiltersPanel = ({ filters, onChange, onApply, loading , onClear}) => {
               onChange={(e) => onChange(filter.key, e.target.value || null)}
             >
               <option className="" value=""> {filter.text}</option>
-              {filter.optionsList.map((option, idx) => (
-                <option key={idx} value={option}>
-                  {option}
+              {filter.optionsList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
