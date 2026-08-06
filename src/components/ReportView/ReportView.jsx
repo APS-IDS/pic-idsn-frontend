@@ -406,7 +406,7 @@ const ReportView = () => {
   return (
     <>
       <Header />
-      <div class="w-full h-[1050px] bg-app-bg pt-4">
+      <div class="w-full min-h-dvh bg-app-bg p-4">
         <FiltersPanel
           filters={[
             {
