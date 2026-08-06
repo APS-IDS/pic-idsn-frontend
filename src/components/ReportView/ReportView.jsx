@@ -475,47 +475,6 @@ const ReportView = () => {
             No hay información para mostrar
           </div>
         )}
-        {/*
-        <div class={styles.formContainer}>
-          {data?.data && data.data.length > 0 ? (
-            data.data.map((row, index) => (
-              <AnexoCard
-                key={row.documentId}
-                row={row}
-                index={index}
-                usuario={usuario}
-                filterValue={filterValue}
-                operatorFilterValue={operatorFilterValue}
-                onEdit={handle_click}
-                onSoporte={handle_soporte}
-                onActividad={handle_click_actividad}
-              />
-            ))
-          ) : (
-            <div class={styles.noDataMessage}>
-              No hay información para mostrar
-            </div>
-          )}
-
-          <div class={styles.pagination}>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Anterior
-            </button>
-
-            <span>Página {currentPage}</span>
-
-            <button
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              disabled={data?.meta?.pagination?.pageCount === currentPage}
-            >
-              Siguiente
-            </button>
-          </div>
-        </div>
-*/}
       </div>
     </>
   );
