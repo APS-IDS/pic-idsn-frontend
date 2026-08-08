@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { FaHome, FaUserCircle } from "react-icons/fa"; // Importar íconos
 import { useNavigate } from "react-router-dom";
-import styles from "./Header.module.css";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/actions";
+import styles from "./Header.module.css"; // Importar estilos CSS
 
 const Header = () => {
   const navigate = useNavigate(); // Hook para navegación
@@ -49,14 +49,20 @@ const Header = () => {
   };
 
   return (
-    <header className={styles.header}>
-      <h1 className={styles.title}>Sistema Gestión PIC</h1>
-      {/* <h1 className={styles.title}>BIENVENIDOS</h1> */}
+    <header className="w-full">
+      <div className="bg-gradient-to-r from-navy-dark to-navy py-3 px-7 flex justify-between items-center">
+        <h1 className="text-white font-semibold text-xl">Sistema Gestión PIC</h1>
+        <div className="flex items-center space-x-6 relative">
 
-      <div className={styles.actions}>
-        <FaHome className={styles.homeIcon} onClick={handleHomeClick} />
-        <div className={styles.userMenu}>
-          <FaUserCircle className={styles.userIcon} onClick={toggleUserMenu} />
+          <FaHome
+            onClick={handleHomeClick}
+            title="Ir al Inicio"
+            className="text-white text-2xl cursor-pointer transition-transform duration-200 ease-in-out hover:scale-125 hover:text-teal-light" />
+          <FaUserCircle
+            onClick={toggleUserMenu}
+            title="Ver Usuario"
+            className="text-white text-2xl cursor-pointer transition-transform duration-200 ease-in-out hover:scale-125 hover:text-teal-light" />
+
           {isUserMenuOpen && (
             <div className={styles.menu}>
               <p className={styles.userInfo}>Usuario:{user}</p>
@@ -72,7 +78,10 @@ const Header = () => {
               </button>
             </div>
           )}
+
         </div>
+      </div>
+      <div className="h-[6px] bg-gradient-to-r from-green-brand to-yellow-brand" >
       </div>
     </header>
   );

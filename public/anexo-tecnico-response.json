@@ -1,0 +1,1227 @@
+{
+    "data": [
+        {
+            "id": 176,
+            "documentId": "ta74o4us0fh5nyykg9skemj6",
+            "createdAt": "2026-04-09T21:28:39.835Z",
+            "updatedAt": "2026-04-10T04:30:20.323Z",
+            "publishedAt": "2026-04-10T04:30:20.068Z",
+            "anexo_tecnico_date": "2026-01-01",
+            "eventos": [
+                {
+                    "id": 336,
+                    "descripcion": "4000",
+                    "indicador_evento": "4000",
+                    "meta_indicador_evento": "4000",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "4000",
+                    "perfil_operativo": "4000",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 390,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 373,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 380,
+                            "descripcion": "4000",
+                            "problematica_priorizada": "10000",
+                            "actividades": [
+                                {
+                                    "id": 331,
+                                    "descripcion": "4000",
+                                    "cantidad_a_ejecutar": "4000",
+                                    "unidad_medida": "4000",
+                                    "valor_unitario": null,
+                                    "valor_total": 10000000,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 25
+                                        },
+                                        {
+                                            "Feb": 75
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "352d1498-b546-433c-acc5-3c2ab4739d2f",
+                                    "costos_directos": 578,
+                                    "costos_indirectos": 7899,
+                                    "entornos": [
+                                        {
+                                            "id": 386,
+                                            "nombre": "Hogar"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 379,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 434,
+                                            "nombre": "Comunidad"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 361,
+                                        "codigo": "I10003 INFORMACIÓN PARA LA SALUD SOBRE AGUA APTA PARA CONSUMO HUMANO"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 805,
+                                            "tipo": "Acta de Reunión",
+                                            "descripcion": "4000",
+                                            "cantidad": 4000,
+                                            "uuid": "21d47765-2372-4134-b87b-3933d94348ae"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 9,
+                                            "nombre": "Adolescencia"
+                                        },
+                                        {
+                                            "id": 10,
+                                            "nombre": "Juventud"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 468,
+                                    "meta_producto": "4000",
+                                    "indicador_linea_base": "4000",
+                                    "cantidad": 4000
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 326,
+                        "numero_hogares": null,
+                        "territorio": "4000",
+                        "microterritorio": "4000",
+                        "numero_pobalcion_intervenir": 40,
+                        "municipios": [
+                            {
+                                "id": 145,
+                                "documentId": "iddfyjje23b3ofv89o1bq4ym",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "YACUANQUER",
+                                "codigo": "52885",
+                                "createdAt": "2025-01-17T01:20:41.355Z",
+                                "updatedAt": "2025-01-17T01:20:41.355Z",
+                                "publishedAt": "2025-01-17T01:20:41.614Z",
+                                "label": "YACUANQUER (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 180,
+                        "documentId": "v8g3bmmt3mrqwfxwy0anhv1n",
+                        "nit": "814002021:7",
+                        "operador_pic": "E.S.E. Centro Hospital Guaitarilla",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "GUAITARILLA",
+                        "createdAt": "2025-06-06T22:29:08.150Z",
+                        "updatedAt": "2025-06-06T22:29:08.150Z",
+                        "publishedAt": "2025-06-06T22:29:08.481Z",
+                        "slug": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": 177,
+            "documentId": "nxf0zmik19mgfmmeb13kfmvw",
+            "createdAt": "2026-04-10T04:09:46.519Z",
+            "updatedAt": "2026-04-10T04:32:10.208Z",
+            "publishedAt": "2026-04-10T04:32:09.981Z",
+            "anexo_tecnico_date": "2025-01-01",
+            "eventos": [
+                {
+                    "id": 337,
+                    "descripcion": "Descripción Evento",
+                    "indicador_evento": "Nombre del Indicador",
+                    "meta_indicador_evento": "Meta Indicador",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "Perfil Profesional",
+                    "perfil_operativo": "Perfil Operativo",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 391,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 374,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 381,
+                            "descripcion": "Descripción del Producto",
+                            "problematica_priorizada": null,
+                            "actividades": [
+                                {
+                                    "id": 332,
+                                    "descripcion": "Descripción Actividad",
+                                    "cantidad_a_ejecutar": "1",
+                                    "unidad_medida": "\tUnidad de Medida",
+                                    "valor_unitario": 20,
+                                    "valor_total": 10000000,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 20
+                                        },
+                                        {
+                                            "Feb": 80
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "fbdb6a0a-68c8-4797-9754-13caa5b69487",
+                                    "costos_directos": null,
+                                    "costos_indirectos": null,
+                                    "entornos": [
+                                        {
+                                            "id": 387,
+                                            "nombre": "Comunitario"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 380,
+                                            "nombre": "Centros de escucha comunitaria"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 435,
+                                            "nombre": "Comunidad"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 362,
+                                        "codigo": "I10001 INFORMACIÓN EN SALUD PARA EL CUIDADO DEL AMBIENTE"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 806,
+                                            "tipo": "Acta de Reunión",
+                                            "descripcion": "Descripción Soporte",
+                                            "cantidad": 1,
+                                            "uuid": "73b39cda-5a37-4b35-a8f6-63fed807b586"
+                                        }
+                                    ],
+                                    "curso_de_vida": []
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 469,
+                                    "meta_producto": "Indicador de Producto",
+                                    "indicador_linea_base": "Indicador Línea Base",
+                                    "cantidad": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 327,
+                        "numero_hogares": 4,
+                        "territorio": "Código - Nombre de Territorio APS",
+                        "microterritorio": "Código Micro-Territorio",
+                        "numero_pobalcion_intervenir": null,
+                        "municipios": [
+                            {
+                                "id": 139,
+                                "documentId": "w3uyipmlrska244ghlo130b1",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CHACHAGUI",
+                                "codigo": "52240",
+                                "createdAt": "2025-01-17T01:20:41.339Z",
+                                "updatedAt": "2025-01-17T01:20:41.339Z",
+                                "publishedAt": "2025-01-17T01:20:41.566Z",
+                                "label": "CHACHAGUI (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 150,
+                        "documentId": "cupf541zrevqtnxuy95cwptm",
+                        "nit": "814003370:7",
+                        "operador_pic": "E.S.E. Centro de Salud de Puerres",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "PUERRES",
+                        "createdAt": "2025-06-06T22:29:00.063Z",
+                        "updatedAt": "2025-06-06T22:29:00.063Z",
+                        "publishedAt": "2025-06-06T22:29:00.440Z",
+                        "slug": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": 178,
+            "documentId": "ucn6ccdm2q21bv637x9cg3id",
+            "createdAt": "2026-04-10T12:37:46.306Z",
+            "updatedAt": "2026-04-10T12:40:05.340Z",
+            "publishedAt": "2026-04-10T12:40:04.824Z",
+            "anexo_tecnico_date": "2026-01-01",
+            "eventos": [
+                {
+                    "id": 340,
+                    "descripcion": "Descripción Evento",
+                    "indicador_evento": "Nombre del Indicador",
+                    "meta_indicador_evento": "Meta Indicador",
+                    "equipo": "Equipo complementario",
+                    "perfiles_profesional": "\tPerfil Profesional",
+                    "perfil_operativo": "Perfil Operativo",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 394,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 377,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 384,
+                            "descripcion": "Descripción del Producto",
+                            "problematica_priorizada": "Problematica Priorizada4",
+                            "actividades": [
+                                {
+                                    "id": 335,
+                                    "descripcion": "Descripción Actividad",
+                                    "cantidad_a_ejecutar": "1",
+                                    "unidad_medida": "Unidad de Medida",
+                                    "valor_unitario": null,
+                                    "valor_total": 10,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 50
+                                        },
+                                        {
+                                            "Feb": 50
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "8faae5d8-5a77-4bbe-a72f-a8dec0cb2c94",
+                                    "costos_directos": 10,
+                                    "costos_indirectos": 10,
+                                    "entornos": [
+                                        {
+                                            "id": 390,
+                                            "nombre": "Hogar"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 383,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 438,
+                                            "nombre": "Familias"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 365,
+                                        "codigo": "I10003 INFORMACIÓN PARA LA SALUD SOBRE AGUA APTA PARA CONSUMO HUMANO"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 809,
+                                            "tipo": "Acta de Reunión",
+                                            "descripcion": "Descripción Soporte",
+                                            "cantidad": 1,
+                                            "uuid": "b0c37dc0-9a98-4e41-b2ec-db5563d47701"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 14,
+                                            "nombre": "Primera infancia"
+                                        },
+                                        {
+                                            "id": 15,
+                                            "nombre": "Vejez"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 472,
+                                    "meta_producto": "Indicador de Producto",
+                                    "indicador_linea_base": "Indicador Línea Base",
+                                    "cantidad": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 330,
+                        "numero_hogares": null,
+                        "territorio": "\tCódigo - Nombre de Territorio APS",
+                        "microterritorio": "Código Micro-Territorio",
+                        "numero_pobalcion_intervenir": 5,
+                        "municipios": [
+                            {
+                                "id": 139,
+                                "documentId": "w3uyipmlrska244ghlo130b1",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CHACHAGUI",
+                                "codigo": "52240",
+                                "createdAt": "2025-01-17T01:20:41.339Z",
+                                "updatedAt": "2025-01-17T01:20:41.339Z",
+                                "publishedAt": "2025-01-17T01:20:41.566Z",
+                                "label": "CHACHAGUI (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 170,
+                        "documentId": "k1fh8uydgo7q6zhj7sbwgi18",
+                        "nit": "814006732:3",
+                        "operador_pic": "E.S.E. Centro de Salud - Consacá",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "CONSACA",
+                        "createdAt": "2025-06-06T22:29:05.440Z",
+                        "updatedAt": "2025-06-06T22:29:05.440Z",
+                        "publishedAt": "2025-06-06T22:29:05.809Z",
+                        "slug": null
+                    }
+                },
+                {
+                    "id": 341,
+                    "descripcion": "Descripción Evento2",
+                    "indicador_evento": "Nombre del Indicador2",
+                    "meta_indicador_evento": "Meta Indicador2",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "Perfil Profesional2",
+                    "perfil_operativo": "Perfil Operativo-2",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 395,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 378,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 385,
+                            "descripcion": "Descripción del Producto2",
+                            "problematica_priorizada": "Problematica Priorizada5",
+                            "actividades": [
+                                {
+                                    "id": 336,
+                                    "descripcion": "Descripción Actividad2",
+                                    "cantidad_a_ejecutar": "10",
+                                    "unidad_medida": "jornadas",
+                                    "valor_unitario": null,
+                                    "valor_total": 40,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 60
+                                        },
+                                        {
+                                            "Feb": 20
+                                        },
+                                        {
+                                            "Mar": 20
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "9cac7552-8c0e-4cff-bf67-475df71692e7",
+                                    "costos_directos": 20,
+                                    "costos_indirectos": 20,
+                                    "entornos": [
+                                        {
+                                            "id": 391,
+                                            "nombre": "Hogar"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 384,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 439,
+                                            "nombre": "Familias"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 366,
+                                        "codigo": "I10001 INFORMACIÓN EN SALUD PARA EL CUIDADO DEL AMBIENTE"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 810,
+                                            "tipo": "Acta y/o constancia de Entrega",
+                                            "descripcion": "Descripción Soporte2",
+                                            "cantidad": 1,
+                                            "uuid": "cdd0a9c3-0803-4d0c-836c-73b61bbcdc9e"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 16,
+                                            "nombre": "Primera infancia"
+                                        },
+                                        {
+                                            "id": 17,
+                                            "nombre": "Adultez"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 473,
+                                    "meta_producto": "Indicador de Producto",
+                                    "indicador_linea_base": "Indicador Línea Base",
+                                    "cantidad": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 331,
+                        "numero_hogares": null,
+                        "territorio": "\tCódigo - Nombre de Territorio APS",
+                        "microterritorio": "\tCódigo Micro-Territorio",
+                        "numero_pobalcion_intervenir": 1,
+                        "municipios": [
+                            {
+                                "id": 148,
+                                "documentId": "ydktk9vv7a2380mu322nrfzg",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CONSACA",
+                                "codigo": "52207",
+                                "createdAt": "2025-01-17T01:20:41.380Z",
+                                "updatedAt": "2025-01-17T01:20:41.380Z",
+                                "publishedAt": "2025-01-17T01:20:41.633Z",
+                                "label": "CONSACA (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 170,
+                        "documentId": "k1fh8uydgo7q6zhj7sbwgi18",
+                        "nit": "814006732:3",
+                        "operador_pic": "E.S.E. Centro de Salud - Consacá",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "CONSACA",
+                        "createdAt": "2025-06-06T22:29:05.440Z",
+                        "updatedAt": "2025-06-06T22:29:05.440Z",
+                        "publishedAt": "2025-06-06T22:29:05.809Z",
+                        "slug": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": 179,
+            "documentId": "b83m3qofc9o504xdl6v8bbs1",
+            "createdAt": "2026-04-10T12:50:12.673Z",
+            "updatedAt": "2026-04-10T12:50:12.824Z",
+            "publishedAt": "2026-04-10T12:50:12.707Z",
+            "anexo_tecnico_date": "2026-01-01",
+            "eventos": [
+                {
+                    "id": 342,
+                    "descripcion": "400",
+                    "indicador_evento": "400",
+                    "meta_indicador_evento": "500",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "200",
+                    "perfil_operativo": "500",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 396,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 379,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 386,
+                            "descripcion": "400",
+                            "problematica_priorizada": "400",
+                            "actividades": [
+                                {
+                                    "id": 337,
+                                    "descripcion": "400",
+                                    "cantidad_a_ejecutar": "1",
+                                    "unidad_medida": "jornadas",
+                                    "valor_unitario": null,
+                                    "valor_total": 400000,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 50
+                                        },
+                                        {
+                                            "Feb": 50
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "a9bbaee2-782e-4faa-af3f-21eee2a6ccbc",
+                                    "costos_directos": 8000,
+                                    "costos_indirectos": 8,
+                                    "entornos": [
+                                        {
+                                            "id": 392,
+                                            "nombre": "Hogar"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 385,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 440,
+                                            "nombre": "Comunidad"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 367,
+                                        "codigo": "I10003 INFORMACIÓN PARA LA SALUD SOBRE AGUA APTA PARA CONSUMO HUMANO"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 811,
+                                            "tipo": "Acta de Reunión",
+                                            "descripcion": "400",
+                                            "cantidad": 1,
+                                            "uuid": "d0fa0a73-a3d4-480c-be8f-90f986d31a7d"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 18,
+                                            "nombre": "Primera infancia"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 474,
+                                    "meta_producto": "1",
+                                    "indicador_linea_base": "5",
+                                    "cantidad": 2
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 332,
+                        "numero_hogares": null,
+                        "territorio": "2000",
+                        "microterritorio": "2000",
+                        "numero_pobalcion_intervenir": 50,
+                        "municipios": [
+                            {
+                                "id": 139,
+                                "documentId": "w3uyipmlrska244ghlo130b1",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CHACHAGUI",
+                                "codigo": "52240",
+                                "createdAt": "2025-01-17T01:20:41.339Z",
+                                "updatedAt": "2025-01-17T01:20:41.339Z",
+                                "publishedAt": "2025-01-17T01:20:41.566Z",
+                                "label": "CHACHAGUI (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 148,
+                        "documentId": "re62xb7coov5snfrcci5d6k9",
+                        "nit": "814003182:9",
+                        "operador_pic": "E.S.E. Centro Hospital Luis Antonio Montero Potosí - Nariño",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "POTOSÍ",
+                        "createdAt": "2025-06-06T22:28:59.548Z",
+                        "updatedAt": "2025-06-06T22:28:59.548Z",
+                        "publishedAt": "2025-06-06T22:28:59.885Z",
+                        "slug": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": 180,
+            "documentId": "px66vok9rx31ijhb8iba0ojk",
+            "createdAt": "2026-04-16T01:45:23.558Z",
+            "updatedAt": "2026-04-16T01:45:23.728Z",
+            "publishedAt": "2026-04-16T01:45:23.597Z",
+            "anexo_tecnico_date": "2026-01-01",
+            "eventos": [
+                {
+                    "id": 343,
+                    "descripcion": "100",
+                    "indicador_evento": "100",
+                    "meta_indicador_evento": "100",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "100",
+                    "perfil_operativo": "100",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 397,
+                            "nombre": "Pueblos y comunidades étnicas y campesinas, mujeres, sectores LGBTIQ+ y otras poblaciones por condición y/o situación."
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 380,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 387,
+                            "descripcion": "100",
+                            "problematica_priorizada": "100",
+                            "actividades": [
+                                {
+                                    "id": 338,
+                                    "descripcion": "La felicidad es uno de los conceptos más buscados, deseados y, a la vez, más incomprendidos por el ser humano. A lo largo de la historia, filósofos, científicos, artistas y personas comunes han intentado definirla, perseguirla y comprenderla. Sin embargo, la felicidad no es una meta fija ni un estado permanente, sino más bien una experiencia dinámica, cambiante y profundamente personal.\n\nEn muchas ocasiones se piensa que la felicidad depende de factores externos: el dinero, el éxito profesional, las relaciones perfectas o el reconocimiento social. Si bien estos elementos pueden influir en nuestro bienestar, la realidad es que la felicidad no se sostiene únicamente en lo que ocurre fuera de nosotros. Hay personas que, teniendo aparentemente “todo”, se sienten vacías, mientras que otras, con menos recursos, experimentan una profunda sensación de plenitud. Esto sugiere que la felicidad tiene una raíz interna, ligada a la forma en que interpretamos y vivimos nuestra realidad.\n\nLa felicidad no significa estar alegre todo el tiempo. De hecho, implica aceptar la totalidad de las emociones humanas: la tristeza, el miedo, la frustración y la incertidumbre también forman parte de la vida. Negarlas o evitarlas no conduce a la felicidad, sino al contrario, puede generar mayor sufrimiento. Ser feliz implica desarrollar la capacidad de transitar por estas emociones sin quedar atrapado en ellas, entendiendo que son pasajeras y que cumplen una función en nuestro crecimiento personal.\n\nOtro aspecto importante de la felicidad es la conexión con el presente. Muchas veces vivimos atrapados entre los recuerdos del pasado y las preocupaciones por el futuro, perdiendo la oportunidad de experimentar el ahora. La mente tiende a divagar, a imaginar escenarios, a anticipar problemas, pero la vida ocurre en el presente. Aprender a estar aquí y ahora, aunque sea por pequeños momentos, puede transformar profundamente nuestra experiencia de vida.\n\nLas relaciones humanas también juegan un papel fundamental en la felicidad. El ser humano es un ser social por naturaleza, y necesita vínculos significativos para sentirse pleno. No se trata de la cantidad de personas que nos rodean, sino de la calidad de las conexiones. Sentirse escuchado, comprendido y valorado puede aportar una sensación de bienestar mucho más duradera que cualquier logro material.\n\nAsimismo, el propósito es un componente clave. Tener un sentido de dirección, sentir que lo que hacemos tiene valor y que contribuye de alguna manera, ya sea a nosotros mismos o a los demás, fortalece nuestra sensación de satisfacción. El propósito no siempre es algo grandioso o espectacular; puede encontrarse en pequeñas acciones cotidianas, en el trabajo, en ayudar a alguien o en desarrollar una habilidad.\n\nLa felicidad también está relacionada con la aceptación. Aceptar lo que no podemos controlar, nuestras propias limitaciones y las circunstancias de la vida nos permite dejar de luchar contra lo inevitable. Esto no significa resignarse, sino reconocer la realidad tal como es para poder actuar desde un lugar más consciente y sereno. Muchas veces el sufrimiento surge no de lo que ocurre, sino de la resistencia a lo que ocurre.\n\nAdemás, la gratitud es una práctica poderosa que puede transformar la manera en que percibimos nuestra vida. En lugar de centrarnos constantemente en lo que falta o en lo que no salió como esperábamos, la gratitud nos invita a reconocer lo que sí está presente: las pequeñas cosas, los momentos simples, las personas que nos acompañan. Este cambio de enfoque puede generar una sensación de abundancia incluso en medio de dificultades.\n\nEs importante también comprender que la felicidad no es un destino final al que se llega y se permanece para siempre. Es más bien un camino que se construye día a día, a través de decisiones, hábitos y formas de pensar. No existe una fórmula única, ya que cada persona tiene su propia historia, sus valores y sus necesidades. Lo que hace feliz a una persona puede no tener el mismo efecto en otra.\n\nEn la sociedad actual, donde todo parece moverse rápido y se promueve constantemente la comparación, es fácil caer en la idea de que no somos lo suficientemente felices. Las redes sociales, por ejemplo, muestran versiones idealizadas de la vida de los demás, lo que puede generar insatisfacción o sensación de carencia. Por eso es fundamental aprender a mirar hacia adentro y construir una relación más auténtica con uno mismo.\n\nFinalmente, la felicidad también implica responsabilidad. No depende completamente de las circunstancias, sino en gran medida de cómo decidimos responder a ellas. Esto puede resultar incómodo, pero al mismo tiempo es liberador, porque significa que tenemos cierto grado de control sobre nuestra experiencia. Pequeños cambios en nuestra actitud, en nuestra forma de pensar o en nuestras acciones pueden tener un impacto significativo en nuestro bienestar.\n\nEn conclusión, la felicidad no es algo que se encuentra fuera, ni algo que se alcanza de una vez y para siempre. Es una construcción interna, un proceso continuo que implica aceptación, conexión, propósito y presencia. No se trata de eliminar el dolor, sino de aprender a vivir con mayor conciencia, equilibrio y sentido. Tal vez la verdadera felicidad no consista en tener una vida perfecta, sino en aprender a abrazar la vida tal como es, con todo lo que trae consigo.lkjflkjfklajslfjklasdjflkjsdalkñfjlsadjflkasjdlkfjksdlfjlsdjflkddddderererererererererererererererer",
+                                    "cantidad_a_ejecutar": "100",
+                                    "unidad_medida": "jornadas",
+                                    "valor_unitario": null,
+                                    "valor_total": 400000,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 50
+                                        },
+                                        {
+                                            "Feb": 50
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "b762474e-4a98-412e-bbff-4d7577000925",
+                                    "costos_directos": 8000,
+                                    "costos_indirectos": 900,
+                                    "entornos": [
+                                        {
+                                            "id": 393,
+                                            "nombre": "Comunitario"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 386,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 441,
+                                            "nombre": "Familias"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 368,
+                                        "codigo": "I10001 INFORMACIÓN EN SALUD PARA EL CUIDADO DEL AMBIENTE"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 812,
+                                            "tipo": "Agenda",
+                                            "descripcion": "100",
+                                            "cantidad": 100,
+                                            "uuid": "5b9f94b3-b121-4c7e-9b71-6737633541af"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 19,
+                                            "nombre": "Primera infancia"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 475,
+                                    "meta_producto": "100",
+                                    "indicador_linea_base": "100",
+                                    "cantidad": 100
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 333,
+                        "numero_hogares": null,
+                        "territorio": "100",
+                        "microterritorio": "100",
+                        "numero_pobalcion_intervenir": 100,
+                        "municipios": [
+                            {
+                                "id": 139,
+                                "documentId": "w3uyipmlrska244ghlo130b1",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CHACHAGUI",
+                                "codigo": "52240",
+                                "createdAt": "2025-01-17T01:20:41.339Z",
+                                "updatedAt": "2025-01-17T01:20:41.339Z",
+                                "publishedAt": "2025-01-17T01:20:41.566Z",
+                                "label": "CHACHAGUI (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 3,
+                        "documentId": "kr8m8naml613fxqsx1t646l1",
+                        "proyecto": "PAI -Prevención de enfermedades transmisibles para la paz",
+                        "descripcion": "Fortalecimiento de coberturas de vacunación del Programa Ampliado de Inmunizaciones en el Departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.608Z",
+                        "updatedAt": "2025-01-13T22:22:35.608Z",
+                        "publishedAt": "2025-01-13T22:22:35.606Z"
+                    },
+                    "operador_pic": {
+                        "id": 150,
+                        "documentId": "cupf541zrevqtnxuy95cwptm",
+                        "nit": "814003370:7",
+                        "operador_pic": "E.S.E. Centro de Salud de Puerres",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "PUERRES",
+                        "createdAt": "2025-06-06T22:29:00.063Z",
+                        "updatedAt": "2025-06-06T22:29:00.063Z",
+                        "publishedAt": "2025-06-06T22:29:00.440Z",
+                        "slug": null
+                    }
+                }
+            ]
+        },
+        {
+            "id": 181,
+            "documentId": "c6kd80i5hfno6hqngap48e9s",
+            "createdAt": "2026-04-18T19:22:35.113Z",
+            "updatedAt": "2026-07-24T01:33:58.980Z",
+            "publishedAt": "2026-07-24T01:33:40.409Z",
+            "anexo_tecnico_date": "2026-01-14",
+            "eventos": [
+                {
+                    "id": 344,
+                    "descripcion": "123",
+                    "indicador_evento": "123",
+                    "meta_indicador_evento": "123",
+                    "equipo": "Equipos básicos en salud",
+                    "perfiles_profesional": "123",
+                    "perfil_operativo": "123",
+                    "ejes_estrategicos": [
+                        {
+                            "id": 398,
+                            "nombre": "Gobernabilidad y gobernanza de la salud pública "
+                        }
+                    ],
+                    "lineas_operativa": {
+                        "id": 381,
+                        "nombre": "Cuidado de la salud en el territorio"
+                    },
+                    "productos": [
+                        {
+                            "id": 388,
+                            "descripcion": "123",
+                            "problematica_priorizada": "123",
+                            "actividades": [
+                                {
+                                    "id": 339,
+                                    "descripcion": "123",
+                                    "cantidad_a_ejecutar": "123",
+                                    "unidad_medida": "asdf",
+                                    "valor_unitario": null,
+                                    "valor_total": 12,
+                                    "cronograma": [
+                                        {
+                                            "Ene": 11
+                                        },
+                                        {
+                                            "Feb": 11
+                                        },
+                                        {
+                                            "Mar": 0
+                                        },
+                                        {
+                                            "Abr": 0
+                                        },
+                                        {
+                                            "May": 0
+                                        },
+                                        {
+                                            "Jun": 0
+                                        },
+                                        {
+                                            "Jul": 0
+                                        },
+                                        {
+                                            "Ago": 0
+                                        },
+                                        {
+                                            "Sept": 0
+                                        },
+                                        {
+                                            "Oct": 0
+                                        },
+                                        {
+                                            "Nov": 0
+                                        },
+                                        {
+                                            "Dic": 0
+                                        }
+                                    ],
+                                    "uuid": "0c99a6f9-db29-4faa-9a77-9ddb14186c1e",
+                                    "costos_directos": 12,
+                                    "costos_indirectos": 12,
+                                    "entornos": [
+                                        {
+                                            "id": 394,
+                                            "nombre": "Hogar"
+                                        }
+                                    ],
+                                    "tecnologias": [
+                                        {
+                                            "id": 387,
+                                            "nombre": "Caracterización social y ambiental en entornos de vida cotidiana"
+                                        }
+                                    ],
+                                    "poblaciones": [
+                                        {
+                                            "id": 442,
+                                            "nombre": "Familias"
+                                        }
+                                    ],
+                                    "cups": {
+                                        "id": 369,
+                                        "codigo": "I10001 INFORMACIÓN EN SALUD PARA EL CUIDADO DEL AMBIENTE"
+                                    },
+                                    "soportes": [
+                                        {
+                                            "id": 813,
+                                            "tipo": "Acta y/o constancia de Entrega",
+                                            "descripcion": "123",
+                                            "cantidad": 2,
+                                            "uuid": "5f6bfcf1-3f7b-49bd-8186-b3d9a815816f"
+                                        },
+                                        {
+                                            "id": 814,
+                                            "tipo": "Agenda",
+                                            "descripcion": "123",
+                                            "cantidad": 2,
+                                            "uuid": "389be52b-e384-41ab-9e5f-fc442df63476"
+                                        }
+                                    ],
+                                    "curso_de_vida": [
+                                        {
+                                            "id": 20,
+                                            "nombre": "Infancia"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "indicadores": [
+                                {
+                                    "id": 476,
+                                    "meta_producto": "123",
+                                    "indicador_linea_base": "2",
+                                    "cantidad": 1
+                                }
+                            ]
+                        }
+                    ],
+                    "territorializacion": {
+                        "id": 334,
+                        "numero_hogares": null,
+                        "territorio": "Esta es una prueba",
+                        "microterritorio": "123",
+                        "numero_pobalcion_intervenir": 2,
+                        "municipios": [
+                            {
+                                "id": 139,
+                                "documentId": "w3uyipmlrska244ghlo130b1",
+                                "nodo": "CENTRO",
+                                "nombre_municipio": "CHACHAGUI",
+                                "codigo": "52240",
+                                "createdAt": "2025-01-17T01:20:41.339Z",
+                                "updatedAt": "2025-01-17T01:20:41.339Z",
+                                "publishedAt": "2025-01-17T01:20:41.566Z",
+                                "label": "CHACHAGUI (CENTRO)"
+                            }
+                        ]
+                    },
+                    "proyectos_idsn": {
+                        "id": 1,
+                        "documentId": "gf50ktfohwbxxzs3d9d98xxx",
+                        "proyecto": "Medicamentos-Prestación de servicios de salud con calidad para la paz",
+                        "descripcion": "Fortalecimiento de la gestión segura de medicamentos y dispositivos médicos en el departamento de Nariño",
+                        "createdAt": "2025-01-13T22:22:35.595Z",
+                        "updatedAt": "2025-01-13T22:22:35.595Z",
+                        "publishedAt": "2025-01-13T22:22:35.582Z"
+                    },
+                    "operador_pic": {
+                        "id": 150,
+                        "documentId": "cupf541zrevqtnxuy95cwptm",
+                        "nit": "814003370:7",
+                        "operador_pic": "E.S.E. Centro de Salud de Puerres",
+                        "departamento": "DEPARTAMENTO DE NARIÑO",
+                        "municipio": "PUERRES",
+                        "createdAt": "2025-06-06T22:29:00.063Z",
+                        "updatedAt": "2025-06-06T22:29:00.063Z",
+                        "publishedAt": "2025-06-06T22:29:00.440Z",
+                        "slug": null
+                    }
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "pagination": {
+            "page": 1,
+            "pageSize": 10,
+            "pageCount": 1,
+            "total": 6
+        }
+    }
+}

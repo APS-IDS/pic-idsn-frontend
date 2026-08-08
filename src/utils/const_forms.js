@@ -1,0 +1,1 @@
+export const ANIOS_DISPONIBLES = ["2025", "2026"];

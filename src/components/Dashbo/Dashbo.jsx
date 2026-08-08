@@ -34,8 +34,8 @@ import BarraPoblacion from "./BarraPoblacion";
 import LineaMes from "./LineaMeses";
 import RadarCheck from "./RadarCheck";
 import DonaEstado from "./DonaEstado";
+import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
 
-const ANIOS_DISPONIBLES = ["2025", "2026"];
 
 ChartJS.register(
   CategoryScale,

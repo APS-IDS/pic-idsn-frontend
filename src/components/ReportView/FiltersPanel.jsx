@@ -2,131 +2,40 @@ import React from "react";
 import Select from "react-select";
 import styles from "./ReporView.module.css";
 
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    padding: "2px 5px",
-    width: "1000px",
-    fontSize: "16px",
-    border: state.isFocused ? "1px solid #007bff" : "1px solid #ccc",
-    borderRadius: "5px",
-    backgroundColor: "white",
-    boxShadow: "none",
-    cursor: "pointer",
-    "&:hover": { borderColor: "#007bff" },
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    cursor: "pointer",
-    backgroundColor: state.isSelected
-      ? "#007bff"
-      : state.isFocused
-        ? "#e6f0ff"
-        : "white",
-    color: state.isSelected ? "white" : "black",
-  }),
-  singleValue: (provided) => ({ ...provided, color: "black" }),
-};
-
-const FiltersPanel = ({
-  proyectos,
-  operadores,
-  filterValue,
-  operatorFilterValue,
-  anexoDate,
-  onProjectChange,
-  onOperatorChange,
-  onYearChange,
-}) => {
+const FiltersPanel = ({ filters, onChange, onApply, loading , onClear}) => {
   return (
-    <>
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="proyectoFilter">Filtrar por Proyecto IDSN:</label>
-        </div>
-        <Select
-          name="proyecto"
-          options={[
-            { value: "", label: "Todos los proyectos" },
-            ...proyectos.map((option) => ({
-              value: option.proyecto,
-              label: option.proyecto,
-            })),
-          ]}
-          value={
-            filterValue
-              ? {
-                  value: filterValue,
-                  label:
-                    proyectos.find((p) => p.proyecto === filterValue)
-                      ?.proyecto || filterValue,
-                }
-              : { value: "", label: "Todos los proyectos" }
-          }
-          onChange={(selectedOption) =>
-            onProjectChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar proyecto"
-          styles={customStyles}
-        />
+    <div className="bg-app-card mb-3 mx-7 py-3 pb-4 px-6 border rounded-lg shadow-sm">
+      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">Filtros de búsqueda</p>
+
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 items-end">
+        {filters.map((filter) => (
+          <div key={filter.key}>
+            <label className="block text-xs text-app-muted mb-1">{filter.label}</label>
+            <select
+              value={filter.value || ""}
+              className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200 bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-green-brand focus:ring-1 focus:ring-green-brand"
+              onChange={(e) => onChange(filter.key, e.target.value || null)}
+            >
+              <option className="" value=""> {filter.text}</option>
+              {filter.optionsList.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
       </div>
 
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="operatorFilter">Filtrar por Operador:</label>
-        </div>
-        <Select
-          name="operador"
-          options={[
-            { value: "", label: "Todos los operadores" },
-            ...operadores.map((option) => ({
-              value: option.operador_pic,
-              label: option.operador_pic,
-            })),
-          ]}
-          value={
-            operatorFilterValue
-              ? {
-                  value: operatorFilterValue,
-                  label:
-                    operadores.find(
-                      (o) => o.operador_pic === operatorFilterValue,
-                    )?.operador_pic || operatorFilterValue,
-                }
-              : { value: "", label: "Todos los operadores" }
-          }
-          onChange={(selectedOption) =>
-            onOperatorChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar operador"
-          styles={customStyles}
-        />
-      </div>
+      <div className="flex gap-3 mt-3">
 
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="yearFilter">Filtrar por Año:</label>
-        </div>
-        <Select
-          name="year"
-          options={[
-            { value: "", label: "Todos los años" },
-            { value: "2025", label: "2025" },
-            { value: "2026", label: "2026" },
-          ]}
-          value={
-            anexoDate
-              ? { value: anexoDate, label: anexoDate }
-              : { value: "", label: "Todos los años" }
-          }
-          onChange={(selectedOption) =>
-            onYearChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar año"
-          styles={customStyles}
-        />
+
+        <button onClick={onApply} disabled={loading} className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold" >
+          {loading ? "Aplicando..." : "Aplicar filtros"}
+        </button>
+        <button className="py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-gray-200 font-semibold" onClick={onClear}>Limpiar</button>
       </div>
-    </>
+    </div>
   );
 };
 

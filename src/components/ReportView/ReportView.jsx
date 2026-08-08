@@ -10,30 +10,33 @@ import qs from "qs";
 import FiltersPanel from "./FiltersPanel";
 import AnexoCard from "./AnexoCard";
 import { openSoporteModal } from "./soporteModal.jsx";
+import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
+
+const FILTROS_VACIOS = {
+  project: null,
+  operator: null,
+  municipality: null,
+  dependence: null,
+  anio: null,
+};
+
 const ReportView = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState(null);
-  const [filterValue, setFilterValue] = useState(""); // Estado para el filtro
-  const [operatorFilterValue, setOperatorFilterValue] = useState(""); // Filtro por operador
-
-  // const anexoDate = "2025";
+  const [filterValue, setFilterValue] = useState("");
+  const [operatorFilterValue, setOperatorFilterValue] = useState("");
+  const [filterState, setFilterState] = useState(FILTROS_VACIOS);
+  const [appliedFilters, setAppliedFilters] = useState(FILTROS_VACIOS);
 
   const [anexoDate, setYanexoDate] = useState("");
-
   const [nombre, setNombre] = useState("");
 
+  const [openIndex, setOpenIndex] = useState(null);
   const user_Redux = useSelector((state) => state.user.usuario);
-
   const user_LS = JSON.parse(localStorage.getItem("usuario_rol"));
-
-  // console.log("datos_usuario", user);
-
   const usuario = user_Redux || user_LS?.usuario || "";
-
-  // console.log("Usuario session", usuario);
-  // console.log("Usuario Redux", usuarioRedux);
-
   const back = import.meta.env.VITE_APP_BACK;
 
   const token =
@@ -41,11 +44,23 @@ const ReportView = () => {
     JSON.parse(localStorage.getItem("token"))?.token;
 
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
-  const [municipios, setMunicipios] = useState([]);
+  const url_anexos = `${back}/api/anexo-tecnicos?`;
+  const url_soportes = `${back}/api/seguimiento/upload-file`;
+  const url_soportes_get = `${back}/api/check-seguimiento?`;
+  const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
+  const url_proyectos = `${back}/api/proyectos-idsns`;
 
-  const [operadores, setOperadores] = useState([]);
-
+  // filtros traidos de backend
   const [proyectos, setProyectos] = useState([]);
+  const [municipios, setMunicipios] = useState([]);
+  const [operadores, setOperadores] = useState([]);
+  const [dependences, setDependences] = useState([]);
+  const anios = ANIOS_DISPONIBLES.map((anio) => ({
+    value: anio,
+    label: anio,
+  }));
+  const [isOpen, setIsOpen] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
@@ -76,48 +91,7 @@ const ReportView = () => {
     ).toISOString();
   };
 
-  const anexosQuery = qs.stringify(
-    {
-      pLevel: 10,
-      pagination: { page: currentPage, pageSize },
-      filters: {
-        ...(anexoDate
-          ? {
-              anexo_tecnico_date: {
-                $gte: getGteDate(anexoDate),
-                $lte: getLteDate(anexoDate),
-              },
-            }
-          : {}),
-        eventos: {
-          ...(filterValue
-            ? { proyectos_idsn: { proyecto: { $containsi: filterValue } } }
-            : {}),
-          ...(operatorFilterValue
-            ? {
-                operador_pic: {
-                  operador_pic: { $containsi: operatorFilterValue },
-                },
-              }
-            : {}),
-        },
-      },
-    },
-    { encodeValuesOnly: true },
-  );
-
-  const url_anexos = `${back}/api/anexo-tecnicos?${anexosQuery}`;
-
-  const url_soportes = `${back}/api/seguimiento/upload-file`;
-  const url_soportes_get = `${back}/api/check-seguimiento?`;
-  const url_soportes_delete = `${back}/api/seguimiento/remove-file`;
-
-  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
-
-  const url_proyectos = `${back}/api/proyectos-idsns`;
-
-  const navigate = useNavigate(); // Hook para navegación
-
+  const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
   const showLoadingSwal = (mensaje, mensaje_2) => {
@@ -133,20 +107,43 @@ const ReportView = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFilterOptions = async () => {
       try {
-        const response = await fetch(url_anexos, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        setLoading(true);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        // Traer Toda la Consulta de Filtros
+        const fetchJson = async (url) => {
+          const response = await fetch(url, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        };
 
-        const result = await response.json();
-        setData(result);
+        const [municipiosResult, operadoresResult, proyectosResult] =
+          await Promise.allSettled([
+            fetchJson(url_municipios),
+            fetchJson(url_operadores),
+            fetchJson(url_proyectos),
+          ]);
+
+        // campoValue define qué se envía al backend; campoLabel, qué se muestra
+        const toOptions = (result, campoLabel, campoValue = campoLabel) =>
+          (result.value?.data || []).map((item) => ({
+            value: item[campoValue],
+            label: item[campoLabel],
+          }));
+
+        setMunicipios(toOptions(municipiosResult, "label"));
+        setOperadores(
+          toOptions(operadoresResult, "operador_pic", "documentId"),
+        );
+        setProyectos(toOptions(proyectosResult, "proyecto", "documentId"));
+        setDependences([]);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -154,86 +151,69 @@ const ReportView = () => {
       }
     };
 
+    fetchFilterOptions();
+  }, []);
+
+  const fetchData = async () => {
+    setLoadingData(true);
+
+    const { anio, project, operator, municipality } = appliedFilters;
+
+    const eventos = {};
+    if (project) {
+      eventos.proyectos_idsn = { documentId: { $eq: project } };
+    }
+    if (operator) {
+      eventos.operador_pic = { documentId: { $eq: operator } };
+    }
+    if (municipality) {
+      eventos.territorializacion = {
+        municipios: { label: { $eq: municipality } },
+      };
+    }
+
+    const filters = {};
+    if (anio) {
+      filters.anexo_tecnico_date = {
+        $gte: getGteDate(anio), 
+        $lte: getLteDate(anio), 
+      };
+    }
+    if (Object.keys(eventos).length > 0) {
+      filters.eventos = eventos;
+    }
+
+    const anexosQuery = qs.stringify(
+      {
+        pLevel: 10,
+        pagination: { page: currentPage, pageSize },
+        filters,
+      },
+      { encodeValuesOnly: true },
+    );
+
+    try {
+      const response = await fetch(`${url_anexos}${anexosQuery}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error("Error consultando datos:", error);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-  }, [
-    token,
-    filterValue,
-    operatorFilterValue,
-    anexoDate,
-    currentPage,
-    pageSize,
-  ]);
-
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
-        const response = await fetch(`${url_municipios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setMunicipios(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_subregion();
-  }, [token]);
-
-  useEffect(() => {
-    const fetch_operador = async () => {
-      try {
-        const response = await fetch(`${url_operadores}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-
-        setOperadores(data.data);
-        // console.log("Operadores", data.data);
-      } catch (error) {
-        console.error("Error fetching operador:", error);
-      }
-    };
-
-    fetch_operador();
-  }, [token]);
-
-  // console.log("Operadores_Estado:", operadores);
-
-  useEffect(() => {
-    const fetch_proyectos = async () => {
-      try {
-        const response = await fetch(`${url_proyectos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        // setMunicipios(data.data);
-        setProyectos(data.data);
-      } catch (error) {
-        console.error("Error fetching operador:", error);
-      }
-    };
-
-    fetch_proyectos();
-  }, [token]);
-
-  // console.log("proyectos_estado:", proyectos);
+  }, [token, appliedFilters, currentPage, pageSize]);
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
-
-  //console.log("datos", data);
 
   const handle_click = (evento) => {
     navigate("/edit", {
@@ -242,7 +222,6 @@ const ReportView = () => {
       },
     });
   };
-  //console.log("Year", anexoDate);
 
   const handle_click_actividad = (actividad, anexoDate) => {
     navigate("/seg", {
@@ -302,20 +281,23 @@ const ReportView = () => {
           );
 
           if (evidencia.tipo === "link") {
-            const response = await fetch(`${back}/api/seguimiento/upload-link`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
+            const response = await fetch(
+              `${back}/api/seguimiento/upload-link`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  anexo_id: documentId,
+                  soporte_id: soporteId,
+                  municipio_id: evidencia.region,
+                  file_name: evidencia.file_name,
+                  evidencia_link: evidencia.evidencia_link,
+                }),
               },
-              body: JSON.stringify({
-                anexo_id: documentId,
-                soporte_id: soporteId,
-                municipio_id: evidencia.region,
-                file_name: evidencia.file_name,
-                evidencia_link: evidencia.evidencia_link,
-              }),
-            });
+            );
 
             if (!response.ok) throw new Error("Error al enviar el enlace");
           } else {
@@ -352,9 +334,7 @@ const ReportView = () => {
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-    // console.log("evidenciaId", evidenciaId);
-    // console.log("documentId", documentId);
-    // console.log("soporteId", soporteId);
+
 
     Swal.fire({
       title: "¿Estás seguro?",
@@ -409,36 +389,80 @@ const ReportView = () => {
     });
   };
 
+  const handleFilterChange = (key, value) => {
+    setFilterState((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleApplyFilters = () => {
+    setAppliedFilters(filterState);
+    setCurrentPage(1);
+  };
+
+  const handleToggle = (index) => {
+    setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  const handleClear = () => {
+    setFilterState(FILTROS_VACIOS);
+    setAppliedFilters(FILTROS_VACIOS);
+    setCurrentPage(1);
+  };
+
   return (
-    <div className={styles.contenedor_principal}>
+    <>
       <Header />
+      <div class="w-full min-h-dvh bg-app-bg p-4">
+        <FiltersPanel
+          filters={[
+            {
+              key: "project",
+              label: "Proyecto",
+              text: "Todos los proyectos",
+              optionsList: proyectos,
+              value: filterState.project,
+            },
+            {
+              key: "municipality",
+              label: "Municipio",
+              text: "Todos los municipios",
+              optionsList: municipios,
+              value: filterState.municipality,
+            },
+            {
+              key: "anio",
+              label: "Año",
+              text: "Todos los años",
+              optionsList: anios,
+              value: filterState.anio,
+            },
 
-      <FiltersPanel
-        proyectos={proyectos}
-        operadores={operadores}
-        filterValue={filterValue}
-        operatorFilterValue={operatorFilterValue}
-        anexoDate={anexoDate}
-        onProjectChange={(val) => {
-          setFilterValue(val);
-          setCurrentPage(1);
-        }}
-        onOperatorChange={(val) => {
-          setOperatorFilterValue(val);
-          setCurrentPage(1);
-        }}
-        onYearChange={(val) => {
-          setYanexoDate(val);
-          setCurrentPage(1);
-        }}
-      />
+            {
+              key: "operator",
+              label: "Operador",
+              text: "Todos los operadores",
+              optionsList: operadores,
+              value: filterState.operator,
+            },
+            {
+              key: "dependence",
+              label: "Dependencia",
+              text: "Todas las dependencias",
+              optionsList: dependences,
+              value: filterState.dependence,
+            },
+          ]}
+          onChange={handleFilterChange}
+          onApply={handleApplyFilters}
+          loading={loadingData}
+          onClear={handleClear}
+        />
 
-      <div className={styles.formContainer}>
-        {data?.data && data.data.length > 0 ? (
-          data.data.map((row, index) => (
+        {loadingData ? (
+          <Spinner envio={"Cargando datos, por favor espera..."} />
+        ) : data?.data && data.data.length > 0 ? (
+          data?.data?.map((anexo, index) => (
             <AnexoCard
-              key={row.documentId}
-              row={row}
+              key={anexo.documentId}
+              row={anexo}
               index={index}
               usuario={usuario}
               filterValue={filterValue}
@@ -446,33 +470,17 @@ const ReportView = () => {
               onEdit={handle_click}
               onSoporte={handle_soporte}
               onActividad={handle_click_actividad}
+              handleToggle={handleToggle}
+              openIndex={openIndex}
             />
           ))
         ) : (
-          <div className={styles.noDataMessage}>
+          <div class={styles.noDataMessage}>
             No hay información para mostrar
           </div>
         )}
-
-        <div className={styles.pagination}>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Anterior
-          </button>
-
-          <span>Página {currentPage}</span>
-
-          <button
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            disabled={data?.meta?.pagination?.pageCount === currentPage}
-          >
-            Siguiente
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 };
 
