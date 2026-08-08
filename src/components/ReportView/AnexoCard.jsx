@@ -98,8 +98,8 @@ const AnexoCard = ({
                   <td>
                     {evento?.territorializacion?.municipios?.length > 0
                       ? evento.territorializacion.municipios
-                          .map((muni) => muni.label)
-                          .join(", ")
+                        .map((muni) => muni.label)
+                        .join(", ")
                       : SIN_DATO}
                   </td>
                   <td>{evento?.operador_pic?.operador_pic || SIN_DATO}</td>
@@ -118,13 +118,13 @@ const AnexoCard = ({
                   <td>
                     {evento?.ejes_estrategicos?.length > 0
                       ? evento.ejes_estrategicos.map((eje) => (
-                          <span
-                            key={eje.id}
-                            className="inline-block bg-app-bg border rounded-2xl text-[11px] py-0.5 px-2 mr-1 mb-1"
-                          >
-                            {eje.nombre}
-                          </span>
-                        ))
+                        <span
+                          key={eje.id}
+                          className="inline-block bg-app-bg border rounded-2xl text-[11px] py-0.5 px-2 mr-1 mb-1"
+                        >
+                          {eje.nombre}
+                        </span>
+                      ))
                       : SIN_DATO}
                   </td>
                   <td>{evento?.lineas_operativa?.nombre || SIN_DATO}</td>
