@@ -3,9 +3,9 @@ import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
 import EventoTable from "./EventoTable";
+import ProductosCell from "./ProductosCell";
 import { CustomRoles } from "../Login/constant";
-
-const SIN_DATO = "Sin información";
+import { SIN_DATO } from "./utils";
 
 const AnexoCard = ({
   row,
@@ -78,7 +78,7 @@ const AnexoCard = ({
                 <th>Meta Indicador</th>
                 <th>Ejes Estratégicos</th>
                 <th>Líneas Operativas</th>
-                <th class="bg-teal-dark">Acciones</th>
+                <th class="bg-teal-dark">Productos</th>
               </tr>
             </thead>
             <tbody>
@@ -120,17 +120,16 @@ const AnexoCard = ({
                       : SIN_DATO}
                   </td>
                   <td>{evento?.lineas_operativa?.nombre || SIN_DATO}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 text-teal font-semibold cursor-pointer hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onActividad(evento, row.anexo_tecnico_date);
-                      }}
-                    >
-                      Ver detalle
-                    </button>
+                  <td class="whitespace-nowrap">
+                    <ProductosCell
+                      evento={evento}
+                      anexoId={row.id}
+                      documentId={row.documentId}
+                      anexoDate={row.anexo_tecnico_date}
+                      usuario={usuario}
+                      onSoporte={onSoporte}
+                      onActividad={onActividad}
+                    />
                   </td>
                 </tr>
               ))}
