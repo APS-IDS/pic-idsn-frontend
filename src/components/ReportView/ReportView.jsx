@@ -131,15 +131,18 @@ const ReportView = () => {
             fetchJson(url_proyectos),
           ]);
 
-        const toOptions = (result, campo) =>
+        // campoValue define qué se envía al backend; campoLabel, qué se muestra
+        const toOptions = (result, campoLabel, campoValue = campoLabel) =>
           (result.value?.data || []).map((item) => ({
-            value: item[campo],
-            label: item[campo],
+            value: item[campoValue],
+            label: item[campoLabel],
           }));
 
         setMunicipios(toOptions(municipiosResult, "label"));
-        setOperadores(toOptions(operadoresResult, "operador_pic"));
-        setProyectos(toOptions(proyectosResult, "proyecto"));
+        setOperadores(
+          toOptions(operadoresResult, "operador_pic", "documentId"),
+        );
+        setProyectos(toOptions(proyectosResult, "proyecto", "documentId"));
         setDependences([]);
       } catch (error) {
         setError(error.message);
@@ -154,16 +157,19 @@ const ReportView = () => {
   const fetchData = async () => {
     setLoadingData(true);
 
-    const { anio, project, operator } = appliedFilters;
-  
-
+    const { anio, project, operator, municipality } = appliedFilters;
 
     const eventos = {};
     if (project) {
-      eventos.proyectos_idsn = { proyecto: { $containsi: project } };
+      eventos.proyectos_idsn = { documentId: { $eq: project } };
     }
     if (operator) {
-      eventos.operador_pic = { operador_pic: { $containsi: operator } };
+      eventos.operador_pic = { documentId: { $eq: operator } };
+    }
+    if (municipality) {
+      eventos.territorializacion = {
+        municipios: { label: { $eq: municipality } },
+      };
     }
 
     const filters = {};
@@ -193,9 +199,7 @@ const ReportView = () => {
         },
       });
 
-      // const response = await fetch("/anexo-tecnico-response.json");
       const result = await response.json();
-      console.log(result);
       setData(result);
     } catch (error) {
       console.error("Error consultando datos:", error);
