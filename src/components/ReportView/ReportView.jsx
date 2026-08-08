@@ -223,13 +223,9 @@ const ReportView = () => {
     });
   };
 
-  const handle_click_actividad = (actividad, anexoDate) => {
-    navigate("/seg", {
-      state: {
-        actividad: actividad, // Pasa aquí los datos que necesitas
-        anexoDate: anexoDate,
-      },
-    });
+    // documentId anexo tecnico, uuid actividad
+  const handle_click_actividad = (documentId, actividadId) => {
+    navigate(`/anexo/${documentId}/${actividadId}/seguimiento`);
   };
 
   const handle_soporte = async (documentId, soporteId) => {

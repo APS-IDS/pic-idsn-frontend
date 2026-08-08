@@ -29,10 +29,18 @@ const AnexoCard = ({
       : evento?.territorializacion?.numero_pobalcion_intervenir) ?? SIN_DATO;
 
   return (
-    <div key={index} class="bg-app-card mb-3 mx-7  border rounded-lg shadow-sm overflow-hidden">
-      <div class="flex items-center justify-between py-3 px-5 text-white cursor-pointer bg-navy" onClick={() => handleToggle(index)}>
+    <div
+      key={index}
+      class="bg-app-card mb-3 mx-7  border rounded-lg shadow-sm overflow-hidden"
+    >
+      <div
+        class="flex items-center justify-between py-3 px-5 text-white cursor-pointer bg-navy"
+        onClick={() => handleToggle(index)}
+      >
         <div class="flex items-center gap-3">
-          <span class="bg-yellow-brand text-amber-950 font-semibold text-sm py-1 px-2 rounded-3xl">ID {row.id}</span>
+          <span class="bg-yellow-brand text-amber-950 font-semibold text-sm py-1 px-2 rounded-3xl">
+            ID {row.id}
+          </span>
           <span class="text-base">Anexo</span>
           <span class="text-sm text-[#c9d6e4] ml-1">
             {row?.eventos?.[0]?.territorializacion?.municipios?.[0]?.label ||
@@ -40,21 +48,22 @@ const AnexoCard = ({
             · {anio}
           </span>
         </div>
-        <div>
+        <div class="flex items-center gap-3">
           {usuario === CustomRoles.REFERENTE_INSTITUTO && (
             <button class={styles.edit_button} onClick={() => onEdit(row)}>
-              <FaEdit /> Editar anexo
+              <FaEdit />
             </button>
           )}
 
-          <span class={`inline-block transform transition-transform duration-200 ${openIndex === index ? 'rotate-180' : 'rotate-0'}`}>
+          <span
+            class={`inline-block transform transition-transform duration-200 ${openIndex === index ? "rotate-180" : "rotate-0"}`}
+          >
             &#9660;
           </span>
         </div>
-
       </div>
       {openIndex === index && (
-        <div class="overflow-auto transition-all duration-500 ease-in-out animate-fadeIn">
+        <div class="overflow-y-auto transition-all duration-500 ease-in-out animate-fadeIn">
           <table class="w-full min-w-[1400px] border-collapse text-xs">
             <thead>
               <tr>
@@ -82,7 +91,6 @@ const AnexoCard = ({
               </tr>
             </thead>
             <tbody>
-
               {row?.eventos?.map((evento) => (
                 <tr key={`${index}-${evento.id}`}>
                   <td>{evento.id}</td>
@@ -133,9 +141,6 @@ const AnexoCard = ({
                   </td>
                 </tr>
               ))}
-
-
-
             </tbody>
           </table>
         </div>

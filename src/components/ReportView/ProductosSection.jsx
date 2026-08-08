@@ -280,15 +280,7 @@ const ProductosSection = ({
                               <td>
                                 <button
                                   className={styles.seguimiento_button}
-                                  onClick={() =>
-                                    onActividad(
-                                      {
-                                        ...actividad,
-                                        documentId,
-                                      },
-                                      anexo_year,
-                                    )
-                                  }
+                                  onClick={() => onActividad(documentId, actividad.uuid)}
                                 >
                                   <FaClipboardList
                                     style={{ marginRight: "5px" }}

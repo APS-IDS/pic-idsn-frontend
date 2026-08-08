@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from "./Seguimiento.module.css";
+import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import { FaSave } from "react-icons/fa";
@@ -10,49 +10,21 @@ import ObservacionPanel from "./ObservacionPanel";
 import EstadoPanel from "./EstadoPanel";
 import CronogramaTable from "./CronogramaTable";
 import { CustomRoles } from "../../components/Login/constant";
+import Spinner from "../Spinner/Spinner";
+import { identifyActivity, toOptions, fetchJson } from "../../utils/seguimiento_events";
+import InfoGeneralTable from "./InfoGeneralTable";
 
 const Seguimiento = () => {
-  const location = useLocation();
-  const actividad = location.state?.actividad;
-  const anexo_date = location.state?.anexoDate;
-  //console.log("Actividad en Seguimiento:", actividad);
-  // console.log("año", anexo_date);
-
-  const back = import.meta.env.VITE_APP_BACK;
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
-
-  const token =
-    useSelector((state) => state.token.token) ||
-    JSON.parse(localStorage.getItem("token"))?.token;
-  const url_soportes = `${back}/api/check-seguimiento?`;
-  const url_observaciones = `${back}/api/observacio/read?`;
-  const url_post_observaciones = `${back}/api/observaciones/register`;
-  const url_post_check = `${back}/api/seguimiento/evidencia-status`;
-
-  const url_estado_soportes = `${back}/api/estado-soportes`;
-
-  const url_estado_operadores = `${back}/api/estado-operadors`;
-
-  const url_estado_referentes = `${back}/api/estado-referentes`;
-
-  const [soportes, setSoportes] = useState([]);
-
-  const usuarioSession = JSON.parse(localStorage.getItem("usuario_rol"));
-  const usuario_redux = useSelector((state) => state.user.usuario);
-  const usuario = usuarioSession.usuario || usuario_redux;
-
-  const documentId = actividad?.documentId;
-  const uuid = actividad?.uuid;
-
+  const { documentId, actividadId } = useParams();
+  const [loading, setLoading] = useState(false);
+  const [actividad, setActividad] = useState(null);
+  const [uuid, setUuid] = useState(null);
+  const [anexoDate, setAnexoDate] = useState(null);
   const [estadoSoportes, setEstadoSoportes] = useState([]);
-
   const [estados_back, setEstados_back] = useState([]);
-
   const [estados_operador, setEstados_operador] = useState([]);
-
   const [estados_referente, setEstados_referente] = useState([]);
-
+  const [soportes, setSoportes] = useState([]);
   const [observaciones, setObservaciones] = useState({
     observacion_referente: "",
     observacion_operador: "",
@@ -68,78 +40,91 @@ const Seguimiento = () => {
     porcentaje_referente: "",
     porcentaje_operador: "",
   });
+  const [error, setError] = useState(null);
+
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
+
+  const back = import.meta.env.VITE_APP_BACK;
+  const url_estado_soportes = `${back}/api/estado-soportes`;
+  const url_estado_operadores = `${back}/api/estado-operadors`;
+  const url_estado_referentes = `${back}/api/estado-referentes`;
+
+
+  const url_soportes = `${back}/api/check-seguimiento?`;
+  const url_observaciones = `${back}/api/observacio/read?`;
+  const url_post_observaciones = `${back}/api/observaciones/register`;
+  const url_post_check = `${back}/api/seguimiento/evidencia-status`;
+
+  const usuarioSession = JSON.parse(localStorage.getItem("usuario_rol"));
+  const usuario_redux = useSelector((state) => state.user.usuario);
+  const usuario = usuarioSession.usuario || usuario_redux;
+
 
   useEffect(() => {
-    Swal.fire({
+    const fetchAnexo = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `${back}/api/anexo-tecnicos/${documentId}?pLevel=11`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const anexo = data?.data || null;
+        const act = identifyActivity(actividadId, anexo);
+
+        setActividad(act);
+        setUuid(actividadId);
+        setAnexoDate(anexo?.anexo_tecnico_date);
+
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (documentId && actividadId) fetchAnexo();
+
+    {/*Swal.fire({
       title: "Información",
       text: "Recuerda luego de realizar  cambios , dar clic en los botones de  Guardar para conservar los cambios",
       icon: "warning",
-    });
-  }, []);
+    }); */}
+
+  }, [documentId, actividadId, token]);
 
   useEffect(() => {
-    const fetch_data = async () => {
+    const fetchStatesOptions = async () => {
       try {
-        const response = await fetch(`${url_estado_soportes}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener soportes.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setEstados_back(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+        setLoading(true);
+        const [estadosSoportesData, estadosOperadorData, estadosReferenteData] = await Promise.allSettled([
+          fetchJson(url_estado_soportes, token),
+          fetchJson(url_estado_operadores, token),
+          fetchJson(url_estado_referentes, token),
+        ]);
 
-    fetch_data();
+        setEstados_back(estadosSoportesData.value?.data || []);
+        setEstados_operador(estadosOperadorData.value?.data || []);
+        setEstados_referente(estadosReferenteData.value?.data || []);
+      } catch (error) {
+        console.error("Error fetching states options:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStatesOptions();
   }, [token]);
 
-  useEffect(() => {
-    const fetch_data = async () => {
-      try {
-        const response = await fetch(`${url_estado_operadores}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener soportes.");
-        const data = await response.json();
-
-        setEstados_operador(data.data);
-
-        //console.log("Estados operador_observacion:", data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_data();
-  }, [token]);
-
-  useEffect(() => {
-    const fetch_data = async () => {
-      try {
-        const response = await fetch(`${url_estado_referentes}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener soportes.");
-        const data = await response.json();
-
-        setEstados_referente(data.data);
-
-        // console.log("Estados operador_observacion:", data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_data();
-  }, [token]);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -181,11 +166,11 @@ const Seguimiento = () => {
     const estado_seleccionado =
       usuario === CustomRoles.REFERENTE_INSTITUTO
         ? estados_referente.find(
-            (e) => e.estado_actividad === status_porcentaje.estado_referente,
-          )
+          (e) => e.estado_actividad === status_porcentaje.estado_referente,
+        )
         : estados_operador.find(
-            (e) => e.estado_actividad === status_porcentaje.estado_operador,
-          );
+          (e) => e.estado_actividad === status_porcentaje.estado_operador,
+        );
 
     const documentId_estado = estado_seleccionado?.documentId || null;
 
@@ -215,11 +200,11 @@ const Seguimiento = () => {
             usuario === CustomRoles.REFERENTE_INSTITUTO
               ? documentId_estado
               : // : "mqmr6ffj6imh24gareavq2q2",
-                null,
+              null,
           estado_operador:
             usuario === CustomRoles.REFERENTE_INSTITUTO
               ? // ? "mm4070563cltcc6ie9yu5hjt"
-                null
+              null
               : documentId_estado,
 
           // estado:
@@ -262,8 +247,6 @@ const Seguimiento = () => {
           Authorization: `Bearer ${token}`, // tu token JWT
         },
       });
-
-      console.log("Response status:", response);
 
       if (!response.ok) throw new Error("Error al obtener el archivo");
 
@@ -390,7 +373,7 @@ const Seguimiento = () => {
       try {
         const requests = actividad.soportes.map(async (soporte) => {
           const response = await fetch(
-            `${url_soportes}anexo_id=${actividad.documentId}&soporte_id=${soporte.uuid}`,
+            `${url_soportes}anexo_id=${documentId}&soporte_id=${soporte.uuid}`,
             {
               headers: { Authorization: `Bearer ${token}` },
             },
@@ -461,12 +444,39 @@ const Seguimiento = () => {
     "Sin avance": "⚠️",
   };
 
-  return (
-    <div className={styles.contenedor_principal}>
-      <Header />
+  if (loading) {
+    return <Spinner envio={"Cargando datos, por favor espera..."} />;
+  }
 
-      <div className={styles.formContainer}>
-        <table className={styles.table} style={{ marginBottom: "1rem" }}>
+  if (!actividad) {
+    return <div>No se encontró la actividad.</div>;
+  }
+
+  return (
+    <>
+      <Header />
+      <div className="w-full min-h-dvh bg-app-bg p-4">
+        <div className="flex align-center items-center gap-2 mb-4 text-app-muted">
+          <a className="text-teal-dark hover:underline hover:bg-transparent text-md font-semibold" href="/view">&#8592;  Volver al listado</a>
+          <span>/</span>
+          <span className="m-2 font-light">Detalle de actividad</span>
+          <span className="bg-yellow-brand text-amber-950 font-semibold text-sm py-1 px-2 rounded-3xl">ID {actividad.id}</span>
+        </div>
+
+        <InfoGeneralTable actividad={actividad} />
+
+        <SoportesTable
+          soportes={actividad.soportes}
+          soportesData={soportes}
+          estadoSoportes={estadoSoportes}
+          estadosBack={estados_back}
+          usuario={usuario}
+          onVerSoporte={verSoporte}
+          onEstadoChange={handleEstadoChange}
+          onSendCheck={handle_send_check}
+        />
+
+        {/* <table className={styles.table} style={{ marginBottom: "1rem" }}>
           <thead>
             <tr>
               <th>Descripción de Actividad</th>
@@ -478,7 +488,7 @@ const Seguimiento = () => {
               <th>Población Sujeto</th>
               <th>Soportes</th>
               <th>Código Cups</th>
-              {anexo_date == "2026-01-01" && <th>Valor Unitario</th>}
+              {anexoDate == "2026-01-01" && <th>Valor Unitario</th>}
               <th>Valor Total</th>
               <th>Cronograma</th>
               <th>Observación Referente</th>
@@ -503,7 +513,7 @@ const Seguimiento = () => {
                   <p key={index}>{tecno.nombre}</p>
                 ))}
               </td>
-              {anexo_date == "2026-01-01" && (
+              {anexoDate == "2026-01-01" && (
                 <td>
                   {actividad.curso_de_vida.map((curso, index) => (
                     <p key={index}>{curso.nombre}</p>
@@ -530,17 +540,17 @@ const Seguimiento = () => {
               </td>
 
               <td>{actividad.cups.codigo}</td>
-              {anexo_date == "2025-01-01" && (
+              {anexoDate == "2025-01-01" && (
                 <td>
                   {actividad.valor_unitario
                     ? new Intl.NumberFormat("es-ES").format(
-                        actividad.valor_unitario,
-                      )
+                      actividad.valor_unitario,
+                    )
                     : ""}
                 </td>
               )}
 
-              {anexo_date == "2026-01-01" && (
+              {anexoDate == "2026-01-01" && (
                 <td>
                   <table className={styles.subTable}>
                     <thead>
@@ -620,9 +630,11 @@ const Seguimiento = () => {
               </td>
             </tr>
           </tbody>
-        </table>
+        </table>*/}
       </div>
-    </div>
+    </>
+
+
   );
 };
 
