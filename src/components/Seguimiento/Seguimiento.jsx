@@ -2,16 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Swal from "sweetalert2";
-import { FaSave } from "react-icons/fa";
+import { Save } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import SoportesTable from "./SoportesTable";
 import ObservacionPanel from "./ObservacionPanel";
-import EstadoPanel from "./EstadoPanel";
 import CronogramaTable from "./CronogramaTable";
 import { CustomRoles } from "../../components/Login/constant";
 import Spinner from "../Spinner/Spinner";
-import { identifyActivity, toOptions, fetchJson } from "../../utils/seguimiento_events";
+import { findActivity, toOptions, fetchJson, formatDate } from "../../utils/seguimiento_events";
 import InfoGeneralTable from "./InfoGeneralTable";
 
 const Seguimiento = () => {
@@ -61,70 +60,170 @@ const Seguimiento = () => {
   const usuario_redux = useSelector((state) => state.user.usuario);
   const usuario = usuarioSession.usuario || usuario_redux;
 
+  const [cancelChange, setCancelChange] = useState(false);
+
+  const fetchAnexo = async () => {
+    const response = await fetch(
+      `${back}/api/anexo-tecnicos/${documentId}?pLevel=11`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const anexo = data?.data || null;
+
+    return anexo;
+  }
+
+
+
+  const fetchStatesOptions = async () => {
+    const [estadosSoportesData, estadosOperadorData, estadosReferenteData] = await Promise.allSettled([
+      fetchJson(url_estado_soportes, token),
+      fetchJson(url_estado_operadores, token),
+      fetchJson(url_estado_referentes, token),
+    ]);
+
+    setEstados_back(estadosSoportesData.value?.data || []);
+    setEstados_operador(estadosOperadorData.value?.data || []);
+    setEstados_referente(estadosReferenteData.value?.data || []);
+  }
+
+
+  const fetch_observacion = async () => {
+    const response = await fetch(
+      `${url_observaciones}anexo_id=${documentId}&id_actividad=${actividadId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    if (!response.ok) throw new Error("Error al obtener observaciones.");
+    const data = await response.json();
+    setObservaciones((prev) => ({
+      ...prev,
+      observacion_referente: data.referente?.observacion ?? "Sin observación",
+      observacion_operador: data.operador?.observacion ?? "Sin observación",
+      fecha_operador: formatDate(data.operador),
+      fecha_referente: formatDate(data.referente),
+      usuario_operador: data.operador?.user?.username ?? "",
+      usuario_referente: data.referente?.user?.username ?? "",
+    }));
+
+    setStatus((prev) => ({
+      ...prev,
+      estado_referente: data.referente?.estado_referente?.estado_actividad ?? "Sin Estado",
+      estado_operador: data.operador?.estado_operador?.estado_actividad ?? "Sin Estado",
+      porcentaje_operador: data.operador?.porcentaje_completado ?? 0,
+      porcentaje_referente: data.referente?.porcentaje_completado ?? 0,
+    }));
+
+  };
+
+
+  const fetchSoportes = async (actividad) => {
+    if (!actividad || !actividad.soportes || actividad.soportes.length === 0)
+      return;
+
+    const requests = actividad.soportes.map(async (soporte) => {
+      const response = await fetch(
+        `${url_soportes}anexo_id=${documentId}&soporte_id=${soporte.uuid}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!response.ok) return null; // Si la respuesta no es OK, devuelve null
+
+      const data = await response.json();
+
+      return { soporteId: soporte.uuid, data };
+    });
+
+    const results = await Promise.all(requests);
+
+    // Obtener el estado anterior y conservar datos previos
+    setSoportes((prevSoportes) => {
+      const nuevosSoportes = { ...prevSoportes }; // Clonar el estado anterior
+
+      results.forEach((result) => {
+        if (result) {
+          nuevosSoportes[result.soporteId] = result.data; // Solo actualiza los nuevos
+        }
+      });
+
+      return nuevosSoportes; // Retorna el nuevo estado sin borrar datos previos
+    });
+
+    setEstadoSoportes((prevEstado) => {
+      const nuevosEstados = { ...prevEstado };
+
+      results.forEach((result) => {
+
+        if (result?.data?.estado_soporte?.estado_soporte) {
+          nuevosEstados[result.soporteId] =
+            result.data.estado_soporte.estado_soporte;
+        }
+      });
+
+      return nuevosEstados;
+    });
+  };
+
+  const loadAnexoAndSoportes = async () => {
+    const anexoResult = await fetchAnexo();
+
+    if (!anexoResult) return;
+
+    const actividadResult = await findActivity(actividadId, anexoResult);
+    if (!actividadResult) {
+      setError("No se encontró la actividad.");
+      return;
+    }
+
+    setActividad(actividadResult);
+    setUuid(actividadId);
+    setAnexoDate(anexoResult?.anexo_tecnico_date);
+
+    await fetchSoportes(actividadResult);
+  }
 
   useEffect(() => {
-    const fetchAnexo = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `${back}/api/anexo-tecnicos/${documentId}?pLevel=11`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const anexo = data?.data || null;
-        const act = identifyActivity(actividadId, anexo);
-
-        setActividad(act);
-        setUuid(actividadId);
-        setAnexoDate(anexo?.anexo_tecnico_date);
-
+        await Promise.allSettled([
+          loadAnexoAndSoportes(),
+          fetch_observacion(),
+          fetchStatesOptions()
+        ]);
       } catch (error) {
-        setError(error.message);
+        console.error("Error loading data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (documentId && actividadId) fetchAnexo();
-
-    {/*Swal.fire({
-      title: "Información",
-      text: "Recuerda luego de realizar  cambios , dar clic en los botones de  Guardar para conservar los cambios",
-      icon: "warning",
-    }); */}
-
-  }, [documentId, actividadId, token]);
-
-  useEffect(() => {
-    const fetchStatesOptions = async () => {
-      try {
-        setLoading(true);
-        const [estadosSoportesData, estadosOperadorData, estadosReferenteData] = await Promise.allSettled([
-          fetchJson(url_estado_soportes, token),
-          fetchJson(url_estado_operadores, token),
-          fetchJson(url_estado_referentes, token),
-        ]);
-
-        setEstados_back(estadosSoportesData.value?.data || []);
-        setEstados_operador(estadosOperadorData.value?.data || []);
-        setEstados_referente(estadosReferenteData.value?.data || []);
-      } catch (error) {
-        console.error("Error fetching states options:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (documentId && actividadId && token) {
+      loadData();
     }
 
-    fetchStatesOptions();
-  }, [token]);
+  }, [documentId, actividadId, token, cancelChange]);
 
+  useEffect(() => {
+    Swal.fire({
+      title: "Información",
+      text: "Recuerda luego de realizar cambios, dar clic en los botones de Guardar para conservar los cambios",
+      icon: "warning",
+      confirmButtonText: "Entendido"
+    });
+  }, []);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -152,16 +251,11 @@ const Seguimiento = () => {
     const property = event.target.name;
     const value = event.target.value;
     setObservaciones({ ...observaciones, [property]: value });
-
-    //console.log("Observaciones:", observaciones);
-
-    // validate({ ...observaciones, [property]: value });
   };
 
   const handle_send = async () => {
     // event.preventDefault();
 
-    //console.log("Porcentaaje:", status_porcentaje);
 
     const estado_seleccionado =
       usuario === CustomRoles.REFERENTE_INSTITUTO
@@ -178,7 +272,6 @@ const Seguimiento = () => {
       // setLoading(true);
 
       // Realizar la solicitud
-
       const response = await fetch(`${url_post_observaciones}`, {
         method: "POST",
         headers: {
@@ -311,123 +404,6 @@ const Seguimiento = () => {
     }
   };
 
-  useEffect(() => {
-    if (!documentId || !uuid) return; // Evita hacer la petición si los valores son undefined
-
-    const fetch_observacion = async () => {
-      try {
-        const response = await fetch(
-          `${url_observaciones}anexo_id=${documentId}&id_actividad=${uuid}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (!response.ok) throw new Error("Error al obtener observaciones.");
-        const data = await response.json();
-
-        const fecha_operador = data.operador?.fecha ?? "";
-        const fecha_local_operador = fecha_operador
-          ? new Date(fecha_operador).toLocaleString()
-          : "";
-        const fecha_referente = data.referente?.fecha ?? "";
-        const fecha_local_referente = fecha_referente
-          ? new Date(fecha_referente).toLocaleString()
-          : "";
-
-        // console.log("Data-Observacion-fecha", fechaLocal);
-        setObservaciones((prev) => ({
-          ...prev,
-          observacion_referente:
-            data.referente?.observacion ?? "Sin observación",
-          observacion_operador: data.operador?.observacion ?? "Sin observación",
-          fecha_operador: fecha_local_operador,
-          fecha_referente: fecha_local_referente,
-          usuario_operador: data.operador?.user.username,
-          usuario_referente: data.referente?.user.username,
-        }));
-
-        setStatus((prev) => ({
-          ...prev,
-          estado_referente:
-            data.referente?.estado_referente?.estado_actividad ?? "Sin Estado",
-          estado_operador:
-            data.operador?.estado_operador?.estado_actividad ?? "Sin Estado",
-          porcentaje_operador: data.operador?.porcentaje_completado ?? 0,
-          porcentaje_referente: data.referente?.porcentaje_completado ?? 0,
-        }));
-      } catch (error) {
-        console.error("Error fetching observaciones", error);
-      }
-    };
-
-    fetch_observacion();
-  }, [token, documentId, uuid]);
-
-  useEffect(() => {
-    const fetchSoportes = async () => {
-      if (!actividad || !actividad.soportes || actividad.soportes.length === 0)
-        return;
-
-      try {
-        const requests = actividad.soportes.map(async (soporte) => {
-          const response = await fetch(
-            `${url_soportes}anexo_id=${documentId}&soporte_id=${soporte.uuid}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
-          );
-          if (!response.ok) return null; // Si la respuesta no es OK, devuelve null
-
-          const data = await response.json();
-
-          // console.log(
-          //   "data_endpoint_soportes:",
-          //   data?.estado_soporte?.estado_soporte ?? "sin estado"
-          // );
-          return { soporteId: soporte.uuid, data };
-        });
-
-        const results = await Promise.all(requests);
-
-        // Obtener el estado anterior y conservar datos previos
-        setSoportes((prevSoportes) => {
-          const nuevosSoportes = { ...prevSoportes }; // Clonar el estado anterior
-
-          results.forEach((result) => {
-            if (result) {
-              nuevosSoportes[result.soporteId] = result.data; // Solo actualiza los nuevos
-            }
-          });
-
-          return nuevosSoportes; // Retorna el nuevo estado sin borrar datos previos
-        });
-        //data.estado_soporte.estado_soporte
-        setEstadoSoportes((prevEstado) => {
-          const nuevosEstados = { ...prevEstado };
-
-          results.forEach((result) => {
-            // if (result && result.data.estado) {
-            //   nuevosEstados[result.soporteId] = result.data.estado;
-            // }
-
-            if (result?.data?.estado_soporte?.estado_soporte) {
-              nuevosEstados[result.soporteId] =
-                result.data.estado_soporte.estado_soporte;
-            }
-          });
-
-          return nuevosEstados;
-        });
-      } catch (error) {
-        console.error("Error fetching soportes:", error);
-      }
-    };
-
-    fetchSoportes();
-  }, [token, actividad]); // Se ejecuta cuando `actividad` o `token` cambian
-
   const EMOJI_REFERENTE = {
     "Sin Reporte": "📄",
     "No aplica para periodo": "🚫",
@@ -453,9 +429,9 @@ const Seguimiento = () => {
   }
 
   return (
-    <>
+    <div className=" bg-app-bg">
       <Header />
-      <div className="w-full min-h-dvh bg-app-bg p-4">
+      <div className="max-w-6xl mx-auto min-h-dvh bg-app-bg p-4">
         <div className="flex align-center items-center gap-2 mb-4 text-app-muted">
           <a className="text-teal-dark hover:underline hover:bg-transparent text-md font-semibold" href="/view">&#8592;  Volver al listado</a>
           <span>/</span>
@@ -476,163 +452,51 @@ const Seguimiento = () => {
           onSendCheck={handle_send_check}
         />
 
-        {/* <table className={styles.table} style={{ marginBottom: "1rem" }}>
-          <thead>
-            <tr>
-              <th>Descripción de Actividad</th>
-              <th>Cantidad a Ejecutar</th>
-              <th>Unidad de Medida</th>
-              <th>Entornos</th>
-              <th>Tecnologías</th>
-              <th>Curso de Vida</th>
-              <th>Población Sujeto</th>
-              <th>Soportes</th>
-              <th>Código Cups</th>
-              {anexoDate == "2026-01-01" && <th>Valor Unitario</th>}
-              <th>Valor Total</th>
-              <th>Cronograma</th>
-              <th>Observación Referente</th>
-              <th>Estado Referente</th>
-              <th>Observación Operador</th>
-              <th>Estado Operador</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{actividad.descripcion}</td>
-              <td>{actividad.cantidad_a_ejecutar}</td>
-              <td>{actividad.unidad_medida}</td>
-              <td>
-                {actividad.entornos.map((entorno, index) => (
-                  <p key={index}>{entorno.nombre}</p>
-                ))}
-              </td>
-              <td>
-                {actividad.tecnologias.map((tecno, index) => (
-                  <p key={index}>{tecno.nombre}</p>
-                ))}
-              </td>
-              {anexoDate == "2026-01-01" && (
-                <td>
-                  {actividad.curso_de_vida.map((curso, index) => (
-                    <p key={index}>{curso.nombre}</p>
-                  ))}
-                </td>
-              )}
-              <td>
-                {actividad.poblaciones.map((poblacion, index) => (
-                  <p key={index}>{poblacion.nombre}</p>
-                ))}
-              </td>
+        <CronogramaTable cronograma={actividad.cronograma} />
 
-              <td>
-                <SoportesTable
-                  soportes={actividad.soportes}
-                  soportesData={soportes}
-                  estadoSoportes={estadoSoportes}
-                  estadosBack={estados_back}
-                  usuario={usuario}
-                  onVerSoporte={verSoporte}
-                  onEstadoChange={handleEstadoChange}
-                  onSendCheck={handle_send_check}
-                />
-              </td>
+        <div className="grid grid-rows-1 md:grid-cols-2 gap-4 mt-4">
 
-              <td>{actividad.cups.codigo}</td>
-              {anexoDate == "2025-01-01" && (
-                <td>
-                  {actividad.valor_unitario
-                    ? new Intl.NumberFormat("es-ES").format(
-                      actividad.valor_unitario,
-                    )
-                    : ""}
-                </td>
-              )}
+          <ObservacionPanel
+            observacion={observaciones.observacion_referente}
+            fecha={observaciones.fecha_referente}
+            usuarioAutor={observaciones.usuario_referente}
+            estado={status_porcentaje.estado_referente}
+            porcentaje={status_porcentaje.porcentaje_referente}
+            canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
+            name="referente"
+            onChange={onChange_observaciones}
+            onChangeState={onchange_status}
+            estados={estados_referente}
+            emojiMap={EMOJI_REFERENTE}
+          />
 
-              {anexoDate == "2026-01-01" && (
-                <td>
-                  <table className={styles.subTable}>
-                    <thead>
-                      <tr>
-                        <th>Costos Directos</th>
-                        <th>Costos Indirectos</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>{actividad.costos_directos}</td>
-                        <td>{actividad.costos_indirectos}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              )}
+          <ObservacionPanel
+            observacion={observaciones.observacion_operador}
+            fecha={observaciones.fecha_operador}
+            usuarioAutor={observaciones.usuario_operador}
+            estado={status_porcentaje.estado_operador}
+            porcentaje={status_porcentaje.porcentaje_operador}
+            canEdit={usuario === CustomRoles.OPERADOR}
+            name="operador"
+            onChange={onChange_observaciones}
+            onChangeState={onchange_status}
+            estados={estados_operador}
+            emojiMap={EMOJI_OPERADOR}
+          />
 
-              <td>
-                {actividad.valor_total
-                  ? new Intl.NumberFormat("es-ES").format(actividad.valor_total)
-                  : ""}
-              </td>
-              <td>
-                <CronogramaTable cronograma={actividad.cronograma} />
-              </td>
-              <td>
-                <ObservacionPanel
-                  observacion={observaciones.observacion_referente}
-                  fecha={observaciones.fecha_referente}
-                  usuarioAutor={observaciones.usuario_referente}
-                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
-                  name="observacion_referente"
-                  onChange={onChange_observaciones}
-                />
-              </td>
-              <td>
-                <EstadoPanel
-                  canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
-                  porcentaje={status_porcentaje.porcentaje_referente}
-                  estado={status_porcentaje.estado_referente}
-                  porcentajeName="porcentaje_referente"
-                  estadoName="estado_referente"
-                  estados={estados_referente}
-                  emojiMap={EMOJI_REFERENTE}
-                  onChange={onchange_status}
-                />
-              </td>
-              <td>
-                <ObservacionPanel
-                  observacion={observaciones.observacion_operador}
-                  fecha={observaciones.fecha_operador}
-                  usuarioAutor={observaciones.usuario_operador}
-                  canEdit={usuario === "operador"}
-                  name="observacion_operador"
-                  onChange={onChange_observaciones}
-                />
-              </td>
-              <td>
-                <EstadoPanel
-                  canEdit={usuario === "operador"}
-                  porcentaje={status_porcentaje.porcentaje_operador}
-                  estado={status_porcentaje.estado_operador}
-                  porcentajeName="porcentaje_operador"
-                  estadoName="estado_operador"
-                  estados={estados_operador}
-                  emojiMap={EMOJI_OPERADOR}
-                  onChange={onchange_status}
-                />
-              </td>
+        </div>
 
-              <td>
-                <button className={styles.edit_button} onClick={handle_send}>
-                  <FaSave />
-                  Guardar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>*/}
+        <div className="sticky  border border-app-border rounded-xl bg-white border-t-app-border py-3 px-5 flex justify-end gap-2 mt-1 shadow-md ">
+          <button className="py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-gray-200 font-semibold" onClick={() => { setCancelChange(!cancelChange); }}>Cancelar</button>
+
+          <button className="flex items-center gap-2 bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold "
+            onClick={handle_send}>
+            <Save className="w-4 h-4" />
+            Guardar seguimiento</button>
+
+        </div>
       </div>
-    </>
+    </div>
 
 
   );

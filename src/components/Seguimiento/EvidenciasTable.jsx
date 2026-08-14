@@ -14,7 +14,7 @@ const EvidenciasTable = ({ evidencias, onVerSoporte }) => {
         className="flex items-center gap-1 font-semibold text-sm border border-gray-300 p-2 rounded-lg text-app-muted hover:bg-teal-light hover:text-teal  transition-colors"
         onClick={(e) => toggleSoportes(e.currentTarget)}
       >
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" /><path d="M4 9h16" /></svg>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z" /><path d="M4 9h16" /></svg>
 
         {openSoportes ? "Ocultar" : "Ver"}
       </button>

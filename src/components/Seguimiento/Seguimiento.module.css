@@ -18,3 +18,9 @@
   table.mini thead th{background:var(--teal-light);color:var(--teal-dark);text-align:left;padding:9px 12px;font-size:12px;font-weight:700;border-bottom:2px solid var(--teal);}
   table.mini tbody td{padding:10px 12px;border-bottom:1px solid var(--border);}
   table.mini tbody tr:hover{background:#fafcfb;}
+  textarea,select,input[type=text]{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:6px;font-size:13.5px;color:var(--text);
+    font-family:inherit;
+  }
+  textarea{resize:vertical;min-height:64px;}
+  select:focus,textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-light);}

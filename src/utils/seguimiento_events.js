@@ -1,4 +1,4 @@
-export const identifyActivity = (actividadId, anexo) => {
+export const findActivity = async (actividadId, anexo) => {
   const eventos = anexo?.eventos || [];
   for (const evento of eventos) {
     for (const producto of evento.productos || []) {
@@ -27,4 +27,9 @@ export const fetchJson = async (url, token) => {
     throw new Error(`HTTP error! Status: ${response.status}`);
   }
   return response.json();
+};
+
+export const formatDate = ( rol ) => {
+  const fecha = rol?.fecha ?? "";
+  return fecha ? new Date(fecha).toLocaleString() : "";
 };

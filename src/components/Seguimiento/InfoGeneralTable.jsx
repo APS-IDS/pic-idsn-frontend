@@ -51,9 +51,23 @@ const InfoGeneralTable = ({ actividad }) => {
 
           <div>
             <label className="uppercase font-normal">Valor total</label>
-            <div className="font-semibold text-sm"> {actividad.valor_total
+            <div className="font-semibold text-sm"> $ {actividad.valor_total
               ? new Intl.NumberFormat("es-ES").format(actividad.valor_total)
-              : ""}</div>
+              : "S/D"}</div>
+          </div>
+
+          <div>
+            <label className="uppercase font-normal">Costo directos</label>
+            <div className="font-semibold text-sm"> $ {actividad.costos_directos
+              ? new Intl.NumberFormat("es-ES").format(actividad.costos_directos)
+              : " S/D"}</div>
+          </div>
+
+          <div>
+            <label className="uppercase font-normal">Costo indirectos</label>
+            <div className="font-semibold text-sm"> $ {actividad.costos_indirectos
+              ? new Intl.NumberFormat("es-ES").format(actividad.costos_indirectos)
+              : " S/D"}</div>
           </div>
 
         </div>

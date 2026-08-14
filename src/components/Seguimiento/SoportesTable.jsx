@@ -43,7 +43,7 @@ const SoportesTable = ({
               <th>Cantidad</th>
               <th>Soportes</th>
               <th>Check</th>
-              {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Guardar</th>}
+              {usuario === CustomRoles.REFERENTE_INSTITUTO && <th>Guardar Estado</th>}
             </tr>
           </thead>
           <tbody>
@@ -56,19 +56,20 @@ const SoportesTable = ({
                   <td>{soporte.tipo}</td>
                   <td>{soporte.descripcion}</td>
                   <td>{soporte.cantidad}</td>
-                  <td>
-              
-                      <EvidenciasTable
-                        evidencias={evidencias}
-                        onVerSoporte={onVerSoporte}
-                      />
-                    
+                  <td>{hasEvidencias ? (
+                    <EvidenciasTable
+                      evidencias={evidencias}
+                      onVerSoporte={onVerSoporte}
+                    />
+                  ) : (
+                    <div className="text-sm text-app-muted">No hay evidencias</div>
+                  )}
                   </td>
                   <td>
                     {usuario === CustomRoles.REFERENTE_INSTITUTO ? (
                       hasEvidencias ? (
                         <select
-                          className="border border-app-border rounded-md px-2 py-1"
+                          className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200 bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-green-brand focus:ring-1 focus:ring-green-brand"
                           value={estadoSoportes[soporte.uuid] || ""}
                           onChange={(e) =>
                             onEstadoChange(soporte.uuid, e.target.value)
@@ -84,7 +85,7 @@ const SoportesTable = ({
                             </option>
                           ))}
                         </select>
-                      ) : null
+                      ) : <div className="text-sm text-app-muted">N/A</div>
                     ) : (
                       <p>
                         {estadoSoportes[soporte.uuid] ? (
@@ -100,13 +101,14 @@ const SoportesTable = ({
                   </td>
                   {usuario === CustomRoles.REFERENTE_INSTITUTO && (
                     <td>
-                      {hasEvidencias && (
+                      {hasEvidencias ? (
                         <button
-                          className="bg-teal text-white border border-teal hover:bg-teal-dark hover:border-teal-dark focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                          onClick={() => onSendCheck(soporte.uuid)}
+                          className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold" onClick={() => onSendCheck(soporte.uuid)}
                         >
                           <FaSave />
                         </button>
+                      ) : (
+                        <div className="text-sm text-app-muted">N/A</div>
                       )}
                     </td>
                   )}
