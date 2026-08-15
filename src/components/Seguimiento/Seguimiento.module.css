@@ -1,194 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
-
-.table {
-  /* width: 100%; */
-  /* border-collapse: collapse; */
-  /* margin: 20px 0; */
-
-  font-size: 1rem;
-  font-family: "Roboto", sans-serif;
-  /* max-width: 100%; */
-  text-align: center;
-  width: 100%;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  vertical-align: top;
-
-  /* width: 100%; */
-}
-
-.table th {
-  background-color: #079486;
-  color: rgb(243, 243, 243);
-}
-
-.table tr {
-  background-color: #f9f9f9;
-}
-
-.table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.formContainer {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  margin: 20px auto;
-  font-family: "Roboto", sans-serif;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-start;
-  /* width: 100%; */
-  overflow-x: auto;
-}
-
-.contenedor_principal {
-  width: fit-content;
-}
-
-.table_soportes {
-  /* width: 100%; */
-  border-collapse: collapse;
-  width: 100%;
-  /* table-layout: fixed;  */
-  background-color: #4ebd35;
-}
-
-/* .table_soportes th,
-.table_soportes td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  white-space: nowrap;
-} */
-
-.table_soportes th,
-.table_soportes td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  vertical-align: top; /* Asegura que el contenido fluya hacia abajo */
-  text-align: center;
-}
-
-.table_soportes th {
-  background-color: #079486;
-  color: white;
-}
-
-.table_soportes td {
-  text-align: center;
-}
-
-.table_evidencias {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table_evidencias th,
-.table_evidencias td {
-  padding: 8px;
-  border: 1px solid #ddd;
-  white-space: nowrap;
-}
-
-.table_evidencias th {
-  background-color: #079486;
-  color: white;
-  text-align: center;
-}
-
-.table_evidencias td {
-  text-align: center;
-}
-
-.input_fecha {
-  width: fit-content;
-  text-align: center;
-  /* background-color: #95a5a6; */
-}
-
-.textarea {
-  width: fit-content;
-  text-align: justify;
-  min-height: 40px; /* Altura mínima */
-  max-height: 150px; /* Altura máxima */
-  box-sizing: border-box;
-  padding: 5px;
-  font-size: 0.9rem;
-  /* background-color: #1abc9c; */
-  resize: vertical; /* Permitir que el usuario cambie la altura */
-  overflow-y: auto; /* Scroll si el contenido excede */
-}
-
-/* .select_check {
-  width: fit-content;
-} */
-
-.select {
-  width: fit-content; /* O ajusta según necesites */
-  padding: 8px 12px;
-  font-size: 16px;
-  border: 2px solid #08a188; /* Borde con color atractivo */
-  border-radius: 8px; /* Bordes redondeados */
-  background-color: #ffffff;
-  color: #333;
-  appearance: none; /* Oculta la flecha por defecto en algunos navegadores */
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-/* Agregar una flecha personalizada */
-.select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%234a90e2' d='M5.516 7.548l4.484 4.482 4.484-4.482c.39-.39.39-1.023 0-1.414-.39-.39-1.023-.39-1.414 0L10 9.102 6.93 6.134c-.39-.39-1.023-.39-1.414 0-.39.39-.39 1.024 0 1.414z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 12px;
-}
-
-/* Efecto hover */
-.select:hover {
-  border-color: #357abd;
-}
-
-/* Efecto cuando está enfocado */
-.select:focus {
-  border-color: #357abd;
-  outline: none;
-  box-shadow: 0 0 8px rgba(74, 144, 226, 0.5);
-}
-
-/* Para cambiar el color de las opciones */
-.select option {
-  background-color: #ffffff;
-  color: #333;
-}
-
-.edit_button {
-  background-color: #09766d;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  gap: 5px; /* Espacio entre el icono y el texto */
-  transition: background 0.3s ease-in-out;
-}
-
-.edit_button:hover {
-  background-color: #08b5a7;
-  transform: scale(1.05);
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.edit_button svg {
-  font-size: 35px;
-}
+  :root{
+    --navy:#1c3a5e;
+    --navy-dark:#152c48;
+    --teal:#0f7a68;
+    --teal-dark:#0b5c4d;
+    --teal-light:#e3f4ef;
+    --green:#8bc34a;
+    --yellow:#f2c94c;
+    --bg:#f4f6f8;
+    --card:#ffffff;
+    --border:#dfe3e8;
+    --text:#1f2937;
+    --text-mut:#5b6673;
+    --amber-light:#fdf3d9;--amber-text:#8a6408;
+    --red-light:#fbe4e4;--red-text:#a13a3a;
+  }
+  table.mini{width:100%;border-collapse:collapse;font-size:13px;}
+  table.mini thead th{background:var(--teal-light);color:var(--teal-dark);text-align:left;padding:9px 12px;font-size:12px;font-weight:700;border-bottom:2px solid var(--teal);}
+  table.mini tbody td{padding:10px 12px;border-bottom:1px solid var(--border);}
+  table.mini tbody tr:hover{background:#fafcfb;}
+  textarea,select,input[type=text]{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:6px;font-size:13.5px;color:var(--text);
+    font-family:inherit;
+  }
+  textarea{resize:vertical;min-height:64px;}
+  select:focus,textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-light);}

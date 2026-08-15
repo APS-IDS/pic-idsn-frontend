@@ -40,7 +40,7 @@ function App() {
       <Route path="/repo" element={token ? <ReportForm /> : <Login />} />
       <Route path="/view" element={token ? <ReportView /> : <Login />} />
       <Route path="/edit" element={token ? <Edit /> : <Login />} />
-      <Route path="/seg" element={token ? <Seguimiento /> : <Login />} />
+      <Route path="/anexo/:documentId/:actividadId/seguimiento" element={token ? <Seguimiento /> : <Login />} />
       <Route path="/perfil" element={token ? <Perfil /> : <Login />} />
     </Routes>
   );
