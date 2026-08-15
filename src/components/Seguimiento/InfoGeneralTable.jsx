@@ -1,13 +1,15 @@
 import React from 'react';
 
-const InfoGeneralTable = ({ actividad }) => {
+const InfoGeneralTable = ({ actividad, anexoDate }) => {
   const [open, setOpen] = React.useState(true);
   if (!actividad) return null;
+
+
 
   return (
     <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
       <div className="bg-teal text-app-card py-3 px-4 flex  justify-between items-center  font-semibold cursor-pointer" onClick={() => setOpen(!open)}>
-        Información general de la actividad
+        Información general de la actividad {anexoDate && ` - ${anexoDate}`}
         <span className={`inline-block transform transition-transform duration-200 ${open ? 'rotate-180' : 'rotate-0'}`}>
           &#9660;
         </span>

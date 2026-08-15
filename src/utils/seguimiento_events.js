@@ -33,3 +33,8 @@ export const formatDate = ( rol ) => {
   const fecha = rol?.fecha ?? "";
   return fecha ? new Date(fecha).toLocaleString() : "";
 };
+
+
+export const formatAnexoDateForLabel = (anexoDate) => {
+  return anexoDate ? anexoDate.slice(0, 4) : "";
+};

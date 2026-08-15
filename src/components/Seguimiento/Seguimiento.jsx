@@ -10,8 +10,9 @@ import ObservacionPanel from "./ObservacionPanel";
 import CronogramaTable from "./CronogramaTable";
 import { CustomRoles } from "../../components/Login/constant";
 import Spinner from "../Spinner/Spinner";
-import { findActivity, toOptions, fetchJson, formatDate } from "../../utils/seguimiento_events";
+import { findActivity, toOptions, fetchJson, formatDate, formatAnexoDateForLabel } from "../../utils/seguimiento_events";
 import InfoGeneralTable from "./InfoGeneralTable";
+
 
 const Seguimiento = () => {
   const { documentId, actividadId } = useParams();
@@ -442,7 +443,7 @@ const Seguimiento = () => {
           <span className="bg-yellow-brand text-amber-950 font-semibold text-sm py-1 px-2 rounded-3xl">ID {actividad.id}</span>
         </div>
 
-        <InfoGeneralTable actividad={actividad} />
+        <InfoGeneralTable actividad={actividad} anexoDate={formatAnexoDateForLabel(anexoDate)} />
 
         <SoportesTable
           soportes={actividad.soportes}

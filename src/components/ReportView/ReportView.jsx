@@ -224,8 +224,9 @@ const ReportView = () => {
   };
 
     // documentId anexo tecnico, uuid actividad
-  const handle_click_actividad = (documentId, actividadId) => {
-    navigate(`/anexo/${documentId}/${actividadId}/seguimiento`);
+  const handle_click_actividad = (anexoId, actividadId) => {
+    console.log("Navegando a seguimiento con documentId:", anexoId, "y actividadId:", actividadId);
+    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
   };
 
   const handle_soporte = async (documentId, soporteId) => {
