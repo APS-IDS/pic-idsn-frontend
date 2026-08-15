@@ -39,7 +39,7 @@ const Seguimiento = () => {
     porcentaje_referente: "",
     porcentaje_operador: "",
   });
-  const [error, setError] = useState(null);
+
 
   const token =
     useSelector((state) => state.token.token) ||
@@ -71,7 +71,7 @@ const Seguimiento = () => {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`Error al obtener el anexo técnico con ID ${documentId}: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -178,13 +178,10 @@ const Seguimiento = () => {
 
   const loadAnexoAndSoportes = async () => {
     const anexoResult = await fetchAnexo();
-
-    if (!anexoResult) return;
-
     const actividadResult = await findActivity(actividadId, anexoResult);
+
     if (!actividadResult) {
-      setError("No se encontró la actividad.");
-      return;
+      throw new Error(`No se encontró la actividad con ID ${actividadId} en el anexo técnico.`);
     }
 
     setActividad(actividadResult);
@@ -198,13 +195,28 @@ const Seguimiento = () => {
     const loadData = async () => {
       setLoading(true);
       try {
-        await Promise.allSettled([
+        await Promise.all([
           loadAnexoAndSoportes(),
           fetch_observacion(),
           fetchStatesOptions()
         ]);
+
+        Swal.fire({
+          title: "Información",
+          text: "Recuerda luego de realizar cambios, dar clic en los botones de Guardar para conservar los cambios",
+          icon: "warning",
+          confirmButtonText: "Entendido"
+        });
+
       } catch (error) {
-        console.error("Error loading data:", error);
+
+        console.error("Error al cargar los datos:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message || "Ocurrió un error al cargar los datos.",
+        });
+
       } finally {
         setLoading(false);
       }
@@ -215,15 +227,6 @@ const Seguimiento = () => {
     }
 
   }, [documentId, actividadId, token, cancelChange]);
-
-  useEffect(() => {
-    Swal.fire({
-      title: "Información",
-      text: "Recuerda luego de realizar cambios, dar clic en los botones de Guardar para conservar los cambios",
-      icon: "warning",
-      confirmButtonText: "Entendido"
-    });
-  }, []);
 
   const onchange_status = (event) => {
     const property = event.target.name;
@@ -425,7 +428,7 @@ const Seguimiento = () => {
   }
 
   if (!actividad) {
-    return <div>No se encontró la actividad.</div>;
+    return <div className="w-full h-screen flex items-center justify-center">No se encontró la actividad.</div>;
   }
 
   return (
