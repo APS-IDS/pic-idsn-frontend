@@ -28,11 +28,12 @@ const ObservacionPanel = ({
         <div className="flex flex-row gap-4 mb-4">
           <div>
             <label className={styles.label}>Usuario</label>
-            <input className="mb-2" type="text" value={usuarioAutor || "Sin usuario"} disabled={!canEdit} onChange={onChange} />
+            <input className={"pointer-events-none opacity-70"}
+              type="text" value={usuarioAutor || "Sin usuario"} disabled={!canEdit} onChange={onChange} />
           </div>
           <div>
             <label className={styles.label}>Fecha</label>
-            <input className="mb-2" type="text" value={fecha || "Sin fecha"} disabled={!canEdit} onChange={onChange} />
+            <input className="mb-2 pointer-events-none opacity-70" type="text" value={fecha || "Sin fecha"} disabled={!canEdit} onChange={onChange} />
           </div>
         </div>
 
