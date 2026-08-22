@@ -223,12 +223,6 @@ const ReportView = () => {
     });
   };
 
-    // documentId anexo tecnico, uuid actividad
-  const handle_click_actividad = (anexoId, actividadId) => {
-    console.log("Navegando a seguimiento con documentId:", anexoId, "y actividadId:", actividadId);
-    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
-  };
-
   const handle_soporte = async (documentId, soporteId) => {
     try {
       const response = await fetch(
@@ -466,7 +460,7 @@ const ReportView = () => {
               operatorFilterValue={operatorFilterValue}
               onEdit={handle_click}
               onSoporte={handle_soporte}
-              onActividad={handle_click_actividad}
+              //onActividad={handle_click_actividad}
               handleToggle={handleToggle}
               openIndex={openIndex}
             />

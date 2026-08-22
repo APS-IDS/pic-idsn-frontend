@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
-import EventoTable from "./EventoTable";
+// import EventoTable from "./EventoTable";  //--------------------------------------
 import ProductosCell from "./ProductosCell";
 import { CustomRoles } from "../Login/constant";
 import { SIN_DATO } from "./utils";
@@ -15,7 +15,7 @@ const AnexoCard = ({
   operatorFilterValue,
   onEdit,
   onSoporte,
-  onActividad,
+  //onActividad,  //viene de ActividadCard (en ReportView es handle_click_actividad)
   handleToggle,
   openIndex,
 }) => {
@@ -136,7 +136,7 @@ const AnexoCard = ({
                       anexoDate={row.anexo_tecnico_date}
                       usuario={usuario}
                       onSoporte={onSoporte}
-                      onActividad={onActividad}
+                      //onActividad={onActividad}
                     />
                   </td>
                 </tr>

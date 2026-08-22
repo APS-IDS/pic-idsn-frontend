@@ -1,7 +1,13 @@
 import React from "react";
 import { FaClipboardList, FaPaperclip } from "react-icons/fa";
 import { CustomRoles } from "../Login/constant";
-import { SIN_DATO, formatMoney, formatCronograma, listarNombres } from "./utils";
+import {
+  SIN_DATO,
+  formatMoney,
+  formatCronograma,
+  listarNombres,
+} from "./utils";
+import { useNavigate } from "react-router-dom"; // --------------------------------
 
 const Dato = ({ etiqueta, valor }) => (
   <span className="text-app-muted">
@@ -15,10 +21,15 @@ const ActividadCard = ({
   anexoDate,
   usuario,
   onSoporte,
-  onActividad,
+  //onActividad,
 }) => {
   const soportes = actividad?.soportes ?? [];
   const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
+  const navigate = useNavigate(); //---------------------------------------
+
+  const handle_click_actividad = (anexoId, actividadId) => {
+    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
+  }; //---------------------------------------------------------
 
   return (
     <div className="mb-3 overflow-hidden rounded-lg border border-app-border last:mb-0">
@@ -31,9 +42,18 @@ const ActividadCard = ({
             etiqueta="Cantidad a ejecutar"
             valor={`${actividad?.cantidad_a_ejecutar ?? SIN_DATO} ${actividad?.unidad_medida ?? ""}`.trim()}
           />
-          <Dato etiqueta="Población sujeto" valor={listarNombres(actividad?.poblaciones)} />
-          <Dato etiqueta="Valor total" valor={formatMoney(actividad?.valor_total)} />
-          <Dato etiqueta="Cronograma" valor={formatCronograma(actividad?.cronograma)} />
+          <Dato
+            etiqueta="Población sujeto"
+            valor={listarNombres(actividad?.poblaciones)}
+          />
+          <Dato
+            etiqueta="Valor total"
+            valor={formatMoney(actividad?.valor_total)}
+          />
+          <Dato
+            etiqueta="Cronograma"
+            valor={formatCronograma(actividad?.cronograma)}
+          />
         </div>
       </div>
 
@@ -105,7 +125,7 @@ const ActividadCard = ({
       <div className="flex justify-end bg-app-card px-4 py-3">
         <button
           type="button"
-          onClick={() => onActividad(documentId, actividad.uuid)}
+          onClick={() => handle_click_seguimiento(documentId, actividad.uuid)}
           className="inline-flex items-center gap-2 rounded-md bg-teal px-4 py-2 text-xs font-bold text-white hover:bg-teal-dark"
         >
           <FaClipboardList /> Seguimiento
