@@ -223,13 +223,10 @@ const ReportView = () => {
     });
   };
 
-  const handle_click_actividad = (actividad, anexoDate) => {
-    navigate("/seg", {
-      state: {
-        actividad: actividad, // Pasa aquí los datos que necesitas
-        anexoDate: anexoDate,
-      },
-    });
+    // documentId anexo tecnico, uuid actividad
+  const handle_click_actividad = (anexoId, actividadId) => {
+    console.log("Navegando a seguimiento con documentId:", anexoId, "y actividadId:", actividadId);
+    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
   };
 
   const handle_soporte = async (documentId, soporteId) => {
