@@ -1,28 +1,48 @@
-import React from "react";
+import {useMemo} from "react";
 import Select from "react-select";
 import styles from "./ReporView.module.css";
 
 const FiltersPanel = ({ filters, onChange, onApply, loading , onClear}) => {
+  const filtersOrdenados= useMemo(()=>{
+    if (!filters) return "";
+     return filters.map((filter)=>{
+      if (filter.key==="municipality") {
+        const municipiosOrdenados= [...filter.optionsList].sort((a, b) =>
+            a.label.localeCompare(b.label))
+        return {...filter, optionsList: municipiosOrdenados}
+      }
+      return filter
+     })
+  },[filters])
   return (
     <div className="bg-app-card mb-3 mx-7 py-3 pb-4 px-6 border rounded-lg shadow-sm">
       <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">Filtros de búsqueda</p>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 items-end">
-        {filters.map((filter) => (
+        {filtersOrdenados.map((filter) => (
           <div key={filter.key}>
             <label className="block text-xs text-app-muted mb-1">{filter.label}</label>
-            <select
-              value={filter.value || ""}
-              className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200 bg-no-repeat bg-[position:right_10px_center] focus:outline-none focus:border-green-brand focus:ring-1 focus:ring-green-brand"
-              onChange={(e) => onChange(filter.key, e.target.value || null)}
-            >
-              <option className="" value=""> {filter.text}</option>
-              {filter.optionsList.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+
+            <Select
+                      name={filter.label}
+                      //options={filter.optionsList}
+                      options={[
+                       { value: "", label: filter.text },
+                        ...filter.optionsList
+                      ]}
+                      value={filter.value
+                        ? {
+                          value: filter.value,
+                          label: filter.optionsList.find((option) => option.value === filter.value)?.label || filter.value,
+                        }
+                        : null
+                      }
+                      onChange={(e) => onChange(filter.key, e.value || null)}
+                      placeholder={filter.text}
+                      menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }), placeholder:(base) => ({...base, fontSize: "0.75rem", lineHeight: "1rem" }) }}
+                    />
+
           </div>
         ))}
       </div>

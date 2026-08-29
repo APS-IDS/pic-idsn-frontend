@@ -16,7 +16,6 @@ const FILTROS_VACIOS = {
   project: null,
   operator: null,
   municipality: null,
-  dependence: null,
   anio: null,
 };
 
@@ -55,7 +54,6 @@ const ReportView = () => {
   const [proyectos, setProyectos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [dependences, setDependences] = useState([]);
   const anios = ANIOS_DISPONIBLES.map((anio) => ({
     value: anio,
     label: anio,
@@ -138,12 +136,11 @@ const ReportView = () => {
             label: item[campoLabel],
           }));
 
-        setMunicipios(toOptions(municipiosResult, "label"));
+        setMunicipios(toOptions(municipiosResult, "label"));  
         setOperadores(
           toOptions(operadoresResult, "operador_pic", "documentId"),
         );
         setProyectos(toOptions(proyectosResult, "proyecto", "documentId"));
-        setDependences([]);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -401,7 +398,7 @@ const ReportView = () => {
   return (
     <>
       <Header />
-      <div class="w-full min-h-dvh bg-app-bg p-4">
+      <div className="w-full min-h-dvh bg-app-bg p-4">
         <FiltersPanel
           filters={[
             {
@@ -433,13 +430,6 @@ const ReportView = () => {
               optionsList: operadores,
               value: filterState.operator,
             },
-            {
-              key: "dependence",
-              label: "Dependencia",
-              text: "Todas las dependencias",
-              optionsList: dependences,
-              value: filterState.dependence,
-            },
           ]}
           onChange={handleFilterChange}
           onApply={handleApplyFilters}
@@ -466,7 +456,7 @@ const ReportView = () => {
             />
           ))
         ) : (
-          <div class={styles.noDataMessage}>
+          <div className={styles.noDataMessage}>
             No hay información para mostrar
           </div>
         )}

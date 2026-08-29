@@ -7,7 +7,7 @@ import {
   formatCronograma,
   listarNombres,
 } from "./utils";
-import { useNavigate } from "react-router-dom"; // --------------------------------
+
 
 const Dato = ({ etiqueta, valor }) => (
   <span className="text-app-muted">
@@ -25,11 +25,11 @@ const ActividadCard = ({
 }) => {
   const soportes = actividad?.soportes ?? [];
   const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
-  const navigate = useNavigate(); //---------------------------------------
-
+  
   const handle_click_actividad = (anexoId, actividadId) => {
-    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
-  }; //---------------------------------------------------------
+  const RutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;
+  window.open(RutaSeguimiento, "_blank", "noopener,noreferrer");
+};
 
   return (
     <div className="mb-3 overflow-hidden rounded-lg border border-app-border last:mb-0">
@@ -125,7 +125,7 @@ const ActividadCard = ({
       <div className="flex justify-end bg-app-card px-4 py-3">
         <button
           type="button"
-          onClick={() => handle_click_seguimiento(documentId, actividad.uuid)}
+          onClick={() => handle_click_actividad(documentId, actividad.uuid)}
           className="inline-flex items-center gap-2 rounded-md bg-teal px-4 py-2 text-xs font-bold text-white hover:bg-teal-dark"
         >
           <FaClipboardList /> Seguimiento
