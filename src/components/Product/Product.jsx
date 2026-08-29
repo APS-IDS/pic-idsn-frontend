@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import styles from "./Product.module.css";
+import React, { useState } from "react";
 import ActivityList from "../Activities/ActivityList";
-import { FaEye } from "react-icons/fa";
 import Swal from "sweetalert2";
+import { NEW_INDICATOR, NEW_PRODUCT } from "../../utils/const_forms";
 
 const Product = ({
   product_data,
@@ -17,17 +16,6 @@ const Product = ({
   cursos_vida,
   anexoYear,
 }) => {
-  const [isIndicatorOpen, setIsIndicatorOpen] = useState({}); // Estado para gestionar los acordeones
-
-  const toggleIndicator = (productIndex, indicatorIndex) => {
-    // console.log("productIndex", productIndex);
-
-    setIsIndicatorOpen((prevState) => ({
-      ...prevState,
-      [`${productIndex}-${indicatorIndex}`]:
-        !prevState[`${productIndex}-${indicatorIndex}`],
-    }));
-  };
 
   const [isProductOpen, setIsProductOpen] = useState({}); // Estado para acordeones de productos
 
@@ -45,11 +33,7 @@ const Product = ({
   };
 
   const handleAddIndicator = (productIndex) => {
-    const newIndicator = {
-      cantidad: "",
-      meta_producto: "",
-      indicador_linea_base: "",
-    };
+    const newIndicator = NEW_INDICATOR;
     const updatedProducts = [...product_data.producto];
     updatedProducts[productIndex].indicadores = [
       ...(updatedProducts[productIndex].indicadores || []),
@@ -80,17 +64,7 @@ const Product = ({
   };
 
   const handleAddProduct = () => {
-    const newProduct = {
-      problematica: "",
-      descripcion_producto: "",
-      indicadores: [
-        {
-          cantidad: "",
-          meta_producto: "",
-          indicador_linea_base: "",
-        },
-      ],
-    };
+    const newProduct = NEW_PRODUCT;
     const updatedProducts = [...(product_data.producto || []), newProduct];
     setProductData({ ...product_data, producto: updatedProducts });
     const updatedActivities = [...activities, []];
@@ -141,231 +115,178 @@ const Product = ({
   };
 
   return (
-    <div className={styles.productContainer}>
-      {(product_data.producto || []).map((product, productIndex) => (
-        <div key={productIndex} className={styles.product}>
-          <div className={styles.contenedor_title_product}>
-            <div className={styles.titleAndIcon}>
-              <h4>Producto {productIndex + 1}</h4>
-              <FaEye
-                className={styles.eye}
-                onClick={() => toggleProduct(productIndex)}
-              />
-            </div>
-            <div className={styles.buttons}>
-              {productIndex > 0 && (
-                <button
-                  type="button"
-                  onClick={() => handle_remove_producto(productIndex)}
-                  className={styles.removeButton_añadir}
+    <div className="col-span-3">
+      <div className="grid-cols-3 flex gap-4 items-start justify-between">
+        <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Productos</h2>
+        <button
+          type="button"
+          className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+          onClick={handleAddProduct}
+        >
+          <span className="">+</span> Agregar productos
+        </button>
+      </div>
+
+      <div className="mt-2">
+        {(product_data.producto || []).map((product, productIndex) => (
+          <div key={productIndex} className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
+
+            <div className="bg-teal text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+              Producto #{productIndex + 1}
+              <div className="flex items-center gap-4">
+                <span
+                  className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                  onClick={() => { handle_remove_producto(productIndex); }}
                 >
-                  -
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleAddProduct}
-                className={styles.buttonMain_añadir}
-              >
-                +
-              </button>
+                  &#10005;
+                </span>
+                <span
+                  className={`inline-block transform transition-transform duration-200 cursor-pointer ${isProductOpen[productIndex] === true ? "rotate-180" : "rotate-0"}`}
+                  onClick={() => { toggleProduct(productIndex); }}
+                >
+                  &#9660;
+                </span>
+              </div>
             </div>
-          </div>
-          {/* Contenido del acordeón */}
-          {isProductOpen[productIndex] && (
-            <div className={styles.productContent}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    {anexoYear == "2026-01-01" && (
-                      <th>Problematica Priorizada</th>
+            {isProductOpen[productIndex] && (
+              <div className="bg-app-card py-3 pb-4 px-6">
+
+                {anexoYear == "2026-01-01" && (
+                  <div className="mb-4">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">PROBLEMÁTICA PRIORIZADA</label>
+                    <textarea
+                      type="text"
+                      maxLength={2000}
+                      value={product.problematica || ""}
+                      onChange={(e) => handleInputChange(
+                        productIndex,
+                        "problematica",
+                        e.target.value,
+                      )}
+                      className="w-full p-2 border border-app-border rounded-md text-sm"
+                    />
+                    <p className="text-xs text-app-muted">
+                      {product.problematica?.length || 0} / 2000 caracteres
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs text-app-muted mb-1 uppercase">DESCRIPCIÓN DEL PRODUCTO</label>
+                  <textarea
+                    type="text"
+                    maxLength={2000}
+                    value={product.descripcion_producto || ""}
+                    onChange={(e) => handleInputChange(
+                      productIndex,
+                      "descripcion_producto",
+                      e.target.value,
                     )}
+                    className="w-full p-2 border border-app-border rounded-md text-sm"
+                  />
+                  <p className="text-xs text-app-muted">
+                    {product.descripcion_producto?.length || 0} / 2000 caracteres
+                  </p>
 
-                    <th>Descripción del Producto</th>
+                </div>
 
-                    <th>Indicadores</th>
-                    <th>Actividades</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    {anexoYear == "2026-01-01" && (
-                      <td>
-                        <div className={styles.cellWrapper}>
-                          <textarea
-                            className={styles.textarea}
-                            type="text"
-                            placeholder="Máximo numero de caracteres 2000"
-                            maxLength={2000}
-                            value={product.problematica || ""}
-                            onChange={(e) =>
-                              handleInputChange(
-                                productIndex,
-                                "problematica",
-                                e.target.value,
-                              )
-                            }
-                          />
-                          <p>
-                            {product.descripcion_producto?.length || 0} / 2000
-                            caracteres
-                          </p>
-                        </div>
-                      </td>
-                    )}
+                <div className="grid-cols-3 flex gap-4 items-start justify-between my-6">
+                  <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Indicadores</h2>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+                    onClick={() => handleAddIndicator(productIndex)}
+                  >
+                    <span className="">+</span> Agregar indicador
+                  </button>
+                </div>
 
-                    <td>
-                      <div className={styles.cellWrapper}>
-                        <textarea
-                          className={styles.textarea}
+                {(product.indicadores || []).map(
+                  (indicator, indicatorIndex) => (
+                    <div className="grid gap-3 items-end bg-teal-light border rounded-lg px-3 py-3 grid-cols-10 my-3" key={indicatorIndex}>
+                      <div className="col-span-5">
+                        <label className="block text-xs text-app-muted mb-1 uppercase">Indicador de Producto</label>
+                        <input
                           type="text"
-                          placeholder="Máximo numero de caracteres 2000"
-                          maxLength={2000}
-                          value={product.descripcion_producto || ""}
+                          value={indicator.meta_producto || ""}
                           onChange={(e) =>
-                            handleInputChange(
+                            handleUpdateIndicator(
                               productIndex,
-                              "descripcion_producto",
+                              indicatorIndex,
+                              "meta_producto",
                               e.target.value,
                             )
                           }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
                         />
-                        <p>
-                          {product.descripcion_producto?.length || 0} / 2000
-                          caracteres
-                        </p>
                       </div>
-                    </td>
-
-                    <td>
-                      {(product.indicadores || []).map(
-                        (indicator, indicatorIndex) => (
-                          <div
-                            key={indicatorIndex}
-                            className={styles.indicator}
-                          >
-                            <div className={styles.indicatorHeader}>
-                              <strong
-                                onClick={() =>
-                                  toggleIndicator(productIndex, indicatorIndex)
-                                }
-                                className={styles.accordeonTitle}
-                              >
-                                Indicador {indicatorIndex + 1}
-                              </strong>
-                              {indicatorIndex > 0 && (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    // handleRemoveIndicator(
-                                    //   productIndex,
-                                    //   indicatorIndex
-                                    // )
-                                    handle_remove_indicador(
-                                      productIndex,
-                                      indicatorIndex,
-                                    )
-                                  }
-                                  className={styles.removeButton_añadir}
-                                >
-                                  -
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => handleAddIndicator(productIndex)}
-                                className={styles.buttonMain_añadir}
-                              >
-                                +
-                              </button>
-                            </div>
-                            {isIndicatorOpen[
-                              `${productIndex}-${indicatorIndex}`
-                            ] && (
-                              <div className={styles.indicatorContent}>
-                                <label>Indicador de Producto</label>
-                                <input
-                                  type="text"
-                                  value={indicator.meta_producto}
-                                  onChange={(e) =>
-                                    handleUpdateIndicator(
-                                      productIndex,
-                                      indicatorIndex,
-                                      "meta_producto",
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                                <label>Cantidad</label>
-                                <input
-                                  type="number"
-                                  value={indicator.cantidad}
-                                  min="0"
-                                  onChange={(e) =>
-                                    handleUpdateIndicator(
-                                      productIndex,
-                                      indicatorIndex,
-                                      "cantidad",
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                                <label>Indicador Línea Base</label>
-                                <input
-                                  type="text"
-                                  value={indicator.indicador_linea_base}
-                                  onChange={(e) =>
-                                    handleUpdateIndicator(
-                                      productIndex,
-                                      indicatorIndex,
-                                      "indicador_linea_base",
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ),
-                      )}
-                    </td>
-
-                    <td>
-                      <ActivityList
-                        entornos={entornos}
-                        anexoYear={anexoYear}
-                        tecnologias={tecnologias}
-                        poblaciones={poblaciones}
-                        soportes={soportes}
-                        cups={cups}
-                        cursos_vida={cursos_vida}
-                        activities={activities[productIndex] || []}
-                        setActivities={(updatedActivities) => {
-                          const newActivities = [...activities];
-                          newActivities[productIndex] = updatedActivities;
-                          setActivities(newActivities);
-                        }}
-                      />
-                    </td>
-                    <td>
-                      {productIndex > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => handle_remove_producto(productIndex)}
-                          className={styles.removeButton_añadir}
+                      <div className="col-span-2">
+                        <label className="block text-xs text-app-muted mb-1 uppercase">Cantidad</label>
+                        <input
+                          type="number"
+                          value={indicator.cantidad || 0}
+                          onChange={(e) =>
+                            handleUpdateIndicator(
+                              productIndex,
+                              indicatorIndex,
+                              "cantidad",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-xs text-app-muted mb-1 uppercase">Indicador de Línea Base</label>
+                        <input
+                          type="text"
+                          value={indicator.indicador_linea_base || ""}
+                          onChange={(e) =>
+                            handleUpdateIndicator(
+                              productIndex,
+                              indicatorIndex,
+                              "indicador_linea_base",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+                      <div className="col-span-1 flex items-start justify-center pb-2">
+                        <span
+                          className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                          onClick={() => { handle_remove_indicador(productIndex, indicatorIndex); }}
                         >
-                          -
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      ))}
+                          &#10005;
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                {/* ACTIVIDADES */}
+                <ActivityList
+                  entornos={entornos}
+                  anexoYear={anexoYear}
+                  tecnologias={tecnologias}
+                  poblaciones={poblaciones}
+                  soportes={soportes}
+                  cups={cups}
+                  cursos_vida={cursos_vida}
+                  activities={activities[productIndex] || []}
+                  setActivities={(updatedActivities) => {
+                    const newActivities = [...activities];
+                    newActivities[productIndex] = updatedActivities;
+                    setActivities(newActivities);
+                  }}
+                />
+
+              </div>
+            )}
+
+
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

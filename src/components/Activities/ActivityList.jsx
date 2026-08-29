@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ActivityItem from "../ActivityEditor/ActivityItem";
-import styles from "./ActivityList.module.css";
+import { NEW_ACTIVITY } from "../../utils/const_forms";
 
 const ActivityList = ({
   activities,
@@ -14,49 +14,11 @@ const ActivityList = ({
   anexoYear,
 }) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
-
-  // console.log("actividades_en_activitylist", activities);
-  // console.log("Prueba", cursos_vida);
-  const initialActivity = {
-    descripcion_actividad: "",
-    cantidad: "",
-    unidad_medida: "",
-    entorno: [],
-    tecnologia: [],
-    cursos_vida: [],
-    poblacion_sujeto: [],
-    codigo_cups: "",
-    valor_unitario: "",
-    costo_directo: "",
-    costo_indirecto: "",
-    valor_total: "",
-    array_soportes: [
-      {
-        tipo_soporte: "",
-        descripcion_soporte: "",
-        cantidad_soporte: "",
-      },
-    ],
-    cronograma: [
-      { mes: "Ene", peso: 0 },
-      { mes: "Feb", peso: 0 },
-      { mes: "Mar", peso: 0 },
-      { mes: "Abr", peso: 0 },
-      { mes: "May", peso: 0 },
-      { mes: "Jun", peso: 0 },
-      { mes: "Jul", peso: 0 },
-      { mes: "Ago", peso: 0 },
-      { mes: "Sept", peso: 0 },
-      { mes: "Oct", peso: 0 },
-      { mes: "Nov", peso: 0 },
-      { mes: "Dic", peso: 0 },
-    ],
-  };
+  const initialActivity = NEW_ACTIVITY;
 
   useEffect(() => {
     if (activities.length === 0) {
       setActivities([initialActivity]);
-      //setExpandedIndex(0); // Expande la actividad inicial automáticamente
     }
   }, [activities, setActivities]);
 
@@ -70,7 +32,6 @@ const ActivityList = ({
     } else {
       updatedActivities[activityIndex][name] = value;
     }
-
     setActivities(updatedActivities);
   };
 
@@ -85,13 +46,22 @@ const ActivityList = ({
 
   const handleAddActivity = () => {
     setActivities([...activities, initialActivity]);
-    //setExpandedIndex(activities.length);
     setExpandedIndex(null);
   };
 
   return (
     <div>
-      <ul className={styles.activityList}>
+      <div className="grid-cols-3 flex gap-4 items-start justify-between my-6">
+        <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Actividad</h2>
+        <button
+          type="button"
+          className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+          onClick={() => handleAddActivity()}
+        >
+          <span className="">+</span> Agregar actividad
+        </button>
+      </div>
+
         {activities.map((activity, index) => (
           <ActivityItem
             key={index}
@@ -111,7 +81,7 @@ const ActivityList = ({
             anexoYear={anexoYear}
           />
         ))}
-      </ul>
+   
     </div>
   );
 };

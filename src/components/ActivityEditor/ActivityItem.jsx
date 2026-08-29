@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
@@ -11,7 +11,6 @@ const ActivityItem = ({
   toggleExpanded,
   handleActivityChange,
   handleRemoveActivity,
-  handleAddActivity,
   entornos,
   tecnologias,
   poblaciones,
@@ -36,34 +35,6 @@ const ActivityItem = ({
       "Nov",
       "Dic",
     ],
-  };
-
-  const custom_styles = {
-    control: (base) => ({
-      ...base,
-      minWidth: "200px", // Ajusta el ancho mínimo
-      //maxWidth: "400px", // Opcional, limita el ancho máximo
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 5, // Asegura que el menú no se superponga
-    }),
-    option: (base) => ({
-      ...base,
-      whiteSpace: "nowrap", // Evita que el texto se parta
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
-    }),
-  };
-
-  const custom_styles_cups = {
-    ...custom_styles,
-    control: (base) => ({
-      ...base,
-      minWidth: "500px",
-    }),
   };
 
   const handleCronogramaChange = (value, key, itemIndex) => {
@@ -122,12 +93,6 @@ const ActivityItem = ({
     );
   };
 
-  // Obtener todas las opciones seleccionadas para deshabilitarlas
-
-  const selectedOptions = activity.array_soportes?.map(
-    (soporte) => soporte.tipo_soporte,
-  );
-
   const handle_remove_soporte = (index) => {
     Swal.fire({
       title: "¿Estás seguro?",
@@ -176,12 +141,16 @@ const ActivityItem = ({
     });
 
     return (
-      <div>
+      <div className="col-span-3">
+        <div className="col-span-3 grid-cols-3 flex gap-4 items-start justify-between mb-3">
+          <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Cronograma</h2>
+        </div>
+
         {/* <label>Cronograma</label> */}
-        <div className={styles.cronogramaGrid}>
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {cronograma.map((item, itemIndex) => (
-            <div key={item.mes} className={styles.cronogramaItem}>
-              <strong>{item.mes}</strong>
+            <div key={item.mes} className=" bg-teal-light rounded-lg  px-2 py-3 text-center">
+              <label className="block font-bold text-xs text-teal-dark mb-1">{item.mes}</label>
               <input
                 type="number"
                 placeholder="%"
@@ -196,6 +165,7 @@ const ActivityItem = ({
                 }
                 min="0"
                 max="100"
+                className="w-full px-1 py-1 text-center border border-bg-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-teal"
               />
             </div>
           ))}
@@ -205,535 +175,452 @@ const ActivityItem = ({
   };
 
   return (
-    <li className={styles.activityItem}>
-      <div
-        className={styles.activityHeader}
-        onClick={() => toggleExpanded(index)}
-      >
-        <strong>Actividad {index + 1}</strong>
-
-        {index > 0 && (
-          <button
-            type="button"
-            className={styles.removeButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              // handleRemoveActivity(index);
-              handle_remove_actividad(index);
-            }}
+    <div key={index} className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
+      <div className="bg-teal-600 text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+        Actividad #{index + 1}
+        <div className="flex items-center gap-4">
+          <span
+            className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+            onClick={() => { handle_remove_actividad(index); }}
           >
-            -
-          </button>
-        )}
-
-        <button
-          className={styles.buttonMain_añadir}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAddActivity();
-          }}
-        >
-          +
-        </button>
+            &#10005;
+          </span>
+          <span
+            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded === true ? "rotate-180" : "rotate-0"}`}
+            onClick={() => { toggleExpanded(index); }}
+          >
+            &#9660;
+          </span>
+        </div>
       </div>
-      {expanded && (
-        <div className={styles.activityDetails}>
-          <table>
-            <thead>
-              <tr>
-                <th>Descripción Actividad</th>
-                <th>Cantidad</th>
-                <th>Unidad de Medida</th>
-                <th>Entornos</th>
-                <th>Tecnologías</th>
-                {anexoYear == "2026-01-01" && <th>Curso de Vida</th>}
-                <th>Población Sujeto</th>
-                <th>Soportes</th>
-                <th>Código Cups</th>
-                {anexoYear == "2025-01-01" && <th>Valor Unitario</th>}
-                {anexoYear == "2026-01-01" && <th>Valor Unitario</th>}
-                <th>Valor Total</th>
-                <th>Cronograma</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div className={styles.contenedor_actividad}>
-                    <textarea
-                      type="text"
-                      name="descripcion_actividad"
-                      placeholder="Máximo numero de caracteres 6000"
-                      maxLength={6000}
-                      value={activity.descripcion_actividad || ""}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.textarea_actividad}
-                    />
-                  </div>
-                  <p>
-                    {activity.descripcion_actividad?.length || 0} / 6000
-                    caracteres
-                  </p>
-                </td>
-                <td>
-                  <div className={styles.inputContainer}>
-                    <input
-                      type="number"
-                      name="cantidad"
-                      value={activity.cantidad}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.inputGlobal}
-                      min="0"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div className={styles.inputContainer}>
-                    <input
-                      type="text"
-                      name="unidad_medida"
-                      value={activity.unidad_medida}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.inputGlobal}
-                    />
-                  </div>
-                </td>
-                <td>
-                  <Select
-                    isMulti
-                    name="entorno"
-                    options={entornos.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={entornos
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.entorno.includes(option.value),
-                      )}
-                    onChange={(selectedOptions) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "entorno",
-                            value: selectedOptions.map(
-                              (option) => option.value,
-                            ),
-                          },
-                        },
-                        index,
-                      )
-                    }
-                    placeholder="Seleccionar Entornos"
-                    styles={custom_styles}
-                  />
-                </td>
-                <td>
-                  <Select
-                    isMulti
-                    name="tecnologia"
-                    options={tecnologias.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={tecnologias
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.tecnologia.includes(option.value),
-                      )}
-                    onChange={(selectedOptions) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "tecnologia",
-                            value: selectedOptions.map(
-                              (option) => option.value,
-                            ),
-                          },
-                        },
-                        index,
-                      )
-                    }
-                    placeholder="Seleccionar Tecnologia"
-                    styles={custom_styles_cups}
-                  />
-                </td>
-                {anexoYear == "2026-01-01" && (
-                  <td>
-                    <Select
-                      isMulti
-                      name="cursos_vida"
-                      options={cursos_vida.map((option) => ({
-                        value: option,
-                        label: option,
-                      }))}
-                      value={cursos_vida
-                        .map((option) => ({ value: option, label: option }))
-                        .filter((option) =>
-                          activity?.cursos_vida?.includes(option.value),
-                        )}
-                      onChange={(selectedOptions) =>
-                        handleActivityChange(
-                          {
-                            target: {
-                              name: "cursos_vida",
-                              value: selectedOptions.map(
-                                (option) => option.value,
-                              ),
-                            },
-                          },
-                          index,
-                        )
-                      }
-                      placeholder="Seleccionar Curso de Vida"
-                      styles={custom_styles_cups}
-                    />
-                  </td>
+
+      {expanded && (<div className="bg-[#f8fafb] py-3 pb-4 px-6">
+        <div className="grid sm:grid-cols-3 gap-4 items-start">
+
+          <div className="col-span-3">
+            <label className="block text-xs text-app-muted mb-1">DESCRIPCIÓN DE LA ACTIVIDAD</label>
+            <textarea
+              type="text"
+              name="descripcion_actividad"
+              maxLength={6000}
+              value={activity.descripcion_actividad || ""}
+              onChange={(e) => handleActivityChange(e, index)}
+              className="w-full p-2 border border-app-border rounded-md text-sm"
+            />
+            <p className="text-xs text-app-muted">
+              {activity.descripcion_actividad?.length || 0} / 6000 caracteres
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1 uppercase">Cantidad</label>
+            <input
+              type="number"
+              name="cantidad"
+              value={activity.cantidad || 0}
+              onChange={(e) => handleActivityChange(e, index)}
+              className="w-full p-2 border border-app-border rounded-md text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1 uppercase">Unidad de Medida</label>
+            <input
+              type="text"
+              name="unidad_medida"
+              value={activity.unidad_medida || ""}
+              onChange={(e) => handleActivityChange(e, index)}
+              className="w-full p-2 border border-app-border rounded-md text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1">ENTORNOS</label>
+            <Select
+              isMulti
+              name="entorno"
+              value={activity.entorno.map((entorno) => ({
+                value: entorno,
+                label: entorno,
+              }))}
+              options={entornos}
+              onChange={(selectedOptions) => handleActivityChange(
+                {
+                  target: {
+                    name: "entorno",
+                    value: selectedOptions.map(
+                      (option) => option.value,
+                    ),
+                  },
+                },
+                index,
+              )}
+              placeholder="Seleccionar Entornos"
+              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+              styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1 uppercase">TECNOLOGíAS</label>
+            <Select
+              isMulti
+              name="tecnologia"
+              value={activity.tecnologia.map((tecnologia) => ({
+                value: tecnologia,
+                label: tecnologia,
+              }))}
+              options={tecnologias}
+              onChange={(selectedOptions) => handleActivityChange(
+                {
+                  target: {
+                    name: "tecnologia",
+                    value: selectedOptions.map(
+                      (option) => option.value,
+                    ),
+                  },
+                },
+                index,
+              )}
+              placeholder="Seleccionar Tecnologías"
+              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+              styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            />
+          </div>
+
+          {anexoYear == "2026" && (
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">CURSOS DE VIDA</label>
+              <Select
+                isMulti
+                name="cursos_vida"
+                value={activity?.cursos_vida?.map((cursos) => ({
+                  value: cursos,
+                  label: cursos,
+                }))}
+                options={cursos_vida}
+                onChange={(selectedOptions) => handleActivityChange(
+                  {
+                    target: {
+                      name: "cursos_vida",
+                      value: selectedOptions.map(
+                        (option) => option.value,
+                      ),
+                    },
+                  },
+                  index,
                 )}
-                <td>
-                  <Select
-                    isMulti
-                    name="poblacion_sujeto"
-                    options={poblaciones.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={poblaciones
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.poblacion_sujeto.includes(option.value),
-                      )}
-                    onChange={(selectedOptions) =>
+                placeholder="Seleccionar Cursos de Vida"
+                menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1 uppercase">POBLACIÓN SUJETO</label>
+            <Select
+              isMulti
+              name="poblacion_sujeto"
+              value={activity.poblacion_sujeto.map((poblacion) => ({
+                value: poblacion,
+                label: poblacion,
+              }))}
+              options={poblaciones}
+              onChange={(selectedOptions) => handleActivityChange(
+                {
+                  target: {
+                    name: "poblacion_sujeto",
+                    value: selectedOptions.map(
+                      (option) => option.value,
+                    ),
+                  },
+                },
+                index,
+              )}
+              placeholder="Seleccionar Población"
+              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+              styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-app-muted mb-1 uppercase">CODIGO CUPS</label>
+            <Select
+              name="codigo_cups"
+              options={cups}
+              value={activity.codigo_cups
+                ? {
+                  value: activity.codigo_cups,
+                  label: cups.find((option) => option.value === activity.codigo_cups)?.label || activity.codigo_cups,
+                }
+                : null
+              }
+              onChange={(selectedOption) => handleActivityChange(
+                {
+                  target: {
+                    name: "codigo_cups",
+                    value: selectedOption ? selectedOption.value : null,
+                  },
+                },
+                index,
+              )}
+              placeholder="Seleccionar Operador"
+              menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+              styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+            />
+          </div>
+
+          <div className="col-span-3">
+            <label className="block text-xs text-app-muted mb-1 uppercase">VALOR TOTAL</label>
+            <div>
+              <NumericFormat
+                name="valor_total"
+                value={activity.valor_total}
+                thousandSeparator="."
+                decimalSeparator=","
+                decimalScale={2} // Número de decimales permitidos
+                fixedDecimalScale={true} // Mantener siempre el número de decimales
+                onValueChange={(values) => {
+                  const { formattedValue, value } = values;
+                  handleActivityChange(
+                    { target: { name: "valor_total", value } },
+                    index,
+                  );
+                }}
+                onKeyDown={(e) => {
+                  const isCtrlCombo = e.ctrlKey || e.metaKey;
+                  if (
+                    !/[0-9,]/.test(e.key) && // Solo números y coma
+                    e.key !== "Backspace" && // Permitir borrar
+                    e.key !== "Tab" && // Permitir Tab
+                    e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                    e.key !== "ArrowRight" && // Permitir flecha derecha
+                    e.key !== "Delete" && // Permitir tecla Delete
+                    !isCtrlCombo
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
+                className={styles.input_valor}
+                min="0"
+              />
+
+            </div>
+            {anexoYear == "2025-01-01" && (
+              <div>
+                <NumericFormat
+                  name="valor_unitario"
+                  value={activity.valor_unitario}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  decimalScale={2} // Número de decimales permitidos
+                  fixedDecimalScale={true} // Mantener siempre el número de decimales
+                  onValueChange={(values) => {
+                    const { formattedValue, value } = values;
+                    handleActivityChange(
+                      { target: { name: "valor_unitario", value } },
+                      index,
+                    );
+                  }}
+                  onKeyDown={(e) => {
+                    const isCtrlCombo = e.ctrlKey || e.metaKey;
+                    if (
+                      !/[0-9,]/.test(e.key) && // Solo números y coma
+                      e.key !== "Backspace" && // Permitir borrar
+                      e.key !== "Tab" && // Permitir Tab
+                      e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                      e.key !== "ArrowRight" && // Permitir flecha derecha
+                      e.key !== "Delete" &&
+                      !isCtrlCombo
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={styles.input_valor}
+                  min="0"
+                />
+              </div>
+            )}
+
+            {anexoYear == "2026-01-01" && (
+
+              <div className="flex gap-2">
+                <div className="mt-2">
+                  <label className="block text-xs text-app-muted mb-1 uppercase">COSTOS DIRECTOS</label>
+                  <NumericFormat
+                    name="costo_directo"
+                    value={activity.costo_directo}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    decimalScale={2} // Número de decimales permitidos
+                    fixedDecimalScale={true} // Mantener siempre el número de decimales
+                    onValueChange={(values) => {
+                      const { formattedValue, value } = values;
+                      handleActivityChange(
+                        {
+                          target: { name: "costo_directo", value },
+                        },
+                        index,
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      const isCtrlCombo = e.ctrlKey || e.metaKey;
+                      if (
+                        !/[0-9,]/.test(e.key) && // Solo números y coma
+                        e.key !== "Backspace" && // Permitir borrar
+                        e.key !== "Tab" && // Permitir Tab
+                        e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                        e.key !== "ArrowRight" && // Permitir flecha derecha
+                        e.key !== "Delete" &&
+                        !isCtrlCombo
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className={styles.input_valor}
+                    min="0"
+                  />
+                </div>
+
+
+
+                <div className="mt-2">
+                  <label className="block text-xs text-app-muted mb-1 uppercase">COSTOS INDIRECTOS</label>
+                  <NumericFormat
+                    name="costo_indirecto"
+                    value={activity.costo_indirecto}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                    decimalScale={2} // Número de decimales permitidos
+                    fixedDecimalScale={true} // Mantener siempre el número de decimales
+                    onValueChange={(values) => {
+                      const { formattedValue, value } = values;
                       handleActivityChange(
                         {
                           target: {
-                            name: "poblacion_sujeto",
-                            value: selectedOptions.map(
-                              (option) => option.value,
-                            ),
+                            name: "costo_indirecto",
+                            value,
                           },
                         },
                         index,
-                      )
-                    }
-                    placeholder="Seleccionar Poblacion"
-                    styles={custom_styles}
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      const isCtrlCombo = e.ctrlKey || e.metaKey;
+                      if (
+                        !/[0-9,]/.test(e.key) && // Solo números y coma
+                        e.key !== "Backspace" && // Permitir borrar
+                        e.key !== "Tab" && // Permitir Tab
+                        e.key !== "ArrowLeft" && // Permitir flecha izquierda
+                        e.key !== "ArrowRight" && // Permitir flecha derecha
+                        e.key !== "Delete" &&
+                        !isCtrlCombo
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    className={styles.input_valor}
+                    min="0"
                   />
-                </td>
-                <td>
-                  <div className={styles.soporte_div}>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Tipo Soporte</th>
-                          <th>Descripción Soporte</th>
-                          <th>Cantidad</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activity.array_soportes?.map(
-                          (soporte, soporteIndex) => (
-                            <tr key={soporteIndex}>
-                              <td>
-                                <Select
-                                  className={styles.soporte_select}
-                                  value={
-                                    soporte.tipo_soporte
-                                      ? {
-                                          label: soporte.tipo_soporte,
-                                          value: soporte.tipo_soporte,
-                                        }
-                                      : null
-                                  }
-                                  onChange={(selectedOption) =>
-                                    handleSoporteChange(
-                                      {
-                                        target: {
-                                          name: "tipo_soporte",
-                                          value: selectedOption?.value,
-                                        },
-                                      },
-                                      soporteIndex,
-                                    )
-                                  }
-                                  options={options.tipo_soporte.map(
-                                    (option) => ({
-                                      label: option,
-                                      value: option,
-                                      // isDisabled:
-                                      //   selectedOptions.includes(option) &&
-                                      //   option !== soporte.tipo_soporte,
-                                    }),
-                                  )}
-                                  // isOptionDisabled={(option) =>
-                                  //   option.isDisabled
-                                  // }
-                                  placeholder="Seleccionar Soporte"
-                                />
-                              </td>
-                              <td>
-                                <textarea
-                                  type="text"
-                                  name="descripcion_soporte"
-                                  value={soporte.descripcion_soporte || ""}
-                                  onChange={(e) =>
-                                    handleSoporteChange(e, soporteIndex)
-                                  }
-                                  placeholder="Descripción Soporte"
-                                  className={styles.textarea}
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  name="cantidad_soporte"
-                                  value={soporte.cantidad_soporte}
-                                  onChange={(e) =>
-                                    handleSoporteChange(e, soporteIndex)
-                                  }
-                                  placeholder="Cantidad"
-                                  className={styles.soporte_input}
-                                  min="0"
-                                />
-                              </td>
-                              <td>
-                                <div className={styles.contenedor_boton}>
-                                  {soporteIndex > 0 && (
-                                    <button
-                                      className={styles.removeButton}
-                                      type="button"
-                                      onClick={() =>
-                                        handle_remove_soporte(soporteIndex)
-                                      }
-                                    >
-                                      -
-                                    </button>
-                                  )}
-                                  <button
-                                    className={styles.buttonMain_añadir}
-                                    type="button"
-                                    onClick={addSoporte}
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </td>
-                <td>
+                </div>
+              </div>
+            )}
+
+
+
+          </div>
+
+          <div className="col-span-3 grid-cols-3 flex gap-4 items-start justify-between mt-3">
+            <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Soportes</h2>
+            <button
+              type="button"
+              className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+              onClick={() => addSoporte()}
+            >
+              <span className="">+</span> Agregar soporte
+            </button>
+          </div>
+
+          {activity.array_soportes?.map(
+            (soporte, soporteIndex) => (
+              <div className="col-span-3 grid gap-3 items-start bg-teal-light border rounded-lg px-3 py-3 grid-cols-10" key={soporteIndex}>
+
+                <div className="col-span-3">
+                  <label className="block text-xs text-app-muted mb-1 uppercase">TIPO DE SOPORTE</label>
                   <Select
-                    name="codigo_cups"
-                    options={cups.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={
-                      activity.codigo_cups
-                        ? {
-                            value: activity.codigo_cups,
-                            label: activity.codigo_cups,
-                          }
-                        : null
+                    options={options.tipo_soporte}
+                    value={soporte.tipo_soporte
+                      ? {
+                        value: soporte.tipo_soporte,
+                        label: options.tipo_soporte.find((option) => option.value === soporte.tipo_soporte)?.label || soporte.tipo_soporte,
+                      }
+                      : null
                     }
                     onChange={(selectedOption) =>
-                      handleActivityChange(
+                      handleSoporteChange(
                         {
                           target: {
-                            name: "codigo_cups",
-                            value: selectedOption ? selectedOption.value : null,
+                            name: "tipo_soporte",
+                            value: selectedOption?.value,
                           },
                         },
-                        index,
+                        soporteIndex,
                       )
                     }
-                    placeholder="Seleccionar Cups"
-                    styles={custom_styles_cups}
+                    placeholder="Seleccionar Soporte"
+                    menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                    styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
                   />
-                </td>
-                {anexoYear == "2025-01-01" && (
-                  <td>
-                    <div className={styles.input_valor_container}>
-                      <NumericFormat
-                        name="valor_unitario"
-                        value={activity.valor_unitario}
-                        thousandSeparator="."
-                        decimalSeparator=","
-                        decimalScale={2} // Número de decimales permitidos
-                        fixedDecimalScale={true} // Mantener siempre el número de decimales
-                        onValueChange={(values) => {
-                          const { formattedValue, value } = values;
-                          handleActivityChange(
-                            { target: { name: "valor_unitario", value } },
-                            index,
-                          );
-                        }}
-                        onKeyDown={(e) => {
-                          const isCtrlCombo = e.ctrlKey || e.metaKey;
-                          if (
-                            !/[0-9,]/.test(e.key) && // Solo números y coma
-                            e.key !== "Backspace" && // Permitir borrar
-                            e.key !== "Tab" && // Permitir Tab
-                            e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                            e.key !== "ArrowRight" && // Permitir flecha derecha
-                            e.key !== "Delete" &&
-                            !isCtrlCombo
-                          ) {
-                            e.preventDefault();
-                          }
-                        }}
-                        className={styles.input_valor}
-                        min="0"
-                      />
+                </div>
+
+                <div className="col-span-4">
+                  <label className="block text-xs text-app-muted mb-1">DESCRIPCIÓN DE SOPORTES</label>
+                  <textarea
+                    type="text"
+                    name="descripcion_soporte"
+                    maxLength={200}
+                    value={soporte.descripcion_soporte || ""}
+                    onChange={(e) => handleSoporteChange(e, soporteIndex)}
+                    className="w-full p-2 border border-app-border rounded-md text-sm"
+                  />
+                  <p className="text-xs text-app-muted">
+                    {soporte.descripcion_soporte?.length || 0} / 200 caracteres
+                  </p>
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-xs text-app-muted mb-1 uppercase">Cantidad</label>
+                  <input
+                    type="number"
+                    name="cantidad_soporte"
+                    value={soporte.cantidad_soporte}
+                    onChange={(e) =>
+                      handleSoporteChange(e, soporteIndex)
+                    }
+                    placeholder="Cantidad"
+                    min="0"
+                    className="w-full p-2 border border-app-border rounded-md text-sm"
+                  />
+                </div>
+                {
+                  soporteIndex > 0 && (
+                    <div className="col-span-1 flex items-center justify-cente m-7">
+                      <span
+                        className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                        onClick={() => { handle_remove_soporte(soporteIndex); }}
+                      >
+                        &#10005;
+                      </span>
                     </div>
-                  </td>
-                )}
+                  )}
+              </div>
+            ))}
 
-                {anexoYear == "2026-01-01" && (
-                  <td>
-                    {" "}
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Costos Directos</th>
-                          <th>Costos Indirectos</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <div className={styles.input_valor_container}>
-                              <NumericFormat
-                                name="costo_directo"
-                                value={activity.costo_directo}
-                                thousandSeparator="."
-                                decimalSeparator=","
-                                decimalScale={2} // Número de decimales permitidos
-                                fixedDecimalScale={true} // Mantener siempre el número de decimales
-                                onValueChange={(values) => {
-                                  const { formattedValue, value } = values;
-                                  handleActivityChange(
-                                    {
-                                      target: { name: "costo_directo", value },
-                                    },
-                                    index,
-                                  );
-                                }}
-                                onKeyDown={(e) => {
-                                  const isCtrlCombo = e.ctrlKey || e.metaKey;
-                                  if (
-                                    !/[0-9,]/.test(e.key) && // Solo números y coma
-                                    e.key !== "Backspace" && // Permitir borrar
-                                    e.key !== "Tab" && // Permitir Tab
-                                    e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                                    e.key !== "ArrowRight" && // Permitir flecha derecha
-                                    e.key !== "Delete" &&
-                                    !isCtrlCombo
-                                  ) {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                className={styles.input_valor}
-                                min="0"
-                              />
-                            </div>
-                          </td>
-
-                          <td>
-                            <div className={styles.input_valor_container}>
-                              <NumericFormat
-                                name="costo_indirecto"
-                                value={activity.costo_indirecto}
-                                thousandSeparator="."
-                                decimalSeparator=","
-                                decimalScale={2} // Número de decimales permitidos
-                                fixedDecimalScale={true} // Mantener siempre el número de decimales
-                                onValueChange={(values) => {
-                                  const { formattedValue, value } = values;
-                                  handleActivityChange(
-                                    {
-                                      target: {
-                                        name: "costo_indirecto",
-                                        value,
-                                      },
-                                    },
-                                    index,
-                                  );
-                                }}
-                                onKeyDown={(e) => {
-                                  const isCtrlCombo = e.ctrlKey || e.metaKey;
-                                  if (
-                                    !/[0-9,]/.test(e.key) && // Solo números y coma
-                                    e.key !== "Backspace" && // Permitir borrar
-                                    e.key !== "Tab" && // Permitir Tab
-                                    e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                                    e.key !== "ArrowRight" && // Permitir flecha derecha
-                                    e.key !== "Delete" &&
-                                    !isCtrlCombo
-                                  ) {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                className={styles.input_valor}
-                                min="0"
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </td>
-                )}
-
-                <td>
-                  <div className={styles.input_valor_container}>
-                    <NumericFormat
-                      name="valor_total"
-                      value={activity.valor_total}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      decimalScale={2} // Número de decimales permitidos
-                      fixedDecimalScale={true} // Mantener siempre el número de decimales
-                      onValueChange={(values) => {
-                        const { formattedValue, value } = values;
-                        handleActivityChange(
-                          { target: { name: "valor_total", value } },
-                          index,
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        const isCtrlCombo = e.ctrlKey || e.metaKey;
-                        if (
-                          !/[0-9,]/.test(e.key) && // Solo números y coma
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" && // Permitir tecla Delete
-                          !isCtrlCombo
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td>
-
-                <td>{renderCronogramaField()}</td>
-              </tr>
-            </tbody>
-          </table>
+          {renderCronogramaField()}
         </div>
-      )}
-    </li>
+      </div>)}
+    </div>
   );
 };
 
