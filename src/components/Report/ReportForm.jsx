@@ -6,10 +6,6 @@ import Event from "../Event/Event";
 
 
 const ReportForm = () => {
-
-
-
-
   return (
     <div className="bg-app-bg">
       <Header />
@@ -24,12 +20,7 @@ const ReportForm = () => {
             </p>
           </div>
         </div>
-
-
         <Event />
-
-
-
       </div>
       <div>
 

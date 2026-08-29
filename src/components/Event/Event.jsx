@@ -7,13 +7,12 @@ import { INITIAL_EVENT_STATE, ANIOS_DISPONIBLES, PARAMETROS_INICIALES } from "..
 import validateEventsData from "../../utils/validate_events";
 import Spinner from "../Spinner/Spinner";
 
-const Event = () => {
+const Event = ({ eventsEdit, anexo }) => {
   const [parametros, setParametros] = useState(PARAMETROS_INICIALES);
   const [municipios, setMunicipios] = useState([]);
   const [proyectos, setProyectos] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [events, setEvents] = useState([INITIAL_EVENT_STATE]);
-  const resetForm = () => { setEvents([INITIAL_EVENT_STATE]); };
+  const [events, setEvents] = useState(eventsEdit && eventsEdit.length > 0 ? eventsEdit : [INITIAL_EVENT_STATE]);
   const [loading, setLoading] = useState(false);
   const [anexoYear, setAnexoYear] = useState("2026-01-01");
   const [expandedEvents, setExpandedEvents] = useState([true]);
@@ -21,6 +20,14 @@ const Event = () => {
     value: option,
     label: option,
   }));
+  const resetForm = () => {
+    if (eventsEdit && eventsEdit.length > 0) {
+      setEvents(eventsEdit);
+    } else {
+      setEvents([INITIAL_EVENT_STATE]);
+      setAnexoYear("2026-01-01");
+    }
+  };
 
   const token =
     useSelector((state) => state.token.token) ||
@@ -125,6 +132,7 @@ const Event = () => {
   };
 
   useEffect(() => {
+
     const loadData = async () => {
       setLoading(true);
       try {
@@ -141,8 +149,22 @@ const Event = () => {
         setLoading(false);
       }
     }
+
     loadData();
   }, [token]);
+
+  useEffect(() => {
+    if (eventsEdit && eventsEdit.length > 0) {
+      setEvents(eventsEdit);
+      setExpandedEvents(eventsEdit.map(() => true));
+    }
+  }, [eventsEdit]);
+
+  useEffect(() => {
+    if (anexo && anexo.anexo_tecnico_date) {
+      setAnexoYear(anexo.anexo_tecnico_date);
+    }
+  }, [anexo]);
 
   const handleToggle = (index) => {
     setExpandedEvents((prevExpandedEvents) => {
@@ -342,14 +364,33 @@ const Event = () => {
         },
       };
 
-      const response = await fetch(`${back}/api/anexo-tecnicos`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(transformedData),
-      });
+      let response = null;
+      console.log("Editando anexo con ID:", anexo.documentId);
+      if (eventsEdit && anexo) {
+        console.log("Editando anexo con ID:", anexo.documentId);
+        response = await fetch(
+          `${back}/api/anexo-tecnicos/${anexo.documentId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(transformedData),
+          },
+        );
+
+      } else {
+
+        response = await fetch(`${back}/api/anexo-tecnicos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(transformedData),
+        });
+      }
 
       const data = await response.json();
 
@@ -477,7 +518,7 @@ const Event = () => {
                       options={operadores}
                       value={event.operador_pic
                         ? {
-                          value: event.documentId,
+                          value: event.operador_pic,
                           label: operadores.find((option) => option.value === event.operador_pic)?.label || event.operador_pic,
                         }
                         : null

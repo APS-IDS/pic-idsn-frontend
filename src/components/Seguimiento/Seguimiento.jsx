@@ -4,7 +4,6 @@ import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import { Save } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import SoportesTable from "./SoportesTable";
 import ObservacionPanel from "./ObservacionPanel";
 import CronogramaTable from "./CronogramaTable";
@@ -12,6 +11,7 @@ import { CustomRoles } from "../../components/Login/constant";
 import Spinner from "../Spinner/Spinner";
 import { findActivity, toOptions, fetchJson, formatDate, formatAnexoDateForLabel } from "../../utils/seguimiento_events";
 import InfoGeneralTable from "./InfoGeneralTable";
+import { fetchAnexo } from "../../utils/api";
 
 
 const Seguimiento = () => {
@@ -62,25 +62,6 @@ const Seguimiento = () => {
   const usuario = usuarioSession.usuario || usuario_redux;
 
   const [cancelChange, setCancelChange] = useState(false);
-
-  const fetchAnexo = async () => {
-    const response = await fetch(
-      `${back}/api/anexo-tecnicos/${documentId}?pLevel=11`,
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error al obtener el anexo técnico con ID ${documentId}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    const anexo = data?.data || null;
-
-    return anexo;
-  }
-
 
 
   const fetchStatesOptions = async () => {
@@ -178,7 +159,7 @@ const Seguimiento = () => {
   };
 
   const loadAnexoAndSoportes = async () => {
-    const anexoResult = await fetchAnexo();
+    const anexoResult = await fetchAnexo(documentId, token);
     const actividadResult = await findActivity(actividadId, anexoResult);
 
     if (!actividadResult) {

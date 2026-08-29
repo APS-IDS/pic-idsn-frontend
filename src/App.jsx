@@ -37,9 +37,9 @@ function App() {
         element={token ? <RegistroUsuario /> : <Login />}
       />
       <Route path="/dashbo" element={token ? <Dashbo /> : <Login />} />
-      <Route path="/repo" element={token ? <ReportForm /> : <Login />} />
       <Route path="/view" element={token ? <ReportView /> : <Login />} />
-      <Route path="/edit" element={token ? <Edit /> : <Login />} />
+      <Route path="/anexo/add" element={token ? <ReportForm /> : <Login />} />
+      <Route path="/anexo/edit/:documentId" element={token ? <Edit /> : <Login />} />
       <Route path="/anexo/:documentId/:actividadId/seguimiento" element={token ? <Seguimiento /> : <Login />} />
       <Route path="/perfil" element={token ? <Perfil /> : <Login />} />
     </Routes>
