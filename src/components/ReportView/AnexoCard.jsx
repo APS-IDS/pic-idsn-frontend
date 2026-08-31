@@ -20,13 +20,6 @@ const AnexoCard = ({
 }) => {
   const anio = row?.anexo_tecnico_date?.slice(0, 4);
 
-  // 2025 reporta hogares beneficiarios; 2026 en adelante, población a intervenir
-  const esAnexo2025 = anio === "2025";
-  const poblacion = (evento) =>
-    (esAnexo2025
-      ? evento?.territorializacion?.numero_hogares
-      : evento?.territorializacion?.numero_pobalcion_intervenir) ?? SIN_DATO;
-
   return (
     <div
       key={index}
@@ -70,22 +63,10 @@ const AnexoCard = ({
                 <th>Año Anexo</th>
                 <th>Nodo - Municipio Priorizado</th>
                 <th>Operador Pic</th>
-                <th>Código - Nombre de Territorio APS</th>
-                <th>Código Micro-Territorio</th>
-                <th>
-                  {esAnexo2025
-                    ? "Total Hogares Beneficiarios"
-                    : "N° Población a Intervenir"}
-                </th>
-                <th>Equipo Operativo</th>
-                <th>Perfil Profesional</th>
-                <th>Perfil Operativo</th>
                 <th>Proyecto IDSN Responsable</th>
                 <th>Descripción Evento</th>
                 <th>Nombre del Indicador</th>
                 <th>Meta Indicador</th>
-                <th>Ejes Estratégicos</th>
-                <th>Líneas Operativas</th>
                 <th class="bg-teal-dark">Productos</th>
               </tr>
             </thead>
@@ -102,31 +83,10 @@ const AnexoCard = ({
                       : SIN_DATO}
                   </td>
                   <td>{evento?.operador_pic?.operador_pic || SIN_DATO}</td>
-                  <td>{evento?.territorializacion?.territorio || SIN_DATO}</td>
-                  <td>
-                    {evento?.territorializacion?.microterritorio || SIN_DATO}
-                  </td>
-                  <td>{poblacion(evento)}</td>
-                  <td>{evento?.equipo || SIN_DATO}</td>
-                  <td>{evento?.perfiles_profesional || SIN_DATO}</td>
-                  <td>{evento?.perfil_operativo || SIN_DATO}</td>
                   <td>{evento?.proyectos_idsn?.proyecto || SIN_DATO}</td>
                   <td>{evento?.descripcion || SIN_DATO}</td>
                   <td>{evento?.indicador_evento || SIN_DATO}</td>
                   <td>{evento?.meta_indicador_evento || SIN_DATO}</td>
-                  <td>
-                    {evento?.ejes_estrategicos?.length > 0
-                      ? evento.ejes_estrategicos.map((eje) => (
-                        <span
-                          key={eje.id}
-                          className="inline-block bg-app-bg border rounded-2xl text-[11px] py-0.5 px-2 mr-1 mb-1"
-                        >
-                          {eje.nombre}
-                        </span>
-                      ))
-                      : SIN_DATO}
-                  </td>
-                  <td>{evento?.lineas_operativa?.nombre || SIN_DATO}</td>
                   <td class="whitespace-nowrap">
                     <ProductosCell
                       evento={evento}
