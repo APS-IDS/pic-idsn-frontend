@@ -136,7 +136,7 @@ const ReportView = () => {
             label: item[campoLabel],
           }));
 
-        setMunicipios(toOptions(municipiosResult, "label"));  
+        setMunicipios(toOptions(municipiosResult, "label"));
         setOperadores(
           toOptions(operadoresResult, "operador_pic", "documentId"),
         );
@@ -450,7 +450,6 @@ const ReportView = () => {
               operatorFilterValue={operatorFilterValue}
               onEdit={handle_click}
               onSoporte={handle_soporte}
-              //onActividad={handle_click_actividad}
               handleToggle={handleToggle}
               openIndex={openIndex}
             />

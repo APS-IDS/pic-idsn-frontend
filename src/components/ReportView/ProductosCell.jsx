@@ -12,7 +12,6 @@ const ProductosCell = ({
   anexoDate,
   usuario,
   onSoporte,
-  //onActividad,  //viene de ActividadCard (en ReportView es handle_click_actividad)
 }) => {
   const [abierto, setAbierto] = useState(false);
   const productos = evento?.productos ?? [];
@@ -54,7 +53,6 @@ const ProductosCell = ({
           anexoDate={anexoDate}
           usuario={usuario}
           onSoporte={onSoporte}
-          //onActividad={onActividad}
           onClose={() => setAbierto(false)}
         />
       )}

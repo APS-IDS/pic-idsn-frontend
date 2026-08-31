@@ -19,7 +19,6 @@ const ProductosModal = ({
   anexoDate,
   usuario,
   onSoporte,
-  //onActividad,   //viene de ActividadCard (en ReportView es handle_click_actividad)
   onClose,
 }) => {
   // Cierre con Escape y bloqueo del scroll de fondo mientras el modal está abierto
@@ -99,7 +98,6 @@ const ProductosModal = ({
                     anexoDate={anexoDate}
                     usuario={usuario}
                     onSoporte={onSoporte}
-                    //onActividad={onActividad}
                   />
                 ))
               ) : (

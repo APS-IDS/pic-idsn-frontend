@@ -8,7 +8,6 @@ import {
   listarNombres,
 } from "./utils";
 
-
 const Dato = ({ etiqueta, valor }) => (
   <span className="text-app-muted">
     {etiqueta}: <b className="font-bold text-app-text">{valor}</b>
@@ -21,15 +20,14 @@ const ActividadCard = ({
   anexoDate,
   usuario,
   onSoporte,
-  //onActividad,
 }) => {
   const soportes = actividad?.soportes ?? [];
   const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
-  
-  const handle_click_actividad = (anexoId, actividadId) => {
-  const RutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;
-  window.open(RutaSeguimiento, "_blank", "noopener,noreferrer");
-};
+
+  const handleClickActividad = (anexoId, actividadId) => {
+    const rutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;
+    window.open(rutaSeguimiento, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <div className="mb-3 overflow-hidden rounded-lg border border-app-border last:mb-0">
@@ -125,7 +123,7 @@ const ActividadCard = ({
       <div className="flex justify-end bg-app-card px-4 py-3">
         <button
           type="button"
-          onClick={() => handle_click_actividad(documentId, actividad.uuid)}
+          onClick={() => handleClickActividad(documentId, actividad.uuid)}
           className="inline-flex items-center gap-2 rounded-md bg-teal px-4 py-2 text-xs font-bold text-white hover:bg-teal-dark"
         >
           <FaClipboardList /> Seguimiento

@@ -15,7 +15,6 @@ const AnexoCard = ({
   operatorFilterValue,
   onEdit,
   onSoporte,
-  //onActividad,  //viene de ActividadCard (en ReportView es handle_click_actividad)
   handleToggle,
   openIndex,
 }) => {
@@ -136,7 +135,6 @@ const AnexoCard = ({
                       anexoDate={row.anexo_tecnico_date}
                       usuario={usuario}
                       onSoporte={onSoporte}
-                      //onActividad={onActividad}
                     />
                   </td>
                 </tr>
