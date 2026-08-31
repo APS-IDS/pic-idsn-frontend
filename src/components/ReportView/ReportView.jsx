@@ -16,7 +16,6 @@ const FILTROS_VACIOS = {
   project: null,
   operator: null,
   municipality: null,
-  dependence: null,
   anio: null,
 };
 
@@ -55,7 +54,6 @@ const ReportView = () => {
   const [proyectos, setProyectos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [dependences, setDependences] = useState([]);
   const anios = ANIOS_DISPONIBLES.map((anio) => ({
     value: anio,
     label: anio,
@@ -143,7 +141,6 @@ const ReportView = () => {
           toOptions(operadoresResult, "operador_pic", "documentId"),
         );
         setProyectos(toOptions(proyectosResult, "proyecto", "documentId"));
-        setDependences([]);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -221,12 +218,6 @@ const ReportView = () => {
         evento: evento, // Pasa aquí los datos que necesitas
       },
     });
-  };
-
-    // documentId anexo tecnico, uuid actividad
-  const handle_click_actividad = (anexoId, actividadId) => {
-    console.log("Navegando a seguimiento con documentId:", anexoId, "y actividadId:", actividadId);
-    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
   };
 
   const handle_soporte = async (documentId, soporteId) => {
@@ -407,7 +398,7 @@ const ReportView = () => {
   return (
     <>
       <Header />
-      <div class="w-full min-h-dvh bg-app-bg p-4">
+      <div className="w-full min-h-dvh bg-app-bg p-4">
         <FiltersPanel
           filters={[
             {
@@ -439,13 +430,6 @@ const ReportView = () => {
               optionsList: operadores,
               value: filterState.operator,
             },
-            {
-              key: "dependence",
-              label: "Dependencia",
-              text: "Todas las dependencias",
-              optionsList: dependences,
-              value: filterState.dependence,
-            },
           ]}
           onChange={handleFilterChange}
           onApply={handleApplyFilters}
@@ -466,13 +450,12 @@ const ReportView = () => {
               operatorFilterValue={operatorFilterValue}
               onEdit={handle_click}
               onSoporte={handle_soporte}
-              onActividad={handle_click_actividad}
               handleToggle={handleToggle}
               openIndex={openIndex}
             />
           ))
         ) : (
-          <div class={styles.noDataMessage}>
+          <div className={styles.noDataMessage}>
             No hay información para mostrar
           </div>
         )}
