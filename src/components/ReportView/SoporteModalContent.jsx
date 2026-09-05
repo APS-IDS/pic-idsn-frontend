@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import styles from "./SoporteModal.module.css";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -156,6 +156,10 @@ const SoporteModalContent = ({
   onClearValidation,
 }) => {
   const [nuevas, setNuevas] = useState([]);
+  const municipiosOrdenados = useMemo(
+    () => [...municipios].sort((a, b) => a.label.localeCompare(b.label)),
+    [municipios],
+  );
   const dataMap = useRef(new Map());
   let counter = useRef(0);
 
@@ -207,7 +211,7 @@ const SoporteModalContent = ({
           <NewEvidencia
             key={id}
             id={id}
-            municipios={municipios}
+            municipios={municipiosOrdenados}
             onRemove={removeEvidencia}
             onUpdate={updateEvidencia}
             onValidationError={onValidationError}
