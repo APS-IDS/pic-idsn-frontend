@@ -25,8 +25,13 @@ const ActividadCard = ({
   const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
 
   const handleClickActividad = (anexoId, actividadId) => {
-    const rutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;
-    window.open(rutaSeguimiento, "_blank", "noopener,noreferrer");
+    try{
+      console.log("open new window", anexoId);
+      const rutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;
+      window.open(rutaSeguimiento, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Error al abrir la ventana de seguimiento:", error);
+    }
   };
 
   return (
