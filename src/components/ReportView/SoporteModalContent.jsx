@@ -1,5 +1,12 @@
 import React, { useState, useRef, useCallback, useMemo } from "react";
+import Select from "react-select";
 import styles from "./SoporteModal.module.css";
+
+// El menú se monta en <body> para que no lo recorte el modal de SweetAlert,
+// con un z-index por encima del contenedor de swal2.
+const selectStyles = {
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+};
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const MAX_FILE_SIZE_MB = 10;
@@ -63,8 +70,8 @@ const NewEvidencia = ({ id, municipios, onRemove, onUpdate, onValidationError, o
     onClearValidation();
   };
 
-  const handleRegionChange = (e) => {
-    onUpdate(id, { region: e.target.value });
+  const handleRegionChange = (seleccion) => {
+    onUpdate(id, { region: seleccion?.value || "" });
   };
 
   return (
@@ -81,18 +88,16 @@ const NewEvidencia = ({ id, municipios, onRemove, onUpdate, onValidationError, o
         </select>
 
         <label className={styles.label}>Seleccionar Región:</label>
-        <select
-          className={`swal2-select ${styles.regionSelect}`}
-          defaultValue=""
+        <Select
+          className={styles.regionSelect}
+          options={municipios}
           onChange={handleRegionChange}
-        >
-          <option value="">Selecciona una región</option>
-          {municipios.map((muni) => (
-            <option key={muni.documentId} value={muni.documentId}>
-              {muni.label}
-            </option>
-          ))}
-        </select>
+          placeholder="Escribe o selecciona una región"
+          noOptionsMessage={() => "Sin coincidencias"}
+          isClearable
+          menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+          styles={selectStyles}
+        />
 
         {tipo === "file" ? (
           <>
@@ -157,7 +162,10 @@ const SoporteModalContent = ({
 }) => {
   const [nuevas, setNuevas] = useState([]);
   const municipiosOrdenados = useMemo(
-    () => [...municipios].sort((a, b) => a.label.localeCompare(b.label)),
+    () =>
+      [...municipios]
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .map((muni) => ({ value: muni.documentId, label: muni.label })),
     [municipios],
   );
   const dataMap = useRef(new Map());
