@@ -134,6 +134,7 @@ const ReportView = () => {
           (result.value?.data || []).map((item) => ({
             value: item[campoValue],
             label: item[campoLabel],
+            documentId: item.documentId,
           }));
 
         setMunicipios(toOptions(municipiosResult, "label"));
