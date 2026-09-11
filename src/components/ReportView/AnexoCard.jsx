@@ -1,8 +1,6 @@
 import React from "react";
-import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
-// import EventoTable from "./EventoTable";  //--------------------------------------
 import ProductosCell from "./ProductosCell";
 import { CustomRoles } from "../Login/constant";
 import { SIN_DATO } from "./utils";
@@ -11,8 +9,6 @@ const AnexoCard = ({
   row,
   index,
   usuario,
-  filterValue,
-  operatorFilterValue,
   onEdit,
   onSoporte,
   handleToggle,
@@ -78,8 +74,8 @@ const AnexoCard = ({
                   <td>
                     {evento?.territorializacion?.municipios?.length > 0
                       ? evento.territorializacion.municipios
-                        .map((muni) => muni.label)
-                        .join(", ")
+                          .map((muni) => muni.label)
+                          .join(", ")
                       : SIN_DATO}
                   </td>
                   <td>{evento?.operador_pic?.operador_pic || SIN_DATO}</td>
@@ -92,7 +88,6 @@ const AnexoCard = ({
                       evento={evento}
                       anexoId={row.id}
                       documentId={row.documentId}
-                      anexoDate={row.anexo_tecnico_date}
                       usuario={usuario}
                       onSoporte={onSoporte}
                     />

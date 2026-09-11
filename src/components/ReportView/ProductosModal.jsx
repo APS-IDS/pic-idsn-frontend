@@ -16,7 +16,6 @@ const ProductosModal = ({
   eventoId,
   anexoId,
   documentId,
-  anexoDate,
   usuario,
   onSoporte,
   onClose,
@@ -95,7 +94,6 @@ const ProductosModal = ({
                     key={actividad.id || i}
                     actividad={actividad}
                     documentId={documentId}
-                    anexoDate={anexoDate}
                     usuario={usuario}
                     onSoporte={onSoporte}
                   />

@@ -24,13 +24,8 @@ const ReportView = () => {
   const [loading, setLoading] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState(null);
-  const [filterValue, setFilterValue] = useState("");
-  const [operatorFilterValue, setOperatorFilterValue] = useState("");
   const [filterState, setFilterState] = useState(FILTROS_VACIOS);
   const [appliedFilters, setAppliedFilters] = useState(FILTROS_VACIOS);
-
-  const [anexoDate, setYanexoDate] = useState("");
-  const [nombre, setNombre] = useState("");
 
   const [openIndex, setOpenIndex] = useState(null);
   const user_Redux = useSelector((state) => state.user.usuario);
@@ -58,7 +53,6 @@ const ReportView = () => {
     value: anio,
     label: anio,
   }));
-  const [isOpen, setIsOpen] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); // validar con el instituto esta parte
@@ -173,8 +167,8 @@ const ReportView = () => {
     const filters = {};
     if (anio) {
       filters.anexo_tecnico_date = {
-        $gte: getGteDate(anio), 
-        $lte: getLteDate(anio), 
+        $gte: getGteDate(anio),
+        $lte: getLteDate(anio),
       };
     }
     if (Object.keys(eventos).length > 0) {
@@ -323,8 +317,6 @@ const ReportView = () => {
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-
-
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará la evidencia permanentemente.",
@@ -447,8 +439,6 @@ const ReportView = () => {
               row={anexo}
               index={index}
               usuario={usuario}
-              filterValue={filterValue}
-              operatorFilterValue={operatorFilterValue}
               onEdit={handle_click}
               onSoporte={handle_soporte}
               handleToggle={handleToggle}
