@@ -20,6 +20,9 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     value: option,
     label: option,
   }));
+  
+  const styleSelect = { menuPortal: (base) => ({ ...base, zIndex: 9999 }) };
+
   const resetForm = () => {
     if (eventsEdit && eventsEdit.length > 0) {
       setEvents(eventsEdit);
@@ -161,8 +164,8 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   }, [eventsEdit]);
 
   useEffect(() => {
-    if (anexo && anexo.anexo_tecnico_date) {
-      setAnexoYear(anexo.anexo_tecnico_date);
+    if (anexo && anexo.anio) {
+      setAnexoYear(anexo.anio);
     }
   }, [anexo]);
 
@@ -473,7 +476,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       {events.map((event, index) => (
         <div key={index} className="mb-2">
           <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
-            <div onClick={() => handleToggle(index)} className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
+            <div onClick={() => handleToggle(index)} className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer hover:bg-navy-dark">
               Evento #{index + 1}
               <div className="flex items-center gap-4">
                 <span
@@ -510,7 +513,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                       onChange={(selectedOptions) => handle_municipio(index, selectedOptions)}
                       placeholder="Seleccionar Region"
                       menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                      styles={styleSelect}
                     />
                   </div>
 
@@ -529,7 +532,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                       onChange={(selectedOption) => handle_operador(index, selectedOption)}
                       placeholder="Seleccionar Operador"
                       menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                      styles={styleSelect}
                     />
                   </div>
 
@@ -638,7 +641,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                       onChange={(selectedOption) => handle_proyecto(index, selectedOption)}
                       placeholder="Seleccionar Operador"
                       menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                      styles={styleSelect}
                     />
 
                   </div>
@@ -697,7 +700,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                       onChange={(selectedOptions) => handleStrategicAxisChange(index, selectedOptions)}
                       placeholder="Seleccionar ejes"
                       menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
-                      styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                      styles={styleSelect}
                     />
                   </div>
 

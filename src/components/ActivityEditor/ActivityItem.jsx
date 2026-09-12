@@ -61,6 +61,7 @@ const ActivityItem = ({
       "Dic",
     ],
   };
+  const styleSelect = { menuPortal: (base) => ({ ...base, zIndex: 9999 }) };
 
   const handleValorChange = (name, value) =>
     handleActivityChange({ target: { name, value } }, index);
@@ -340,7 +341,7 @@ const ActivityItem = ({
                 menuPortalTarget={
                   typeof window !== "undefined" ? document.body : null
                 }
-                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                styles={styleSelect}
               />
             </div>
 
@@ -371,7 +372,7 @@ const ActivityItem = ({
                 menuPortalTarget={
                   typeof window !== "undefined" ? document.body : null
                 }
-                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                styles={styleSelect}
               />
             </div>
 
@@ -403,7 +404,7 @@ const ActivityItem = ({
                   menuPortalTarget={
                     typeof window !== "undefined" ? document.body : null
                   }
-                  styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                  styles={styleSelect}
                 />
               </div>
             )}
@@ -435,7 +436,7 @@ const ActivityItem = ({
                 menuPortalTarget={
                   typeof window !== "undefined" ? document.body : null
                 }
-                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                styles={styleSelect}
               />
             </div>
 
@@ -472,7 +473,7 @@ const ActivityItem = ({
                 menuPortalTarget={
                   typeof window !== "undefined" ? document.body : null
                 }
-                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+                styles={styleSelect}
               />
             </div>
 
