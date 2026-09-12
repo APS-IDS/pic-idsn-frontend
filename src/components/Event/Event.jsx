@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Product from "../Product/Product";
 import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
@@ -183,6 +183,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   };
 
   const handle_municipio = (eventIndex, selectedOptions) => {
+    console.log("Selected municipios for event index", eventIndex, ":", selectedOptions);
     const updatedEvents = [...events];
     updatedEvents[eventIndex].subregion = selectedOptions.map(
       (option) => option.value,
@@ -418,6 +419,15 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       setLoading(false);
     }
   };
+
+  const municipiosOrdenados = useMemo(
+    () =>
+      [...municipios]
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .map((muni) => ({ value: muni.value, label: muni.label })),
+    [municipios],
+  );
+
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
   return (
     <form onSubmit={handleSubmit}>
@@ -496,7 +506,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                         const foundOption = municipios.find((option) => option.value === subregionId);
                         return foundOption || { value: subregionId, label: subregionId };
                       }) || []}
-                      options={municipios}
+                      options={municipiosOrdenados}
                       onChange={(selectedOptions) => handle_municipio(index, selectedOptions)}
                       placeholder="Seleccionar Region"
                       menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
