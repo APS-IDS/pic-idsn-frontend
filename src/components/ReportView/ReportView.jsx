@@ -217,11 +217,6 @@ const ReportView = () => {
     navigate(`/anexo/edit/${evento?.documentId || "unknown"}`);
   };
 
-  // documentId anexo tecnico, uuid actividad
-  const handle_click_actividad = (anexoId, actividadId) => {
-    navigate(`/anexo/${anexoId}/${actividadId}/seguimiento`);
-  };
-
   const handle_soporte = async (documentId, soporteId) => {
     try {
       const response = await fetch(

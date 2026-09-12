@@ -1,6 +1,6 @@
-import React, { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import Event from "../Event/Event";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Swal from "sweetalert2";
 import Spinner from "../Spinner/Spinner";
@@ -10,10 +10,9 @@ import { transformEvent } from "../../utils/const_forms";
 
 const Edit = () => {
   const { documentId } = useParams();
-  const location = useLocation();
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [anexo, setAnexo] = useState(location.state?.anexo || {});
+  const [loading, setLoading] = useState(true);
+  const [anexo, setAnexo] = useState(null);
   const token = useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
   const fetchData = async () => {
@@ -39,6 +38,20 @@ const Edit = () => {
   }, [documentId, token]);
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
+
+  // El fetch fallo: sin anexo no hay nada que editar.
+  if (!anexo) {
+    return (
+      <div className="bg-app-bg">
+        <Header />
+        <div className="max-w-6xl mx-auto min-h-dvh bg-app-bg p-4">
+          <p className="text-sm text-app-muted text-start">
+            No se pudo cargar el anexo técnico solicitado.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-app-bg">
