@@ -1,10 +1,5 @@
 import Header from "../Header/Header";
 import Event from "../Event/Event";
-
-
-
-
-
 const ReportForm = () => {
   return (
     <div className="bg-app-bg">
@@ -22,11 +17,7 @@ const ReportForm = () => {
         </div>
         <Event />
       </div>
-      <div>
-
-      </div>
     </div>
   );
 };
-
 export default ReportForm;

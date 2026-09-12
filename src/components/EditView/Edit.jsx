@@ -16,31 +16,27 @@ const Edit = () => {
   const [anexo, setAnexo] = useState(location.state?.anexo || {});
   const token = useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const anexoResult = await fetchAnexo(documentId, token);
-        setEvents(anexoResult.eventos.map((ev) => transformEvent(ev)));
-        setAnexo({ id: anexoResult.id, documentId: anexoResult.documentId });
-      }
-      catch (error) {
-        console.error("Error fetching anexo:", error);
-      } finally {
-        setLoading(false);
-      }
-      Swal.fire({
-        title: "Información",
-        text: "Recuerda luego de realizar  cambios , dar clic en el boton Guardar para conservar los cambios",
-        icon: "warning",
-      });
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const anexoResult = await fetchAnexo(documentId, token);
+      setEvents(anexoResult.eventos.map((ev) => transformEvent(ev)));
+      setAnexo({ id: anexoResult.id, documentId: anexoResult.documentId });
     }
-
+    catch (error) {
+      console.error("Error fetching anexo:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
     fetchData();
+    Swal.fire({
+      title: "Información",
+      text: "Recuerda luego de realizar  cambios , dar clic en el boton Guardar para conservar los cambios",
+      icon: "warning",
+    });
   }, [documentId, token]);
-
-
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
 
@@ -66,6 +62,7 @@ const Edit = () => {
         <Event
           eventsEdit={events}
           anexo={anexo}
+          onSaved={fetchData}
         />
       </div>
     </div>

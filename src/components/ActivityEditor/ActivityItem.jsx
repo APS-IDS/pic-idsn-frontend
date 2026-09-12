@@ -3,7 +3,6 @@ import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
-
 import { NumericFormat } from "react-number-format";
 
 const soloNumerosYComa = (e) => {
@@ -68,9 +67,7 @@ const ActivityItem = ({
 
   const handleCronogramaChange = (value, key, itemIndex) => {
     const updatedCronograma = [...(activity.cronograma || [])];
-    // console.log("cronograma", updatedCronograma);
 
-    // Asegurarse de que el elemento existe
     if (!updatedCronograma[itemIndex]) {
       updatedCronograma[itemIndex] = {
         mes: options.meses[itemIndex],
@@ -78,8 +75,10 @@ const ActivityItem = ({
       };
     }
 
-    // Actualizar el valor correspondiente
-    updatedCronograma[itemIndex][key] = value;
+    updatedCronograma[itemIndex] = {
+      ...updatedCronograma[itemIndex],
+      [key]: value,
+    };
 
     handleActivityChange(
       { target: { name: "cronograma", value: updatedCronograma } },
@@ -87,11 +86,16 @@ const ActivityItem = ({
     );
   };
 
-  // Añadir soporte
   const addSoporte = () => {
+    const newSoporte = {
+      tipo_soporte: "",
+      descripcion_soporte: "",
+      cantidad_soporte: "",
+    };
+
     const newSoportes = [
       ...(activity.array_soportes || []),
-      { tipo_soporte: "", descripcion_soporte: "", cantidad_soporte: "" },
+      newSoporte,
     ];
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
@@ -99,30 +103,55 @@ const ActivityItem = ({
     );
   };
 
-  // Eliminar soporte
   const removeSoporte = (soporteIndex) => {
-    const newSoportes = activity.array_soportes.filter(
-      (_, idx) => idx !== soporteIndex,
+    const newSoportes = (
+      activity.array_soportes || []
+    ).filter(
+      (_, idx) => idx !== soporteIndex
     );
+
     handleActivityChange(
-      { target: { name: "array_soportes", value: newSoportes } },
-      index,
+      {
+        target: {
+          name: "array_soportes",
+          value: newSoportes,
+        },
+      },
+      index
     );
   };
 
-  // Cambiar soporte
-  const handleSoporteChange = (e, soporteIndex) => {
+  const handleSoporteChange = (
+    e,
+    soporteIndex
+  ) => {
     const { name, value } = e.target;
-    const newSoportes = [...activity.array_soportes];
 
-    newSoportes[soporteIndex][name] = value;
+    const newSoportes = (activity.array_soportes || []).map((soporte, idx) => {
+
+      if (idx !== soporteIndex) {
+        return soporte;
+      }
+      return {
+        ...soporte,
+        [name]: value,
+      };
+    });
+
     handleActivityChange(
-      { target: { name: "array_soportes", value: newSoportes } },
-      index,
+      {
+        target: {
+          name: "array_soportes",
+          value: newSoportes,
+        },
+      },
+      index
     );
   };
 
-  const handle_remove_soporte = (index) => {
+  const handle_remove_soporte = (
+    soporteIndex
+  ) => {
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará el soporte ",
@@ -134,13 +163,15 @@ const ActivityItem = ({
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        removeSoporte(index);
+        removeSoporte(soporteIndex);
         Swal.fire("Eliminado", "El soporte ha sido eliminado.", "success");
       }
     });
   };
 
-  const handle_remove_actividad = (index) => {
+  const handle_remove_actividad = (
+    activityIndex
+  ) => {
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará la actividad",
@@ -152,7 +183,7 @@ const ActivityItem = ({
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleRemoveActivity(index);
+        handleRemoveActivity(activityIndex);
         Swal.fire("Eliminada", "La actividad ha sido borrada", "success");
       }
     });
@@ -177,7 +208,6 @@ const ActivityItem = ({
           </h2>
         </div>
 
-        {/* <label>Cronograma</label> */}
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {cronograma.map((item, itemIndex) => (
             <div
@@ -195,8 +225,7 @@ const ActivityItem = ({
                   handleCronogramaChange(
                     e.target.value,
                     "peso",
-                    itemIndex,
-                    index,
+                    itemIndex
                   )
                 }
                 min="0"
@@ -212,7 +241,6 @@ const ActivityItem = ({
 
   return (
     <div
-      key={index}
       className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm"
     >
       <div
@@ -221,17 +249,20 @@ const ActivityItem = ({
         }}
         className="bg-teal-600 text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
         Actividad #{index + 1}
+
         <div className="flex items-center gap-4">
           <span
-            className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
-            onClick={() => {
+            className="inline-block cursor-pointer hover:text-red-600"
+            onClick={(e) => {
+              e.stopPropagation();
               handle_remove_actividad(index);
             }}
           >
             &#10005;
           </span>
+
           <span
-            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded === true ? "rotate-180" : "rotate-0"}`}>
+            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded ? "rotate-180" : "rotate-0"}`}>
             &#9660;
           </span>
         </div>
@@ -245,7 +276,6 @@ const ActivityItem = ({
                 DESCRIPCIÓN DE LA ACTIVIDAD
               </label>
               <textarea
-                type="text"
                 name="descripcion_actividad"
                 maxLength={6000}
                 value={activity.descripcion_actividad || ""}
@@ -506,99 +536,114 @@ const ActivityItem = ({
                 className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
                 onClick={() => addSoporte()}
               >
-                <span className="">+</span> Agregar soporte
+                <span>+</span> Agregar soporte
               </button>
             </div>
 
-            {activity.array_soportes?.map((soporte, soporteIndex) => (
-              <div
-                className="col-span-3 grid gap-3 items-start bg-teal-light border rounded-lg px-3 py-3 grid-cols-10"
-                key={soporteIndex}
-              >
-                <div className="col-span-3">
-                  <label className="block text-xs text-app-muted mb-1 uppercase">
-                    TIPO DE SOPORTE
-                  </label>
-                  <Select
-                    options={options.tipo_soporte}
-                    value={
-                      soporte.tipo_soporte
-                        ? {
-                          value: soporte.tipo_soporte,
-                          label:
-                            options.tipo_soporte.find(
-                              (option) =>
-                                option.value === soporte.tipo_soporte,
-                            )?.label || soporte.tipo_soporte,
-                        }
-                        : null
-                    }
-                    onChange={(selectedOption) =>
-                      handleSoporteChange(
-                        {
-                          target: {
-                            name: "tipo_soporte",
-                            value: selectedOption?.value,
+            {(activity.array_soportes || []).map(
+              (soporte, soporteIndex) => (
+                <div
+                  className="col-span-3 grid gap-3 items-start bg-teal-light border rounded-lg px-3 py-3 grid-cols-10"
+                  key={soporteIndex}
+                >
+                  <div className="col-span-3">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      TIPO DE SOPORTE
+                    </label>
+
+                    <Select
+                      options={
+                        options.tipo_soporte
+                      }
+                      value={
+                        soporte.tipo_soporte
+                          ? {
+                            value:
+                              soporte.tipo_soporte,
+                            label:
+                              options.tipo_soporte.find(
+                                (option) =>
+                                  option.value ===
+                                  soporte.tipo_soporte
+                              )?.label ||
+                              soporte.tipo_soporte,
+                          }
+                          : null
+                      }
+                      onChange={(selectedOption) =>
+                        handleSoporteChange(
+                          {
+                            target: {
+                              name: "tipo_soporte",
+                              value:
+                                selectedOption?.value ||
+                                "",
+                            },
                           },
-                        },
-                        soporteIndex,
-                      )
-                    }
-                    placeholder="Seleccionar Soporte"
-                    menuPortalTarget={
-                      typeof window !== "undefined" ? document.body : null
-                    }
-                    styles={{
-                      menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                    }}
-                  />
-                </div>
-
-                <div className="col-span-4">
-                  <label className="block text-xs text-app-muted mb-1">
-                    DESCRIPCIÓN DE SOPORTES
-                  </label>
-                  <textarea
-                    type="text"
-                    name="descripcion_soporte"
-                    maxLength={200}
-                    value={soporte.descripcion_soporte || ""}
-                    onChange={(e) => handleSoporteChange(e, soporteIndex)}
-                    className="w-full p-2 border border-app-border rounded-md text-sm"
-                  />
-                  <p className="text-xs text-app-muted">
-                    {soporte.descripcion_soporte?.length || 0} / 200 caracteres
-                  </p>
-                </div>
-
-                <div className="col-span-2">
-                  <label className="block text-xs text-app-muted mb-1 uppercase">
-                    Cantidad
-                  </label>
-                  <input
-                    type="number"
-                    name="cantidad_soporte"
-                    value={soporte.cantidad_soporte}
-                    onChange={(e) => handleSoporteChange(e, soporteIndex)}
-                    placeholder="Cantidad"
-                    min="0"
-                    className="w-full p-2 border border-app-border rounded-md text-sm"
-                  />
-                </div>
-                {soporteIndex > 0 && (
-                  <div className="col-span-1 flex items-center justify-cente m-7">
-                    <span
-                      className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
-                      onClick={() => {
-                        handle_remove_soporte(soporteIndex);
+                          soporteIndex
+                        )
+                      }
+                      placeholder="Seleccionar Soporte"
+                      menuPortalTarget={
+                        typeof window !==
+                          "undefined"
+                          ? document.body
+                          : null
+                      }
+                      styles={{
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999,
+                        }),
                       }}
-                    >
-                      &#10005;
-                    </span>
+                    />
                   </div>
-                )}
-              </div>
-            ))}
+
+                  <div className="col-span-4">
+                    <label className="block text-xs text-app-muted mb-1">
+                      DESCRIPCIÓN DE SOPORTES
+                    </label>
+                    <textarea
+                      type="text"
+                      name="descripcion_soporte"
+                      maxLength={200}
+                      value={soporte.descripcion_soporte || ""}
+                      onChange={(e) => handleSoporteChange(e, soporteIndex)}
+                      className="w-full p-2 border border-app-border rounded-md text-sm"
+                    />
+                    <p className="text-xs text-app-muted">
+                      {soporte.descripcion_soporte?.length || 0} / 200 caracteres
+                    </p>
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      Cantidad
+                    </label>
+                    <input
+                      type="number"
+                      name="cantidad_soporte"
+                      value={soporte.cantidad_soporte}
+                      onChange={(e) => handleSoporteChange(e, soporteIndex)}
+                      placeholder="Cantidad"
+                      min="0"
+                      className="w-full p-2 border border-app-border rounded-md text-sm"
+                    />
+                  </div>
+                  {soporteIndex > 0 && (
+                    <div className="col-span-1 flex items-center justify-cente m-7">
+                      <span
+                        className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                        onClick={() => {
+                          handle_remove_soporte(soporteIndex);
+                        }}
+                      >
+                        &#10005;
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
 
             {renderCronogramaField()}
           </div>

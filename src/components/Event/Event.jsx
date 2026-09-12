@@ -7,7 +7,7 @@ import { INITIAL_EVENT_STATE, ANIOS_DISPONIBLES, PARAMETROS_INICIALES, NEW_ANEXO
 import validateEventsData from "../../utils/validate_events";
 import Spinner from "../Spinner/Spinner";
 
-const Event = ({ eventsEdit, anexo }) => {
+const Event = ({ eventsEdit, anexo, onSaved }) => {
   const [parametros, setParametros] = useState(PARAMETROS_INICIALES);
   const [municipios, setMunicipios] = useState([]);
   const [proyectos, setProyectos] = useState([]);
@@ -252,14 +252,16 @@ const Event = ({ eventsEdit, anexo }) => {
     event.preventDefault();
 
     const isValid = validateEventsData(events, anexoYear);
+
     if (!isValid) {
-      // No seguir con el envío
       return;
-    }
+    };
+
+    const isEdit = Boolean(eventsEdit?.length && anexo?.documentId);
 
     try {
       setLoading(true);
-      // Transformar los datos al formato requerido
+
       const transformedData = {
         data: {
           anexo_tecnico_date: anexoYear || null,
@@ -364,31 +366,18 @@ const Event = ({ eventsEdit, anexo }) => {
         },
       };
 
-      let response = null;
+      const url = isEdit
+        ? `${back}/api/anexo-tecnicos/${anexo.documentId}`
+        : `${back}/api/anexo-tecnicos`;
 
-      if (eventsEdit && anexo) {
-        response = await fetch(
-          `${back}/api/anexo-tecnicos/${anexo.documentId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(transformedData),
-          },
-        );
-
-      } else {
-        response = await fetch(`${back}/api/anexo-tecnicos`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(transformedData),
-        });
-      }
+      const response = await fetch(url, {
+        method: isEdit ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(transformedData),
+      });
 
       const data = await response.json();
 
@@ -401,28 +390,34 @@ const Event = ({ eventsEdit, anexo }) => {
         throw new Error(`(${response.status}) ${serverMessage}`);
       }
 
-      setLoading(false);
-
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
-        title: "¡Envío correcto!",
-        text: "Información agregada correctamente!",
+        title: isEdit
+          ? "¡Actualización correcta!"
+          : "¡Registro correcto!",
+        text: isEdit
+          ? "La información fue actualizada correctamente."
+          : "La información fue agregada correctamente.",
       });
 
-      resetForm();
-    } catch (error) {
-      setLoading(false);
+      if (isEdit) {
+        await onSaved?.();
+      } else {
+        resetForm();
+      }
 
+    } catch (error) {
+      console.error("ERROR BACKEND:", error);
       Swal.fire({
         icon: "error",
         title: "Error al enviar",
         text: error.message,
       });
 
-      console.error("ERROR BACKEND:", error);
+    } finally {
+      setLoading(false);
     }
   };
-
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
   return (
     <form onSubmit={handleSubmit}>
@@ -746,7 +741,7 @@ const Event = ({ eventsEdit, anexo }) => {
           className="w-full block bg-teal text-white rounded-lg p-3 text-lg font-semibold cursor-pointer hover:bg-teal-600"
           type="submit"
         >
-          Enviar Anexo
+          {eventsEdit && eventsEdit.length > 0 ? "Actualizar Anexo" : "Crear Anexo"}
         </button>
       </div>
     </form >
