@@ -2,6 +2,8 @@ import React from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
+
 import { NumericFormat } from "react-number-format";
 
 const soloNumerosYComa = (e) => {
@@ -213,7 +215,11 @@ const ActivityItem = ({
       key={index}
       className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm"
     >
-      <div className="bg-teal-600 text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+      <div
+        onClick={() => {
+          toggleExpanded(index);
+        }}
+        className="bg-teal-600 text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
         Actividad #{index + 1}
         <div className="flex items-center gap-4">
           <span
@@ -225,11 +231,7 @@ const ActivityItem = ({
             &#10005;
           </span>
           <span
-            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded === true ? "rotate-180" : "rotate-0"}`}
-            onClick={() => {
-              toggleExpanded(index);
-            }}
-          >
+            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded === true ? "rotate-180" : "rotate-0"}`}>
             &#9660;
           </span>
         </div>
@@ -343,7 +345,7 @@ const ActivityItem = ({
               />
             </div>
 
-            {anexoYear == "2026" && (
+            {anexoYear == NEW_ANEXO_DATE && (
               <div>
                 <label className="block text-xs text-app-muted mb-1 uppercase">
                   CURSOS DE VIDA
@@ -417,12 +419,12 @@ const ActivityItem = ({
                 value={
                   activity.codigo_cups
                     ? {
-                        value: activity.codigo_cups,
-                        label:
-                          cups.find(
-                            (option) => option.value === activity.codigo_cups,
-                          )?.label || activity.codigo_cups,
-                      }
+                      value: activity.codigo_cups,
+                      label:
+                        cups.find(
+                          (option) => option.value === activity.codigo_cups,
+                        )?.label || activity.codigo_cups,
+                    }
                     : null
                 }
                 onChange={(selectedOption) =>
@@ -455,10 +457,10 @@ const ActivityItem = ({
                   onValueChange={handleValorChange}
                 />
               </div>
-              {anexoYear == "2025-01-01" && (
+              {anexoYear == OLD_ANEXO_DATE && (
                 <div>
-                  <label className="block text-xs text-app-muted mb-1 uppercase">
-                    VALOR TOTAL
+                  <label className="block text-xs text-app-muted mb-1 uppercase mt-2">
+                    VALOR UNITARIO
                   </label>
                   <CurrencyInput
                     name="valor_unitario"
@@ -468,7 +470,7 @@ const ActivityItem = ({
                 </div>
               )}
 
-              {anexoYear == "2026-01-01" && (
+              {anexoYear == NEW_ANEXO_DATE && (
                 <div className="flex gap-2">
                   <div className="mt-2">
                     <label className="block text-xs text-app-muted mb-1 uppercase">
@@ -522,13 +524,13 @@ const ActivityItem = ({
                     value={
                       soporte.tipo_soporte
                         ? {
-                            value: soporte.tipo_soporte,
-                            label:
-                              options.tipo_soporte.find(
-                                (option) =>
-                                  option.value === soporte.tipo_soporte,
-                              )?.label || soporte.tipo_soporte,
-                          }
+                          value: soporte.tipo_soporte,
+                          label:
+                            options.tipo_soporte.find(
+                              (option) =>
+                                option.value === soporte.tipo_soporte,
+                            )?.label || soporte.tipo_soporte,
+                        }
                         : null
                     }
                     onChange={(selectedOption) =>

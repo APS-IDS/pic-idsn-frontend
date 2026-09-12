@@ -3,7 +3,7 @@ import Product from "../Product/Product";
 import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
-import { INITIAL_EVENT_STATE, ANIOS_DISPONIBLES, PARAMETROS_INICIALES } from "../../utils/const_forms";
+import { INITIAL_EVENT_STATE, ANIOS_DISPONIBLES, PARAMETROS_INICIALES, NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
 import validateEventsData from "../../utils/validate_events";
 import Spinner from "../Spinner/Spinner";
 
@@ -14,7 +14,7 @@ const Event = ({ eventsEdit, anexo }) => {
   const [operadores, setOperadores] = useState([]);
   const [events, setEvents] = useState(eventsEdit && eventsEdit.length > 0 ? eventsEdit : [INITIAL_EVENT_STATE]);
   const [loading, setLoading] = useState(false);
-  const [anexoYear, setAnexoYear] = useState("2026-01-01");
+  const [anexoYear, setAnexoYear] = useState(NEW_ANEXO_DATE);
   const [expandedEvents, setExpandedEvents] = useState([true]);
   const anexoOptions = ANIOS_DISPONIBLES.map((option) => ({
     value: option,
@@ -25,7 +25,7 @@ const Event = ({ eventsEdit, anexo }) => {
       setEvents(eventsEdit);
     } else {
       setEvents([INITIAL_EVENT_STATE]);
-      setAnexoYear("2026-01-01");
+      setAnexoYear(NEW_ANEXO_DATE);
     }
   };
 
@@ -365,9 +365,8 @@ const Event = ({ eventsEdit, anexo }) => {
       };
 
       let response = null;
-      console.log("Editando anexo con ID:", anexo.documentId);
+
       if (eventsEdit && anexo) {
-        console.log("Editando anexo con ID:", anexo.documentId);
         response = await fetch(
           `${back}/api/anexo-tecnicos/${anexo.documentId}`,
           {
@@ -381,7 +380,6 @@ const Event = ({ eventsEdit, anexo }) => {
         );
 
       } else {
-
         response = await fetch(`${back}/api/anexo-tecnicos`, {
           method: "POST",
           headers: {
@@ -470,7 +468,7 @@ const Event = ({ eventsEdit, anexo }) => {
       {events.map((event, index) => (
         <div key={index} className="mb-2">
           <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
-            <div className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+            <div onClick={() => handleToggle(index)} className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
               Evento #{index + 1}
               <div className="flex items-center gap-4">
                 <span
@@ -481,7 +479,7 @@ const Event = ({ eventsEdit, anexo }) => {
                 </span>
                 <span
                   className={`inline-block transform transition-transform duration-200 cursor-pointer ${expandedEvents[index] === true ? "rotate-180" : "rotate-0"}`}
-                  onClick={() => handleToggle(index)}
+
                 >
                   &#9660;
                 </span>
@@ -550,6 +548,30 @@ const Event = ({ eventsEdit, anexo }) => {
                     />
                   </div>
 
+                  <div>
+                    {anexoYear == OLD_ANEXO_DATE && (
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">Total número de Hogares Beneficiarios</label>
+                        <input
+                          type="number"
+                          value={event.total_hogares || ""}
+                          onChange={(e) => handleEventChange(index, "total_hogares", e.target.value)}
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+                    )}
+                    {anexoYear == NEW_ANEXO_DATE && (
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">N° De Poblacion a Intervenir</label>
+                        <input
+                          type="number"
+                          value={event.poblacion || ""}
+                          onChange={(e) => handleEventChange(index, "poblacion", e.target.value)}
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+                    )}
+                  </div>
 
                   <h2 className="text-lg font-semibold text-navy col-span-3 text-start my-1 "> Datos del Evento</h2>
 

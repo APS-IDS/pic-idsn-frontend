@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ActivityList from "../Activities/ActivityList";
 import Swal from "sweetalert2";
-import { NEW_INDICATOR, NEW_PRODUCT } from "../../utils/const_forms";
+import { NEW_INDICATOR, NEW_PRODUCT, NEW_ANEXO_DATE } from "../../utils/const_forms";
 
 const Product = ({
   product_data,
@@ -131,7 +131,7 @@ const Product = ({
         {(product_data.producto || []).map((product, productIndex) => (
           <div key={productIndex} className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
 
-            <div className="bg-teal text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+            <div onClick={() => { toggleProduct(productIndex); }} className="bg-teal text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
               Producto #{productIndex + 1}
               <div className="flex items-center gap-4">
                 <span
@@ -142,7 +142,7 @@ const Product = ({
                 </span>
                 <span
                   className={`inline-block transform transition-transform duration-200 cursor-pointer ${isProductOpen[productIndex] === true ? "rotate-180" : "rotate-0"}`}
-                  onClick={() => { toggleProduct(productIndex); }}
+
                 >
                   &#9660;
                 </span>
@@ -151,7 +151,7 @@ const Product = ({
             {isProductOpen[productIndex] && (
               <div className="bg-app-card py-3 pb-4 px-6">
 
-                {anexoYear == "2026-01-01" && (
+                {anexoYear == NEW_ANEXO_DATE && (
                   <div className="mb-4">
                     <label className="block text-xs text-app-muted mb-1 uppercase">PROBLEMÁTICA PRIORIZADA</label>
                     <textarea
