@@ -215,109 +215,128 @@ const ReportView = () => {
     });
   };
 
-  const handle_soporte = async (documentId, soporteId) => {
-    try {
-      const response = await fetch(
-        `${url_soportes_get}anexo_id=${documentId}&soporte_id=${soporteId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+  const fetchEvidencias = async (documentId, soporteId) => {
+    const response = await fetch(
+      `${url_soportes_get}anexo_id=${documentId}&soporte_id=${soporteId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      },
+    );
 
-      let existingData = null;
-      if (response.ok) {
-        existingData = await response.json();
-      } else if (response.status === 404) {
-        console.warn("No se encontraron datos para este soporte.");
-        existingData = null;
-      } else {
-        throw new Error(`Error al obtener los datos: ${response.status}`);
+    if (response.ok) return await response.json();
+
+    if (response.status === 404) {
+      console.warn("No se encontraron datos para este soporte.");
+      return null;
+    }
+
+    throw new Error(`Error al obtener los datos: ${response.status}`);
+  };
+
+  const enviarEvidencia = async (evidencia, documentId, soporteId) => {
+    if (evidencia.tipo === "link") {
+      const response = await fetch(`${back}/api/seguimiento/upload-link`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          anexo_id: documentId,
+          soporte_id: soporteId,
+          municipio_id: evidencia.region,
+          file_name: evidencia.file_name,
+          evidencia_link: evidencia.evidencia_link,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al enviar el enlace");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("anexo_id", documentId);
+    formData.append("soporte_id", soporteId);
+    formData.append("municipio_id", evidencia.region);
+    formData.append("files", evidencia.archivo);
+
+    const response = await fetch(`${url_soportes}`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Error al enviar los datos");
+  };
+
+  const enviarEvidencias = async (evidencias, documentId, soporteId) => {
+    showLoadingSwal(
+      "Enviando soportes, por favor espera ...,",
+      "Enviando Soportes...",
+    );
+
+    try {
+      for (const evidencia of evidencias) {
+        await enviarEvidencia(evidencia, documentId, soporteId);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire("Error", "Hubo un problema al enviar los datos.", "error");
+      return;
+    }
+
+    Swal.fire("¡Éxito!", "Todos los soportes fueron enviados.", "success");
+  };
+
+  const handle_soporte = async (documentId, soporteId) => {
+    for (;;) {
+      let existingData;
+      try {
+        existingData = await fetchEvidencias(documentId, soporteId);
+      } catch (error) {
+        console.error("Error:", error);
+        Swal.fire("Error", "No se pudieron obtener los datos.", "error");
+        return;
       }
 
-      const hasExistingData = existingData?.evidencias?.length > 0;
+      let borradoPendiente = null;
 
       const result = await openSoporteModal({
         Swal,
         municipios,
-        hasExistingData,
+        hasExistingData: existingData?.evidencias?.length > 0,
         existingEvidencias: existingData?.evidencias || [],
-        onDeleteExisting: async (evidenciaId) => {
-          await deleteEvidencia(evidenciaId, documentId, soporteId);
+        onDeleteExisting: (evidenciaId) => {
+          borradoPendiente = deleteEvidencia(
+            evidenciaId,
+            documentId,
+            soporteId,
+          );
         },
       });
 
-      if (!result.isConfirmed) {
+      if (result.isConfirmed) {
+        await enviarEvidencias(result.value, documentId, soporteId);
         return;
       }
 
-      const evidenciasAEnviar = result.value;
-
-      for (const evidencia of evidenciasAEnviar) {
-        try {
-          showLoadingSwal(
-            "Enviando soportes, por favor espera ...,",
-            "Enviando Soportes...",
-          );
-
-          if (evidencia.tipo === "link") {
-            const response = await fetch(
-              `${back}/api/seguimiento/upload-link`,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  anexo_id: documentId,
-                  soporte_id: soporteId,
-                  municipio_id: evidencia.region,
-                  file_name: evidencia.file_name,
-                  evidencia_link: evidencia.evidencia_link,
-                }),
-              },
-            );
-
-            if (!response.ok) throw new Error("Error al enviar el enlace");
-          } else {
-            const formData = new FormData();
-            formData.append("anexo_id", documentId);
-            formData.append("soporte_id", soporteId);
-            formData.append("municipio_id", evidencia.region);
-            formData.append("files", evidencia.archivo);
-
-            const response = await fetch(`${url_soportes}`, {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-
-            if (!response.ok) throw new Error("Error al enviar los datos");
-          }
-
-          Swal.close();
-        } catch (error) {
-          console.error("Error:", error);
-          Swal.fire("Error", "Hubo un problema al enviar los datos.", "error");
-          return;
-        }
+      if (borradoPendiente) {
+        await borradoPendiente;
+        continue;
       }
 
-      Swal.fire("¡Éxito!", "Todos los soportes fueron enviados.", "success");
-    } catch (error) {
-      console.error("Error:", error);
-      Swal.fire("Error", "No se pudieron obtener los datos.", "error");
+      return; // el usuario cerro el modal
     }
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará la evidencia permanentemente.",
       icon: "warning",
@@ -326,48 +345,46 @@ const ReportView = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          showLoadingSwal(
-            "Eliminando soporte, por favor espera ...",
-            "Eliminado soportes...",
-          );
-          const response = await fetch(`${url_soportes_delete}`, {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              anexo_id: documentId,
-              soporte_id: soporteId,
-              evidencia_id: evidenciaId,
-            }),
-          });
-
-          if (!response.ok) throw new Error("Error al eliminar la evidencia");
-
-          Swal.close();
-
-          Swal.fire(
-            "Eliminado",
-            "La evidencia ha sido eliminada con éxito.",
-            "success",
-          );
-
-          // Volver a cargar la lista de soportes después de eliminar
-          handle_soporte(documentId, soporteId);
-        } catch (error) {
-          console.error("Error:", error);
-          Swal.fire(
-            "Error",
-            "Hubo un problema al eliminar la evidencia.",
-            "error",
-          );
-        }
-      }
     });
+
+    if (!isConfirmed) return false;
+
+    try {
+      showLoadingSwal(
+        "Eliminando soporte, por favor espera ...",
+        "Eliminado soportes...",
+      );
+
+      const response = await fetch(`${url_soportes_delete}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          anexo_id: documentId,
+          soporte_id: soporteId,
+          evidencia_id: evidenciaId,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Error al eliminar la evidencia");
+
+      await Swal.fire(
+        "Eliminado",
+        "La evidencia ha sido eliminada con éxito.",
+        "success",
+      );
+      return true;
+    } catch (error) {
+      console.error("Error:", error);
+      await Swal.fire(
+        "Error",
+        "Hubo un problema al eliminar la evidencia.",
+        "error",
+      );
+      return false;
+    }
   };
 
   const handleFilterChange = (key, value) => {
