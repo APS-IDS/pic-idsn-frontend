@@ -15,7 +15,9 @@ export default {
           light: '#e3f4ef',
         },
         green: {
-          brand: '#8bc34a', // Usamos 'brand' para no sobreescribir el green de tailwind si no quieres
+          brand: '#4caf50',
+          dark: '#3d8b40',
+          // Usamos 'brand' para no sobreescribir el green de tailwind si no quieres
         },
         yellow: {
           brand: '#f2c94c',

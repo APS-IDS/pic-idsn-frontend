@@ -173,8 +173,8 @@ const ReportView = () => {
     const filters = {};
     if (anio) {
       filters.anexo_tecnico_date = {
-        $gte: getGteDate(anio), 
-        $lte: getLteDate(anio), 
+        $gte: getGteDate(anio),
+        $lte: getLteDate(anio),
       };
     }
     if (Object.keys(eventos).length > 0) {
@@ -214,11 +214,7 @@ const ReportView = () => {
   if (error) return <div>Error: {error}</div>;
 
   const handle_click = (evento) => {
-    navigate("/edit", {
-      state: {
-        evento: evento, // Pasa aquí los datos que necesitas
-      },
-    });
+    navigate(`/anexo/edit/${evento?.documentId || "unknown"}`);
   };
 
   const handle_soporte = async (documentId, soporteId) => {
@@ -323,8 +319,6 @@ const ReportView = () => {
   };
 
   const deleteEvidencia = async (evidenciaId, documentId, soporteId) => {
-
-
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará la evidencia permanentemente.",
