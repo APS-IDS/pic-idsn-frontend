@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
 import ProductosCell from "./ProductosCell";
@@ -9,12 +10,20 @@ const AnexoCard = ({
   row,
   index,
   usuario,
-  onEdit,
   onSoporte,
   handleToggle,
   openIndex,
 }) => {
   const anio = row?.anexo_tecnico_date?.slice(0, 4);
+  const navigate = useNavigate();
+
+  const handle_click_edit = (evento) => {
+    navigate("/edit", {
+      state: {
+        evento: evento, // Pasa aquí los datos que necesitas
+      },
+    });
+  };
 
   return (
     <div
@@ -38,7 +47,10 @@ const AnexoCard = ({
         </div>
         <div className="flex items-center gap-3">
           {usuario === CustomRoles.REFERENTE_INSTITUTO && (
-            <button className={styles.edit_button} onClick={() => onEdit(row)}>
+            <button
+              className={styles.edit_button}
+              onClick={() => handle_click_edit(row)}
+            >
               <FaEdit />
             </button>
           )}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "../Header/Header";
 import styles from "./ReporView.module.css";
 import Spinner from "../Spinner/Spinner";
@@ -83,7 +82,6 @@ const ReportView = () => {
     ).toISOString();
   };
 
-  const navigate = useNavigate();
   const MySwal = withReactContent(Swal);
 
   const showLoadingSwal = (mensaje, mensaje_2) => {
@@ -206,14 +204,6 @@ const ReportView = () => {
 
   if (loading) return <Spinner envio={"Cargando datos, por favor espera..."} />;
   if (error) return <div>Error: {error}</div>;
-
-  const handle_click = (evento) => {
-    navigate("/edit", {
-      state: {
-        evento: evento, // Pasa aquí los datos que necesitas
-      },
-    });
-  };
 
   const fetchEvidencias = async (documentId, soporteId) => {
     const response = await fetch(
@@ -387,22 +377,8 @@ const ReportView = () => {
     }
   };
 
-  const handleFilterChange = (key, value) => {
-    setFilterState((prev) => ({ ...prev, [key]: value }));
-  };
-  const handleApplyFilters = () => {
-    setAppliedFilters(filterState);
-    setCurrentPage(1);
-  };
-
   const handleToggle = (index) => {
     setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
-
-  const handleClear = () => {
-    setFilterState(FILTROS_VACIOS);
-    setAppliedFilters(FILTROS_VACIOS);
-    setCurrentPage(1);
   };
 
   return (
@@ -441,10 +417,12 @@ const ReportView = () => {
               value: filterState.operator,
             },
           ]}
-          onChange={handleFilterChange}
-          onApply={handleApplyFilters}
           loading={loadingData}
-          onClear={handleClear}
+          FILTROS_VACIOS={FILTROS_VACIOS}
+          filterState={filterState}
+          setFilterState={setFilterState}
+          setAppliedFilters={setAppliedFilters}
+          setCurrentPage={setCurrentPage}
         />
 
         {loadingData ? (
@@ -456,7 +434,6 @@ const ReportView = () => {
               row={anexo}
               index={index}
               usuario={usuario}
-              onEdit={handle_click}
               onSoporte={handle_soporte}
               handleToggle={handleToggle}
               openIndex={openIndex}

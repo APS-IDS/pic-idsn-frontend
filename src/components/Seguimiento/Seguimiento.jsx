@@ -317,30 +317,6 @@ const Seguimiento = () => {
     }
   };
 
-  const verSoporte = async (uuid) => {
-    try {
-      const response = await fetch(`${back}/api/seguimiento/get-file/${uuid}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`, // tu token JWT
-        },
-      });
-
-      if (!response.ok) throw new Error("Error al obtener el archivo");
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
-    } catch (err) {
-      console.error(err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Error al obtener el archivo!",
-      });
-    }
-  };
-
   const handle_send_check = async (id) => {
     const estado_seleccionado = estados_back.find(
       (e) => e.estado_soporte === estadoSoportes[id],
@@ -378,22 +354,6 @@ const Seguimiento = () => {
       });
       console.error(error);
     }
-  };
-
-  const EMOJI_REFERENTE = {
-    "Sin Reporte": "📄",
-    "No aplica para periodo": "🚫",
-    "Avance Limitado": "⚠️",
-    "Actividad con avance": "📈",
-    "Actividad cerrada": "✅",
-    "Ajustar soportes": "🛠️",
-  };
-
-  const EMOJI_OPERADOR = {
-    "No Aplica para periodo": "🚫",
-    "Reporte Actualizado": "♻️",
-    "Reporte de avance": "📈",
-    "Sin avance": "⚠️",
   };
 
   if (loading) {
@@ -437,7 +397,6 @@ const Seguimiento = () => {
           estadoSoportes={estadoSoportes}
           estadosBack={estados_back}
           usuario={usuario}
-          onVerSoporte={verSoporte}
           onEstadoChange={handleEstadoChange}
           onSendCheck={handle_send_check}
         />
@@ -456,7 +415,6 @@ const Seguimiento = () => {
             onChange={onChange_observaciones}
             onChangeState={onchange_status}
             estados={estados_referente}
-            emojiMap={EMOJI_REFERENTE}
           />
 
           <ObservacionPanel
@@ -470,7 +428,6 @@ const Seguimiento = () => {
             onChange={onChange_observaciones}
             onChangeState={onchange_status}
             estados={estados_operador}
-            emojiMap={EMOJI_OPERADOR}
           />
         </div>
 
