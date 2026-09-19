@@ -7,7 +7,29 @@ const selectStyles = {
   placeholder: (base) => ({ ...base, fontSize: "0.75rem", lineHeight: "1rem" }),
 };
 
-const FiltersPanel = ({ filters, onChange, onApply, loading, onClear }) => {
+const FiltersPanel = ({
+  filters,
+  loading,
+  FILTROS_VACIOS,
+  filterState,
+  setFilterState,
+  setAppliedFilters,
+  setCurrentPage,
+}) => {
+  const handleFilterChange = (key, value) => {
+    setFilterState((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleApplyFilters = () => {
+    setAppliedFilters(filterState);
+    setCurrentPage(1);
+  };
+
+  const handleClear = () => {
+    setFilterState(FILTROS_VACIOS);
+    setAppliedFilters(FILTROS_VACIOS);
+    setCurrentPage(1);
+  };
+
   const filtrosOrdenados = useMemo(() => {
     if (!filters) return [];
     return filters.map((filter) => {
@@ -23,12 +45,16 @@ const FiltersPanel = ({ filters, onChange, onApply, loading, onClear }) => {
 
   return (
     <div className="bg-app-card mb-3 mx-7 py-3 pb-4 px-6 border rounded-lg shadow-sm">
-      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">Filtros de búsqueda</p>
+      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">
+        Filtros de búsqueda
+      </p>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 items-end">
         {filtrosOrdenados.map((filter) => (
           <div key={filter.key}>
-            <label className="block text-xs text-app-muted mb-1">{filter.label}</label>
+            <label className="block text-xs text-app-muted mb-1">
+              {filter.label}
+            </label>
             <Select
               name={filter.label}
               options={filter.optionsList}
@@ -37,15 +63,20 @@ const FiltersPanel = ({ filters, onChange, onApply, loading, onClear }) => {
                   ? {
                       value: filter.value,
                       label:
-                        filter.optionsList.find((option) => option.value === filter.value)?.label ??
-                        filter.text,
+                        filter.optionsList.find(
+                          (option) => option.value === filter.value,
+                        )?.label ?? filter.text,
                     }
                   : null
               }
-              onChange={(seleccion) => onChange(filter.key, seleccion?.value || null)}
+              onChange={(seleccion) =>
+                handleFilterChange(filter.key, seleccion?.value || null)
+              }
               placeholder={filter.text}
               isClearable
-              menuPortalTarget={typeof window !== "undefined" ? document.body : null}
+              menuPortalTarget={
+                typeof window !== "undefined" ? document.body : null
+              }
               styles={selectStyles}
             />
           </div>
@@ -53,12 +84,20 @@ const FiltersPanel = ({ filters, onChange, onApply, loading, onClear }) => {
       </div>
 
       <div className="flex gap-3 mt-3">
-
-
-        <button onClick={onApply} disabled={loading} className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold" >
+        <button
+          onClick={handleApplyFilters}
+          disabled={loading}
+          className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold"
+        >
+          {" "}
           {loading ? "Aplicando..." : "Aplicar filtros"}
         </button>
-        <button className="py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-gray-200 font-semibold" onClick={onClear}>Limpiar</button>
+        <button
+          className="py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-gray-200 font-semibold"
+          onClick={handleClear}
+        >
+          Limpiar
+        </button>
       </div>
     </div>
   );

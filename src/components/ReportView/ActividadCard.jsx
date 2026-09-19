@@ -14,13 +14,7 @@ const Dato = ({ etiqueta, valor }) => (
   </span>
 );
 
-const ActividadCard = ({
-  actividad,
-  documentId,
-  anexoDate,
-  usuario,
-  onSoporte,
-}) => {
+const ActividadCard = ({ actividad, documentId, usuario, onSoporte }) => {
   const soportes = actividad?.soportes ?? [];
   const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
 
