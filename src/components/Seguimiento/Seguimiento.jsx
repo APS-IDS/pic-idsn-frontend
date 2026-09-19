@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Header from "../Header/Header";
 import Swal from "sweetalert2";
@@ -178,7 +178,7 @@ const Seguimiento = () => {
   };
 
   const loadAnexoAndSoportes = async () => {
-    const anexoResult = await fetchAnexo();
+    const anexoResult = await fetchAnexo(documentId, token);
     const actividadResult = await findActivity(actividadId, anexoResult);
 
     if (!actividadResult) {

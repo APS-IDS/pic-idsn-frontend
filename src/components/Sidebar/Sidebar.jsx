@@ -39,7 +39,7 @@ const Sidebar = () => {
             {(usuarioRol === CustomRoles.REFERENTE_INSTITUTO ||
               super_user === CustomRoles.SUPERUSER) && (
               <li>
-                <NavLink to="/repo" className={styles.active}>
+                <NavLink to="/anexo/add" className={styles.active}>
                   Anexo Técnico
                 </NavLink>
               </li>
