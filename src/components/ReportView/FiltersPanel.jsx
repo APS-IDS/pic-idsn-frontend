@@ -10,11 +10,12 @@ const selectStyles = {
 const FiltersPanel = ({
   filters,
   loading,
-  FILTROS_VACIOS,
+  filterEmptyState,
   filterState,
   setFilterState,
   setAppliedFilters,
   setCurrentPage,
+  title
 }) => {
   const handleFilterChange = (key, value) => {
     setFilterState((prev) => ({ ...prev, [key]: value }));
@@ -25,8 +26,8 @@ const FiltersPanel = ({
   };
 
   const handleClear = () => {
-    setFilterState(FILTROS_VACIOS);
-    setAppliedFilters(FILTROS_VACIOS);
+    setFilterState(filterEmptyState);
+    setAppliedFilters(filterEmptyState);
     setCurrentPage(1);
   };
 
@@ -44,10 +45,8 @@ const FiltersPanel = ({
   }, [filters]);
 
   return (
-    <div className="bg-app-card mb-3 mx-7 py-3 pb-4 px-6 border rounded-lg shadow-sm">
-      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">
-        Filtros de búsqueda
-      </p>
+    <div className="bg-app-card mb-3 py-3 pb-4 px-6 border rounded-lg shadow-sm">
+      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">{title}</p>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 items-end">
         {filtrosOrdenados.map((filter) => (
@@ -61,12 +60,12 @@ const FiltersPanel = ({
               value={
                 filter.value
                   ? {
-                      value: filter.value,
-                      label:
-                        filter.optionsList.find(
-                          (option) => option.value === filter.value,
-                        )?.label ?? filter.text,
-                    }
+                    value: filter.value,
+                    label:
+                      filter.optionsList.find(
+                        (option) => option.value === filter.value,
+                      )?.label ?? filter.text,
+                  }
                   : null
               }
               onChange={(seleccion) =>

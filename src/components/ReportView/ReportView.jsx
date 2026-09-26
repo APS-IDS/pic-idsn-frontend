@@ -285,7 +285,7 @@ const ReportView = () => {
   };
 
   const handle_soporte = async (documentId, soporteId) => {
-    for (;;) {
+    for (; ;) {
       let existingData;
       try {
         existingData = await fetchEvidencias(documentId, soporteId);
@@ -423,6 +423,7 @@ const ReportView = () => {
           setFilterState={setFilterState}
           setAppliedFilters={setAppliedFilters}
           setCurrentPage={setCurrentPage}
+          title="Filtros de búsqueda"
         />
 
         {loadingData ? (
