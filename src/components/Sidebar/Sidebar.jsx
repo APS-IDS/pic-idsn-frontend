@@ -1,18 +1,11 @@
 import React from "react";
+import { FaHome, FaFolderPlus, FaLayerGroup, FaUserPlus } from "react-icons/fa"; // Importar íconos
 import { NavLink } from "react-router-dom";
 import styles from "./Sidebar.module.css";
 import { useSelector } from "react-redux";
 import { CustomRoles } from "../Login/constant";
 
 const Sidebar = () => {
-  // const usuarioRedux = useSelector((state) => state.user.usuario);
-  // const usuarioSession = JSON.parse(sessionStorage.getItem("usuario_rol"));
-
-  // const usuario = usuarioSession.usuario || usuarioRedux;
-
-  // const super_user = useSelector((state) => state.user.user_name);
-
-  // Redux (principal)
   const rolRedux = useSelector((state) => state.user.usuario);
   const userRedux = useSelector((state) => state.user.user_name);
 
@@ -24,44 +17,56 @@ const Sidebar = () => {
   // Resolver valores finales
   const usuarioRol = rolRedux || rolLS;
 
-  const super_user = userRedux || userLS;
+  const usuarioName = userRedux || userLS;
+
+  // Estilo taildwind de botones sidebar
+  const stylesBtn = ({ isActive }) =>
+    `flex items-center gap-[10px] text-left text-[13.5px] font-semibold border-none px-[14px] py-[11px] rounded-[8px] w-full cursor-pointer transition-colors 
+  ${
+    isActive
+      ? "bg-[#07a686] text-white/90 hover:text-white"
+      : "text-[#c9d6e4] hover:bg-white/5 hover:text-white"
+  }`;
+
+  const marginBtn = "my-[14px] mx-[11px]";
 
   return (
-    <div className={styles.side}>
-      <aside className={styles.sidebar}>
+    <div className="w-fit">
+      <aside className="flex flex-col w-[220px] bg-[var(--navy-dark)] h-full px-[14px] py-[18px] shadow-[2px_0px_5px_rgba(0,0,0,0.1)] shrink-0 gap-[10px] ">
         <nav>
-          <ul>
-            <li>
-              <NavLink to="/dashbo" className={styles.active}>
-                Inicio
-              </NavLink>
-            </li>
+          <ul className="	list-none p-0">
             {(usuarioRol === CustomRoles.REFERENTE_INSTITUTO ||
-              super_user === CustomRoles.SUPERUSER) && (
-              <li>
-                <NavLink to="/anexo/add" className={styles.active}>
-                  Anexo Técnico
+              usuarioName === CustomRoles.SUPERUSER) && (
+              <li className={marginBtn}>
+                <NavLink
+                  to="/anexo/add"
+                  className={stylesBtn}
+                  title="Crear nuevo anexo."
+                >
+                  <FaFolderPlus />
+                  Anexo Técnico.
                 </NavLink>
               </li>
             )}
-            <li>
+            <li className={marginBtn}>
               <NavLink
                 to="/view"
-                // className={({ isActive }) => (isActive ? styles.active : "")}
-                className={styles.active}
+                className={stylesBtn}
+                title="Biblioteca de anexos."
               >
-                Visualización
+                <FaLayerGroup />
+                Visualización.
               </NavLink>
             </li>
-            {(usuarioRol === CustomRoles.SUPERUSER &&
-              super_user === CustomRoles.SUPERUSER) && (
-              <li>
+            {usuarioRol === CustomRoles.SUPERUSER && (
+              <li className={marginBtn}>
                 <NavLink
                   to="/register"
-                  // className={({ isActive }) => (isActive ? styles.active : "")}
-                  className={styles.active}
+                  className={stylesBtn}
+                  title="Registrar nuevo usuario."
                 >
-                  Registro
+                  <FaUserPlus />
+                  Registro.
                 </NavLink>
               </li>
             )}
