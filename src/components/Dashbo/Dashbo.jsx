@@ -10,15 +10,15 @@ import { useSelector } from "react-redux";
 import { mapToChartData } from "../../utils/constDashBoard";
 import FiltersPanel from "../ReportView/FiltersPanel";
 import { filtersDashboard, FILTERS } from "../../utils/constDashBoard";
+import PanelResume from "./PanelResume";
 
-const teal = '#0f7a68';
-const tealMid = '#14947f';
-const tealLight = '#7fc9ba';
-const navy = '#1c3a5e';
-const navyLight = '#4a6d94';
-const yellow = '#f2c94c';
-const green = '#8bc34a';
-
+const teal = "#0f7a68";
+const tealMid = "#14947f";
+const tealLight = "#7fc9ba";
+const navy = "#1c3a5e";
+const navyLight = "#4a6d94";
+const yellow = "#f2c94c";
+const green = "#8bc34a";
 
 import {
   Chart as ChartJS,
@@ -36,7 +36,6 @@ import {
 import LineaMes from "./LineaMeses";
 import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
 
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -50,9 +49,7 @@ ChartJS.register(
   RadialLinearScale,
 );
 
-
 const Dashbo = () => {
-
   const [globalData, setGlobalData] = useState(null);
   const [panelCard, setPanelCard] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -68,7 +65,9 @@ const Dashbo = () => {
   const dispatch = useDispatch();
   const url_data_total = `${back}/api/dashboard-all`;
   const activeFilters = filtersDashboard(filterOptions, filterState);
-  const token = useSelector((state) => state.token.token) || JSON.parse(localStorage.getItem("token"))?.token;
+  const token =
+    useSelector((state) => state.token.token) ||
+    JSON.parse(localStorage.getItem("token"))?.token;
 
   const fetchData = async () => {
     setLoading(true);
@@ -94,12 +93,11 @@ const Dashbo = () => {
 
       // modificar aqui los valores de los paneles, Resumen
       setPanelCard({
-        events: 1,
-        activities: 2,
-        products: 100,
-        supports: 12
+        events: 100,
+        activities: 50,
+        products: 1000,
+        supports: 80,
       });
-
     } catch (error) {
       console.error("Error fetching subregions:", error);
     } finally {
@@ -148,12 +146,14 @@ const Dashbo = () => {
             documentId: item.documentId,
           }));
 
-
         setFilterOptions({
           municipios: toOptions(municipiosResult, "label"),
           operadores: toOptions(operadoresResult, "operador_pic", "documentId"),
           proyectos: toOptions(proyectosResult, "proyecto", "documentId"),
-          anios: ANIOS_DISPONIBLES.map((anio) => ({ value: anio, label: anio })),
+          anios: ANIOS_DISPONIBLES.map((anio) => ({
+            value: anio,
+            label: anio,
+          })),
           // Espera de los estados pertinentes
           estados: [
             { value: "Pendiente", label: "Pendiente" },
@@ -177,7 +177,9 @@ const Dashbo = () => {
       <div className="flex min-h-[calc(100vh-56px)]">
         <Sidebar />
         <div className="px-6 flex-col w-full gap-5 py-4">
-          <p className="font-bold uppercase text-navy py-3">Filtros de búsqueda</p>
+          <p className="font-bold uppercase text-navy py-3">
+            Filtros de búsqueda
+          </p>
           <FiltersPanel
             filters={activeFilters}
             loading={loading}
@@ -187,64 +189,89 @@ const Dashbo = () => {
             setAppliedFilters={setAppliedFilters}
           />
           <p className="font-bold uppercase text-navy py-3">Resumen</p>
-          // Pending: Implementar el componente PanelCard para mostrar los datos de resumen
+          <PanelResume data={panelCard} />
           <p className="font-bold uppercase text-navy py-3">Indicadores</p>
-          {
-            loading ? (
-              <Spinner envio={"Cargando datos, por favor espera..."} />
-            ) : (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Bardouble
-                  title="Eventos por Municipio"
-                  data={mapToChartData(globalData?.municipiosEventos, { labelsField: "municipio", valuesField: "eventos", color: tealMid })}
-                  color={tealMid}
-                />
+          {loading ? (
+            <Spinner envio={"Cargando datos, por favor espera..."} />
+          ) : (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <Bardouble
+                title="Eventos por Municipio"
+                data={mapToChartData(globalData?.municipiosEventos, {
+                  labelsField: "municipio",
+                  valuesField: "eventos",
+                  color: tealMid,
+                })}
+                color={tealMid}
+              />
 
-                <Bardouble
-                  title="Eventos por Operador"
-                  data={mapToChartData(globalData?.eventosOperador, { labelsField: "operador", valuesField: "eventos", color: navyLight })}
-                  color={tealMid}
-                />
+              <Bardouble
+                title="Eventos por Operador"
+                data={mapToChartData(globalData?.eventosOperador, {
+                  labelsField: "operador",
+                  valuesField: "eventos",
+                  color: navyLight,
+                })}
+                color={tealMid}
+              />
 
-                <Dona
-                  title="Porcentaje de Actividades Según Población"
-                  data={mapToChartData(globalData?.actividadesPoblacion, { color: [teal, yellow, navy, navyLight, tealLight], type: "doughnut" })}
-                />
+              <Dona
+                title="Porcentaje de Actividades Según Población"
+                data={mapToChartData(globalData?.actividadesPoblacion, {
+                  color: [teal, yellow, navy, navyLight, tealLight],
+                  type: "doughnut",
+                })}
+              />
 
-                <Dona
-                  title="Porcentaje de Actividades Según Entorno"
-                  data={mapToChartData(globalData?.actividadesEntorno, { color: [teal, navy, navyLight, tealLight], type: "doughnut" })}
-                />
+              <Dona
+                title="Porcentaje de Actividades Según Entorno"
+                data={mapToChartData(globalData?.actividadesEntorno, {
+                  color: [teal, navy, navyLight, tealLight],
+                  type: "doughnut",
+                })}
+              />
 
-                <Bardouble
-                  title="Cantidad de Productos Según Proyecto"
-                  data={mapToChartData(globalData?.productosProyecto, { labelsField: "proyecto", valuesField: "productos", color: yellow })}
-                  color={tealMid}
-                />
+              <Bardouble
+                title="Cantidad de Productos Según Proyecto"
+                data={mapToChartData(globalData?.productosProyecto, {
+                  labelsField: "proyecto",
+                  valuesField: "productos",
+                  color: yellow,
+                })}
+                color={tealMid}
+              />
 
-                <Dona
-                  title="Cantidad de Soportes Según Estado"
-                  data={mapToChartData(globalData?.soportesEstado, { color: [teal, navy, navyLight] })}
-                />
+              <Dona
+                title="Cantidad de Soportes Según Estado"
+                data={mapToChartData(globalData?.soportesEstado, {
+                  color: [teal, navy, navyLight],
+                })}
+              />
 
+              <LineaMes
+                title="Cantidad de Actividades por Mes"
+                data={mapToChartData(globalData?.actividadesMes, {
+                  type: "line",
+                  color: green,
+                })}
+              />
 
-                <LineaMes
-                  title="Cantidad de Actividades por Mes"
-                  data={mapToChartData(globalData?.actividadesMes, { type: "line", color: green })}
-                />
+              <Bardouble
+                title="Cantidad de Actividades por Tecnología"
+                data={mapToChartData(globalData?.actividadesTecnologia, {
+                  color: tealLight,
+                })}
+                color={tealMid}
+              />
 
-                <Bardouble
-                  title="Cantidad de Actividades por Tecnología"
-                  data={mapToChartData(globalData?.actividadesTecnologia, { color: tealLight })}
-                  color={tealMid}
-                />
-
-                <Dona
-                  title="Porcentaje de Estado por Actividades"
-                  data={mapToChartData(globalData?.actividadesPorEstado, { color: [teal, navy, navyLight] })}
-                />
-              </div>
-            )}
+              <Dona
+                title="Porcentaje de Estado por Actividades"
+                data={mapToChartData(globalData?.actividadesPorEstado, {
+                  color: [teal, navy, navyLight],
+                })}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

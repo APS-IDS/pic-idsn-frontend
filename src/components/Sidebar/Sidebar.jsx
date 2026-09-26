@@ -2,7 +2,11 @@ import React from "react"; // Importar íconos
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { CustomRoles } from "../Login/constant";
-import { FileText, ChartNoAxesColumnIncreasing, UserRoundPlus } from "lucide-react";
+import {
+  FileText,
+  ChartNoAxesColumnIncreasing,
+  UserRoundPlus,
+} from "lucide-react";
 
 const Sidebar = () => {
   const rolRedux = useSelector((state) => state.user.usuario);
@@ -21,10 +25,11 @@ const Sidebar = () => {
   // Estilo taildwind de botones sidebar
   const stylesBtn = ({ isActive }) =>
     `flex items-center gap-[10px] text-left text-md font-semibold border-none px-2 py-[11px] rounded-[8px] w-full cursor-pointer transition-colors 
-  ${isActive
+  ${
+    isActive
       ? "bg-[#07a686] text-white/90 hover:text-white"
       : "text-[#c9d6e4] hover:bg-white/5 hover:text-white"
-    }`;
+  }`;
 
   const marginBtn = "my-[14px] mx-[11px]";
   const iconStyle = "w-5 h-5";
@@ -36,17 +41,17 @@ const Sidebar = () => {
           <ul className="	list-none p-0">
             {(usuarioRol === CustomRoles.REFERENTE_INSTITUTO ||
               usuarioName === CustomRoles.SUPERUSER) && (
-                <li className={marginBtn}>
-                  <NavLink
-                    to="/anexo/add"
-                    className={stylesBtn}
-                    title="Crear nuevo anexo."
-                  >
-                    <FileText className={iconStyle} />
-                    Anexo Técnico
-                  </NavLink>
-                </li>
-              )}
+              <li className={marginBtn}>
+                <NavLink
+                  to="/anexo/add"
+                  className={stylesBtn}
+                  title="Crear nuevo anexo."
+                >
+                  <FileText className={iconStyle} />
+                  Anexo Técnico
+                </NavLink>
+              </li>
+            )}
             <li className={marginBtn}>
               <NavLink
                 to="/view"
@@ -65,7 +70,7 @@ const Sidebar = () => {
                   title="Registrar nuevo usuario."
                 >
                   <UserRoundPlus className={iconStyle} />
-                  Registro.
+                  Registro
                 </NavLink>
               </li>
             )}
