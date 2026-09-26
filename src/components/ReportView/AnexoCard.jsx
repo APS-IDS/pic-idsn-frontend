@@ -28,7 +28,7 @@ const AnexoCard = ({
   return (
     <div
       key={index}
-      className="bg-app-card mb-3 mx-7  border rounded-lg shadow-sm overflow-hidden"
+      class="bg-app-card mb-3 border rounded-lg shadow-sm overflow-hidden"
     >
       <div
         className="flex items-center justify-between py-3 px-5 text-white cursor-pointer bg-navy"
