@@ -17,12 +17,8 @@ const AnexoCard = ({
   const anio = row?.anexo_tecnico_date?.slice(0, 4);
   const navigate = useNavigate();
 
-  const handle_click_edit = (evento) => {
-    navigate("/edit", {
-      state: {
-        evento: evento, // Pasa aquí los datos que necesitas
-      },
-    });
+  const handle_click_edit = (row) => {
+    navigate(`/anexo/edit/${row.documentId}`);
   };
 
   return (
