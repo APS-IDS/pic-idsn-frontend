@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { mapToChartData } from "../../utils/constDashBoard";
 import FiltersPanel from "../ReportView/FiltersPanel";
 import { filtersDashboard, FILTERS } from "../../utils/constDashBoard";
+import { toastError, toastSuccess } from "../../utils/toast";
 import PanelResume from "./PanelResume";
 
 const teal = "#0f7a68";
@@ -87,7 +88,11 @@ const Dashbo = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      if (!response.ok) {
+        throw new Error(
+          `Error al obtener los datos del tablero: ${response.status}`,
+        );
+      }
       const data = await response.json();
       setGlobalData(data);
 
@@ -99,7 +104,8 @@ const Dashbo = () => {
         supports: 80,
       });
     } catch (error) {
-      console.error("Error fetching subregions:", error);
+      console.error("Error cargando los datos del tablero:", error);
+      toastError("No se pudieron cargar los datos del tablero");
     } finally {
       setLoading(false);
     }
@@ -162,7 +168,8 @@ const Dashbo = () => {
           ],
         });
       } catch (error) {
-        setError(error.message);
+        console.error("Error cargando opciones de filtros:", error);
+        toastError("No se pudieron cargar las opciones de filtros");
       } finally {
         setLoading(false);
       }
