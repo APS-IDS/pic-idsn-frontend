@@ -62,6 +62,7 @@ const Dashbo = () => {
   const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
   const url_proyectos = `${back}/api/proyectos-idsns`;
+  const url_estados = `${back}/api/estado-referentes`;
 
   const dispatch = useDispatch();
   const url_data_total = `${back}/api/dashboard-all`;
@@ -72,15 +73,20 @@ const Dashbo = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { anio, project, operator, municipality } = appliedFilters;
+    const { anio, project, operator, municipality, estado } = appliedFilters;
+    // gestionar los query params dinamicamente
+    const params = new URLSearchParams();
 
-    let url_builder = "";
+    // agregar cada param si tiene un valor valido
+    if (anio) params.append("dateFilter", anio);
+    if (project) params.append("projectId", project);
+    if (municipality) params.append("municipioId", municipality);
+    if (operator) params.append("operadorId", operator);
+    if (estado) params.append("estadoObservacioneReferenteId", estado);
 
-    if (anio) {
-      url_builder = `${url_data_total}?dateFilter=${anio}`;
-    } else {
-      url_builder = `${url_data_total}`;
-    }
+    // URL final concatenando 
+    const queryString = params.toString();
+    const url_builder = queryString ? `${url_data_total}?${queryString}` : url_data_total;
 
     try {
       const response = await fetch(url_builder, {
@@ -137,11 +143,12 @@ const Dashbo = () => {
           return response.json();
         };
 
-        const [municipiosResult, operadoresResult, proyectosResult] =
+        const [municipiosResult, operadoresResult, proyectosResult, estadosResult] =
           await Promise.allSettled([
             fetchJson(url_municipios),
             fetchJson(url_operadores),
             fetchJson(url_proyectos),
+            fetchJson(url_estados)
           ]);
 
         // campoValue define qué se envía al backend; campoLabel, qué se muestra
@@ -153,7 +160,7 @@ const Dashbo = () => {
           }));
 
         setFilterOptions({
-          municipios: toOptions(municipiosResult, "label"),
+          municipios: toOptions(municipiosResult, "label", "documentId"),
           operadores: toOptions(operadoresResult, "operador_pic", "documentId"),
           proyectos: toOptions(proyectosResult, "proyecto", "documentId"),
           anios: ANIOS_DISPONIBLES.map((anio) => ({
@@ -161,11 +168,7 @@ const Dashbo = () => {
             label: anio,
           })),
           // Espera de los estados pertinentes
-          estados: [
-            { value: "Pendiente", label: "Pendiente" },
-            { value: "Aprobado", label: "Aprobado" },
-            { value: "Rechazado", label: "Rechazado" },
-          ],
+          estados: toOptions(estadosResult, "estado_actividad", "documentId"),
         });
       } catch (error) {
         console.error("Error cargando opciones de filtros:", error);
