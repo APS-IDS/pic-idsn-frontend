@@ -73,7 +73,7 @@ const Dashbo = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const { anio, project, operator, municipality, state } = appliedFilters;
+    const { anio, project, operator, municipality, estado } = appliedFilters;
     // gestionar los query params dinamicamente
     const params = new URLSearchParams();
 
@@ -82,7 +82,7 @@ const Dashbo = () => {
     if (project) params.append("projectId", project);
     if (municipality) params.append("municipioId", municipality);
     if (operator) params.append("operadorId", operator);
-    if (state) params.append("estadoObservacioneReferenteId", state);
+    if (estado) params.append("estadoObservacioneReferenteId", estado);
 
     // URL final concatenando 
     const queryString = params.toString();
