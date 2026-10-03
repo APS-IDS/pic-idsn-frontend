@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "../Header/Header";
 import {
   MDBBtn,
   MDBContainer,
   MDBCard,
+  MDBCardHeader,
   MDBCardBody,
   MDBCardImage,
   MDBRow,
@@ -12,9 +13,10 @@ import {
 } from "mdb-react-ui-kit";
 import imagen from "../../assets/Logo2.jpg";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert";
+import Swal from "sweetalert2";
 import Select from "react-select";
 import { useSelector } from "react-redux";
+import { CustomRoles } from "../Login/constant";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -33,7 +35,7 @@ const INITIAL_FORM_STATE = {
   cargo: "",
   entidad: "",
   custom_role_id: "",
-  operador_id: "", // <- nuevo campo
+  operador_id: "",
 };
 
 const DOCUMENT_TYPE_OPTIONS = [
@@ -42,17 +44,24 @@ const DOCUMENT_TYPE_OPTIONS = [
   { value: "Pasaporte", label: "Pasaporte" },
 ];
 
+// Mismos tokens visuales que Perfil, para que ambas paginas lean igual.
+const styleCard = "mb-4 border-solid border-gray-200 border-[1px] p-0";
+const styleCardHeader =
+  "bg-[#0f7a68] text-[20px] text-white font-bold px-4 py-3";
+const styleLabelInput = "text-[16px] font-bold !-translate-y-8";
+
 const CUSTOM_SELECT_STYLES = {
   control: (base) => ({
     ...base,
     minHeight: "38px",
-    borderColor: "#ccc",
+    borderColor: "#dfe3e8",
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? "#81e899" : "white",
-    color: "#333",
+    backgroundColor: state.isFocused ? "#e3f4ef" : "white",
+    color: "#1f2937",
   }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -80,23 +89,33 @@ function Register() {
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [roles, setRoles] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [tipos, setTipos] = useState([]);
   const [selectedRoleName, setSelectedRoleName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const back = import.meta.env.VITE_APP_BACK;
-  // const token_object = JSON.parse(sessionStorage.getItem("token")) || {};
-  // const token = token_object.token;
 
   const token =
     useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
 
+  // Mismo resolucion de rol que Sidebar: redux primero, localStorage de
+  // respaldo. El gate de /register en Sidebar usa `usuarioRol`, no el username.
+  const rolRedux = useSelector((state) => state.user.usuario);
+
+  // localStorage (respaldo)
+  const usuarioRolLS = JSON.parse(localStorage.getItem("usuario_rol")) || {};
+  const rolLS = usuarioRolLS.usuario;
+
+  // Resolver valores finales
+  const usuarioRol = rolRedux || rolLS;
+
+  const isSuperUser = usuarioRol === CustomRoles.SUPERUSER;
+
   // ─── API URLs ──────────────────────────────────────────────────────────────
 
   const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=100`;
   const url_custom_roles = `${back}/api/custom-roles`;
-  const url_roles = `${back}/api/users-permissions/roles`;
 
   // ─── Data fetching ─────────────────────────────────────────────────────────
 
@@ -104,7 +123,7 @@ function Register() {
     const fetchOperadores = async () => {
       try {
         const data = await fetchWithAuth(url_operadores, token);
-        setOperadores(data.data);
+        setOperadores(data.data || []);
       } catch (error) {
         console.error("Error fetching operadores:", error);
       }
@@ -119,38 +138,15 @@ function Register() {
         setRoles(data.data || []);
       } catch (err) {
         console.error("Error al obtener custom roles:", err);
-        Swal({
-          title: "Error",
-          text: "No se pudieron cargar los  custom roles",
-          icon: "error",
-        });
-      }
-    };
-    fetchCustomRoles();
-  }, [token, url_custom_roles]);
-
-  useEffect(() => {
-    const fetchTipos = async () => {
-      try {
-        const data = await fetchWithAuth(url_roles, token);
-        setTipos(data || []);
-      } catch (err) {
-        console.error("Error al obtener roles:", err);
-        Swal({
+        Swal.fire({
           title: "Error",
           text: "No se pudieron cargar los roles",
           icon: "error",
         });
       }
     };
-    fetchTipos();
-  }, [token, url_roles]);
-
-  // console.log("Operadores:", operadores);
-
-  // console.log("Tipos:", tipos);
-
-  // console.log("Tipo:", tipos.roles[0].id);
+    fetchCustomRoles();
+  }, [token, url_custom_roles]);
 
   // ─── Handlers ──────────────────────────────────────────────────────────────
 
@@ -160,7 +156,7 @@ function Register() {
       setForm((prevForm) => ({ ...prevForm, [name]: value }));
 
       if (name === "custom_role_id") {
-        const roleSelected = roles.find((r) => r.id === parseInt(value));
+        const roleSelected = roles.find((r) => r.id === parseInt(value, 10));
         setSelectedRoleName(roleSelected?.name?.toLowerCase() || "");
       }
 
@@ -201,8 +197,8 @@ function Register() {
       !form.entidad ||
       !form.numero_documento ||
       !form.custom_role_id ||
-      (selectedRoleName === "operador" && !form.operador_id), // <- operador obligatorio si es ese rol
-    [form],
+      (selectedRoleName === CustomRoles.OPERADOR && !form.operador_id),
+    [form, selectedRoleName],
   );
 
   // ─── Submit ────────────────────────────────────────────────────────────────
@@ -212,10 +208,10 @@ function Register() {
       event.preventDefault();
 
       const selectedRole = roles.find(
-        (r) => r.id === parseInt(form.custom_role_id),
+        (r) => r.id === parseInt(form.custom_role_id, 10),
       );
       if (!selectedRole) {
-        Swal({
+        Swal.fire({
           title: "Error",
           text: "Debes seleccionar un rol válido",
           icon: "error",
@@ -224,6 +220,8 @@ function Register() {
       }
 
       try {
+        setSubmitting(true);
+
         const bodyData = {
           username: form.username,
           email: form.email,
@@ -242,7 +240,7 @@ function Register() {
           custom_roles: [selectedRole.documentId],
         };
 
-        if (selectedRoleName === "operador" && form.operador_id) {
+        if (selectedRoleName === CustomRoles.OPERADOR && form.operador_id) {
           bodyData.operador_pic = form.operador_id;
         }
 
@@ -258,19 +256,20 @@ function Register() {
         if (!response.ok)
           throw new Error(`HTTP error! Status: ${response.status}`);
 
-        Swal({
+        await Swal.fire({
           title: "Registro exitoso",
           text: "Usuario registrado correctamente",
           icon: "success",
         });
-        navigate("/");
       } catch (error) {
         console.error("Error en el registro:", error.message);
-        Swal({
+        Swal.fire({
           title: "Error al registrar",
           text: "Hubo un problema al registrar el usuario",
           icon: "error",
         });
+      } finally {
+        setSubmitting(false);
       }
     },
     [form, roles, selectedRoleName, back, token, navigate],
@@ -279,34 +278,71 @@ function Register() {
   // ─── Derived values for Select components ─────────────────────────────────
 
   const roleOptions = useMemo(
-    () => [
-      { value: "", label: "Selecciona un rol" },
-      ...roles.map((role) => ({ value: role.id, label: role.name })),
-    ],
+    () => roles.map((role) => ({ value: role.id, label: role.name })),
     [roles],
   );
 
   const selectedRoleValue = useMemo(
     () =>
       form.custom_role_id
-        ? {
-            value: form.custom_role_id,
-            label:
-              roles.find((role) => role.id === form.custom_role_id)?.name ||
-              form.custom_role_id,
-          }
-        : { value: "", label: "Selecciona un rol" },
-    [form.custom_role_id, roles],
+        ? roleOptions.find((option) => option.value === form.custom_role_id) ||
+          null
+        : null,
+    [form.custom_role_id, roleOptions],
+  );
+
+  const operadorOptions = useMemo(
+    () =>
+      operadores.map((op) => ({
+        value: op.documentId,
+        label: op.operador_pic,
+      })),
+    [operadores],
+  );
+
+  const selectedOperadorValue = useMemo(
+    () =>
+      form.operador_id
+        ? operadorOptions.find((option) => option.value === form.operador_id) ||
+          null
+        : null,
+    [form.operador_id, operadorOptions],
   );
 
   const selectedDocumentTypeValue = useMemo(
     () =>
-      form.tipo_documento
-        ? DOCUMENT_TYPE_OPTIONS.find(
-            (option) => option.value === form.tipo_documento,
-          ) || null
-        : null,
+      DOCUMENT_TYPE_OPTIONS.find(
+        (option) => option.value === form.tipo_documento,
+      ) || null,
     [form.tipo_documento],
+  );
+
+  // Las iniciales se arman con el nombre que se esta escribiendo, igual que
+  // Perfil las arma con el del usuario cargado.
+  const initials =
+    form.username
+      ?.split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((name) => name[0].toUpperCase())
+      .join("") || "U";
+
+  const selectedRoleLabel = selectedRoleValue?.label || "Sin rol";
+
+  // Campo de texto reutilizable: en modo lectura queda deshabilitado.
+  const renderInput = (label, name, type = "text") => (
+    <MDBCol md="6">
+      <MDBInput
+        label={label}
+        labelClass={styleLabelInput}
+        name={name}
+        type={type}
+        value={form[name]}
+        onChange={changeHandler}
+        className="mt-3"
+        disabled={!isSuperUser}
+      />
+    </MDBCol>
   );
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -316,91 +352,142 @@ function Register() {
       <Header />
       <MDBContainer
         fluid
-        className="d-flex justify-content-center align-items-center vh-100"
-        style={{ paddingTop: "730px" }}
+        className="flex w-[99%] mb-2 items-center justify-center bg-white/95 px-[32px]"
       >
-        <MDBRow className="d-flex justify-content-center align-items-center w-100">
-          <MDBCol lg="6" md="8" sm="10">
-            <MDBCard className="my-5 rounded-3" style={{ maxWidth: "700px" }}>
-              <MDBCardImage
-                src={imagen}
-                className="w-100 rounded-top"
-                alt="Imagen"
-                style={{ height: "400px", objectFit: "contain" }}
-              />
-              <MDBCardBody className="px-5">
-                <h3 className="mb-4 pb-2 text-center">Registro Usuario</h3>
+        <MDBRow className="flex justify-center items-center w-[80%]">
+          <MDBCard className="mb-4 mt-4 border-solid border-gray-200 border-[1px] border-t-4 border-t-[#0f7a68]">
+            <MDBCardBody>
+              <MDBRow>
+                <MDBCol md="8" className="flex gap-5">
+                  <div className="flex rounded-full w-[150px] h-[150px] bg-[#0f7a68] text-white font-bold text-[50px] justify-center items-center shrink-0 shadow-lg">
+                    {initials}
+                  </div>
 
-                {/* Credenciales */}
-                <MDBInput
-                  label="Username"
-                  name="username"
-                  value={form.username}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                {errors.email && <p className="text-danger">{errors.email}</p>}
-                <MDBInput
-                  label="Password"
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Confirm Password"
-                  name="confirmPassword"
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                {errors.password && (
-                  <p className="text-danger">{errors.password}</p>
+                  <div>
+                    <h2 className="flex items-center mt-4 mb-1 font-bold text-[#1c3a5e] text-[30px]">
+                      {form.username || "Registro de Usuario"}
+                    </h2>
+
+                    <span className="bg-[#e3f4ef] inline-flex items-center gap-2 rounded-full px-3 py-1 font-bold text-[#0b5c4d] text-[15px]">
+                      ● {selectedRoleLabel}
+                    </span>
+
+                    <div className="mt-2 text-[#5b6673] text-[13px] px-2">
+                      {form.email || "Completa los datos del nuevo usuario"}
+                    </div>
+                  </div>
+                </MDBCol>
+                <MDBCol md="4" className="flex justify-end">
+                  <MDBCardImage
+                    src={imagen}
+                    className="mr-6 w-[150px] h-[150px] rounded-top"
+                    alt="Imagen"
+                  />
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
+
+          {!isSuperUser && (
+            <div className="mb-4 rounded border-solid border-[1px] border-yellow-brand bg-[#fdf6e3] px-4 py-3 text-[14px] text-[#5b6673]">
+              Solo un superusuario puede crear usuarios. Los campos se muestran
+              en modo lectura.
+            </div>
+          )}
+
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Datos de la cuenta
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                {renderInput("Nombre de usuario:", "username")}
+                <MDBCol md="6">
+                  {renderInput("Email:", "email", "email")}
+                  <MDBCol md="6">
+                    {errors.email && (
+                      <p className="text-[13px] text-red-600">{errors.email}</p>
+                    )}
+                  </MDBCol>
+                </MDBCol>
+
+                {renderInput("Contraseña:", "password", "password")}
+                {renderInput(
+                  "Confirmar contraseña:",
+                  "confirmPassword",
+                  "password",
                 )}
 
-                {/* Datos personales */}
-                <MDBInput
-                  label="Primer Nombre"
-                  name="primer_nombre"
-                  value={form.primer_nombre}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Segundo Nombre"
-                  name="segundo_nombre"
-                  value={form.segundo_nombre}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Primer Apellido"
-                  name="primer_apellido"
-                  value={form.primer_apellido}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Segundo Apellido"
-                  name="segundo_apellido"
-                  value={form.segundo_apellido}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
+                <MDBCol md="12">
+                  {errors.password && (
+                    <p className="text-[13px] text-red-600">
+                      {errors.password}
+                    </p>
+                  )}
+                </MDBCol>
 
-                {/* Documento */}
-                <div className="mb-4">
-                  <label className="form-label">Tipo de Documento</label>
+                <MDBCol md="6">
+                  <label className="text-[16px] font-bold text-[#1f2937]">
+                    Rol:
+                  </label>
+                  <Select
+                    name="custom_role_id"
+                    options={roleOptions}
+                    value={selectedRoleValue}
+                    onChange={(opt) =>
+                      handleSelectChange("custom_role_id", opt, changeHandler)
+                    }
+                    placeholder="Selecciona un rol"
+                    styles={CUSTOM_SELECT_STYLES}
+                    isDisabled={!isSuperUser}
+                    isClearable
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : null
+                    }
+                  />
+                </MDBCol>
+
+                {selectedRoleName === CustomRoles.OPERADOR && (
+                  <MDBCol md="6">
+                    <label className="text-[16px] font-bold text-[#1f2937]">
+                      Operador:
+                    </label>
+                    <Select
+                      name="operador_id"
+                      options={operadorOptions}
+                      value={selectedOperadorValue}
+                      onChange={(opt) =>
+                        handleSelectChange("operador_id", opt, changeHandler)
+                      }
+                      placeholder="Selecciona un operador"
+                      styles={CUSTOM_SELECT_STYLES}
+                      isDisabled={!isSuperUser}
+                      isClearable
+                      menuPortalTarget={
+                        typeof window !== "undefined" ? document.body : null
+                      }
+                    />
+                  </MDBCol>
+                )}
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
+
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Datos personales
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                {renderInput("Primer nombre:", "primer_nombre")}
+                {renderInput("Segundo nombre:", "segundo_nombre")}
+                {renderInput("Primer apellido:", "primer_apellido")}
+                {renderInput("Segundo apellido:", "segundo_apellido")}
+
+                <MDBCol md="6">
+                  <label className="text-[16px] font-bold text-[#1f2937]">
+                    Tipo de Documento:
+                  </label>
                   <Select
                     name="tipo_documento"
                     options={DOCUMENT_TYPE_OPTIONS}
@@ -410,119 +497,44 @@ function Register() {
                     }
                     placeholder="Selecciona un tipo de documento"
                     styles={CUSTOM_SELECT_STYLES}
-                  />
-                </div>
-                <MDBInput
-                  label="Número de Documento"
-                  name="numero_documento"
-                  value={form.numero_documento}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-
-                {/* Información laboral */}
-                <MDBInput
-                  label="Profesión"
-                  name="profesion"
-                  value={form.profesion}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Cargo"
-                  name="cargo"
-                  value={form.cargo}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-                <MDBInput
-                  label="Entidad"
-                  name="entidad"
-                  value={form.entidad}
-                  onChange={changeHandler}
-                  className="mb-3"
-                />
-
-                {/* Select de Roles */}
-                <div className="mb-4">
-                  <label className="form-label">Rol</label>
-                  {/* <select
-                    name="custom_role_id"
-                    className="form-select"
-                    value={form.custom_role_id}
-                    onChange={changeHandler}
-                  >
-                    <option value="">Selecciona un rol</option>
-                    {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
-                        {role.name}
-                      </option>
-                    ))}
-                  </select> */}
-                  <Select
-                    name="custom_role_id"
-                    options={roleOptions}
-                    value={selectedRoleValue}
-                    onChange={(opt) =>
-                      handleSelectChange("custom_role_id", opt, changeHandler)
+                    isDisabled={!isSuperUser}
+                    isClearable
+                    menuPortalTarget={
+                      typeof window !== "undefined" ? document.body : null
                     }
-                    placeholder="Selecciona un rol"
-                    styles={CUSTOM_SELECT_STYLES} // si ya tienes tu objeto customStyles
                   />
-                </div>
+                </MDBCol>
 
-                {/* Select de Operadores SOLO si el rol seleccionado es operador */}
-                {selectedRoleName === "operador" && (
-                  <div className="mb-4">
-                    <label className="form-label">Operador</label>
+                {renderInput("Número de Documento:", "numero_documento")}
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
 
-                    <Select
-                      name="operador_id"
-                      options={[
-                        { value: "", label: "Selecciona un operador" },
-                        ...operadores.map((op) => ({
-                          value: op.documentId,
-                          label: op.operador_pic,
-                        })),
-                      ]}
-                      value={
-                        form.operador_id
-                          ? {
-                              value: form.operador_id,
-                              label:
-                                operadores.find(
-                                  (op) => op.documentId === form.operador_id
-                                )?.operador_pic || form.operador_id,
-                            }
-                          : { value: "", label: "Selecciona un operador" }
-                      }
-                      onChange={(selectedOption) =>
-                        changeHandler({
-                          target: {
-                            name: "operador_id",
-                            value: selectedOption?.value || "",
-                          },
-                        })
-                      }
-                      placeholder="Selecciona un operador"
-                      //className="form-select" // si quieres seguir usando tu clase de estilos
-                      styles={CUSTOM_SELECT_STYLES} // opcional, si usas react-select custom styles
-                    />
-                  </div>
-                )} 
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Información profesional
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                {renderInput("Profesión:", "profesion")}
+                {renderInput("Cargo:", "cargo")}
+                {renderInput("Entidad:", "entidad")}
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
 
-                <MDBBtn
-                  color="success"
-                  className="w-100"
-                  size="lg"
-                  disabled={formIsDisabled}
-                  onClick={submitHandler}
-                >
-                  Registrar
-                </MDBBtn>
-              </MDBCardBody>
-            </MDBCard>
-          </MDBCol>
+          {isSuperUser && (
+            <div className="mb-4 flex justify-end">
+              <MDBBtn
+                className="bg-[#0f7a68] px-6 py-3 font-bold"
+                size="lg"
+                disabled={formIsDisabled || submitting}
+                onClick={submitHandler}
+              >
+                {submitting ? "Creando..." : "Crear usuario"}
+              </MDBBtn>
+            </div>
+          )}
         </MDBRow>
       </MDBContainer>
     </>
