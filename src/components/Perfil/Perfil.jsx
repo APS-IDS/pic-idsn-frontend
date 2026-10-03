@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Header from "../Header/Header";
+import Swal from "sweetalert2";
 import {
   MDBContainer,
   MDBCard,
+  MDBCardHeader,
   MDBCardBody,
   MDBCardImage,
   MDBRow,
@@ -44,136 +46,247 @@ function Perfil() {
     fetchUser();
   }, [back, token]);
 
+  useEffect(() => {
+    if (!loading && !user) {
+      Swal.fire({
+        title: "Error",
+        text: "No se pudo cargar la información del usuario.",
+        icon: "error",
+      }).then(() => {
+        window.history.back();
+      });
+    }
+  }, [loading, user]);
   // ─── Render ────────────────────────────────────────────────────────────────
 
-  if (loading) return <><Header /><Spinner /></>;
-
-  if (!user) {
+  if (loading)
     return (
       <>
         <Header />
-        <MDBContainer fluid className="d-flex justify-content-center align-items-center vh-100">
-          <p>No se pudo cargar la información del usuario.</p>
-        </MDBContainer>
+        <Spinner />
       </>
     );
+
+  if (!user) {
+    return null;
   }
 
-  const roleName =
-    user.custom_roles?.[0]?.name || user.role?.name || "Sin rol";
+  const roleName = user.custom_roles?.[0]?.name || user.role?.name || "Sin rol";
 
   const operadorName = user.operador_pic?.operador_pic || "N/A";
+
+  //-----Styles-----------------------
+
+  const initials =
+    user.username
+      ?.split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((name) => name[0].toUpperCase())
+      .join("") || "U";
+
+  const styleCard = "mb-4 border-solid border-gray-200 border-[1px] p-0";
+  const styleCardHeader =
+    "bg-[#0f7a68] text-[20px] text-white font-bold px-4 py-3";
+  const styleLabelInput = "text-[16px] font-bold !-translate-y-8";
 
   return (
     <>
       <Header />
       <MDBContainer
         fluid
-        className="d-flex justify-content-center align-items-center vh-100"
-        style={{ paddingTop: "400px" }}
+        className="flex w-[99%] mb-2 items-center justify-center bg-white/95 px-[32px]"
       >
-        <MDBRow className="d-flex justify-content-center align-items-center w-100">
-          <MDBCol lg="6" md="8" sm="10">
-            <MDBCard className="my-5 rounded-3" style={{ maxWidth: "700px" }}>
-              <MDBCardImage
-                src={imagen}
-                className="w-100 rounded-top"
-                alt="Imagen"
-                style={{ height: "400px", objectFit: "contain" }}
-              />
-              <MDBCardBody className="px-5">
-                <h3 className="mb-4 pb-2 text-center">Mi Perfil</h3>
+        <MDBRow className="flex justify-center items-center w-[80%]">
+          <MDBCard className="mb-4 mt-4 border-solid border-gray-200 border-[1px] border-t-4 border-t-[#0f7a68]">
+            <MDBCardBody>
+              <MDBRow>
+                <MDBCol md="8" className="flex gap-5">
+                  <div className="flex rounded-full w-[150px] h-[150px] bg-[#0f7a68] text-white font-bold text-[50px] justify-center items-center shrink-0 shadow-lg">
+                    {initials}
+                  </div>
 
-                {/* Credenciales */}
-                <MDBInput
-                  label="Username"
-                  value={user.username || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Email"
-                  value={user.email || ""}
-                  className="mb-3"
-                  disabled
-                />
+                  <div>
+                    <h2 className="flex items-center mt-4 mb-1 font-bold text-[#1c3a5e] text-[30px]">
+                      {user.username}
+                    </h2>
 
-                {/* Datos personales */}
-                <MDBInput
-                  label="Primer Nombre"
-                  value={user.primer_nombre || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Segundo Nombre"
-                  value={user.segundo_nombre || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Primer Apellido"
-                  value={user.primer_apellido || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Segundo Apellido"
-                  value={user.segundo_apellido || ""}
-                  className="mb-3"
-                  disabled
-                />
+                    <span className="bg-[#e3f4ef] inline-flex items-center gap-2 rounded-full px-3 py-1 font-bold text-[#0b5c4d] text-[15px]">
+                      ● {roleName}
+                    </span>
 
-                {/* Documento */}
-                <MDBInput
-                  label="Tipo de Documento"
-                  value={user.tipo_documento || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Número de Documento"
-                  value={user.numero_documento || ""}
-                  className="mb-3"
-                  disabled
-                />
+                    <div className="mt-2 text-[#5b6673] text-[13px] px-2">
+                      {user.email}
+                    </div>
+                  </div>
+                </MDBCol>
+                <MDBCol md="4" className="flex justify-end">
+                  <MDBCardImage
+                    src={imagen}
+                    className="mr-6 w-[150px] h-[150px] rounded-top"
+                    alt="Imagen"
+                  />
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
 
-                {/* Información laboral */}
-                <MDBInput
-                  label="Profesión"
-                  value={user.profesion || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Cargo"
-                  value={user.cargo || ""}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Entidad"
-                  value={user.entidad || ""}
-                  className="mb-3"
-                  disabled
-                />
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Datos de la cuenta
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Nombre de usuario:"
+                    labelClass={styleLabelInput}
+                    value={user.username || ""}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
 
-                {/* Rol y Operador */}
-                <MDBInput
-                  label="Rol"
-                  value={roleName}
-                  className="mb-3"
-                  disabled
-                />
-                <MDBInput
-                  label="Operador"
-                  value={operadorName}
-                  className="mb-3"
-                  disabled
-                />
-              </MDBCardBody>
-            </MDBCard>
-          </MDBCol>
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Email:"
+                    labelClass={styleLabelInput}
+                    value={user.email || ""}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Rol:"
+                    labelClass={styleLabelInput}
+                    value={roleName}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Operador:"
+                    labelClass={styleLabelInput}
+                    value={operadorName}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
+
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Datos personales
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Primer nombre:"
+                    labelClass={styleLabelInput}
+                    value={user.primer_nombre || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Segundo nombre:"
+                    labelClass={styleLabelInput}
+                    value={user.segundo_nombre || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Primer apellido:"
+                    labelClass={styleLabelInput}
+                    value={user.primer_apellido || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Segundo apellido:"
+                    labelClass={styleLabelInput}
+                    value={user.segundo_apellido || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Tipo de Documento:"
+                    labelClass={styleLabelInput}
+                    value={user.tipo_documento || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Número de Documento:"
+                    labelClass={styleLabelInput}
+                    value={user.numero_documento || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
+
+          <MDBCard className={styleCard}>
+            <MDBCardHeader className={styleCardHeader}>
+              Información profesional
+            </MDBCardHeader>
+            <MDBCardBody>
+              <MDBRow className="g-4">
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Profesión:"
+                    labelClass={styleLabelInput}
+                    value={user.profesion || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Cargo:"
+                    labelClass={styleLabelInput}
+                    value={user.cargo || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+
+                <MDBCol md="6">
+                  <MDBInput
+                    label="Entidad:"
+                    labelClass={styleLabelInput}
+                    value={user.entidad || "Sin registrar"}
+                    className="mt-3"
+                    disabled
+                  />
+                </MDBCol>
+              </MDBRow>
+            </MDBCardBody>
+          </MDBCard>
         </MDBRow>
       </MDBContainer>
     </>
