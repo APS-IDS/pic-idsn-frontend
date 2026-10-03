@@ -73,14 +73,18 @@ const Dashbo = () => {
   const fetchData = async () => {
     setLoading(true);
     const { anio, project, operator, municipality } = appliedFilters;
+    // gestionar los query params dinamicamente
+    const params = new URLSearchParams();
 
-    let url_builder = "";
+    // agregar cada param si tiene un valor valido
+    if (anio) params.append("dateFilter", anio);
+    if (project) params.append("projectId", project);
+    if (municipality) params.append("municipioId", municipality);
+    if (operator) params.append("operadorId", operator);
 
-    if (anio) {
-      url_builder = `${url_data_total}?dateFilter=${anio}`;
-    } else {
-      url_builder = `${url_data_total}`;
-    }
+    // URL final concatenando 
+    const queryString = params.toString();
+    const url_builder = queryString ? `${url_data_total}?${queryString}` : url_data_total;
 
     try {
       const response = await fetch(url_builder, {
@@ -153,7 +157,7 @@ const Dashbo = () => {
           }));
 
         setFilterOptions({
-          municipios: toOptions(municipiosResult, "label"),
+          municipios: toOptions(municipiosResult, "label", "documentId"),
           operadores: toOptions(operadoresResult, "operador_pic", "documentId"),
           proyectos: toOptions(proyectosResult, "proyecto", "documentId"),
           anios: ANIOS_DISPONIBLES.map((anio) => ({
