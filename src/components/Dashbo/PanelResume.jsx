@@ -19,6 +19,11 @@ const PanelResume = ({ data }) => {
       value: data?.products || 0,
       icon: <Box className={styletext} />,
     },
+    {
+      title: "Soportes",
+      value: data?.supports || 0,
+      icon: <File className={styletext} />,
+    },
   ];
 
   return (
