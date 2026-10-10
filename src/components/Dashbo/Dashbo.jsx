@@ -104,10 +104,9 @@ const Dashbo = () => {
 
       // modificar aqui los valores de los paneles, Resumen
       setPanelCard({
-        events: 100,
-        activities: 50,
-        products: 1000,
-        supports: 80,
+        events: data?.contadores?.result?.totalEventos || 0,
+        activities: data?.contadores?.result?.totalActividades || 0,
+        products: data?.contadores?.result?.totalProductos || 0,
       });
     } catch (error) {
       console.error("Error cargando los datos del tablero:", error);
