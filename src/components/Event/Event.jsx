@@ -14,6 +14,7 @@ import {
 import validateEventsData from "../../utils/validate_events";
 import { fetchAnexo } from "../../utils/api";
 import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
+import { eventMatchesSearch } from "../../utils/filter_events";
 import Spinner from "../Spinner/Spinner";
 
 const Event = ({ eventsEdit, anexo, onSaved }) => {
@@ -27,6 +28,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   const [loading, setLoading] = useState(false);
   const [anexoYear, setAnexoYear] = useState(NEW_ANEXO_DATE);
   const [expandedEvents, setExpandedEvents] = useState([true]);
+  const [search, setSearch] = useState("");
   // Versión del anexo que se abrió: se envía al guardar y es la base para
   // combinar si otra persona guardó antes.
   const baseRef = useRef({ events: [], anio: "", version: 0 });
@@ -177,7 +179,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         version,
       };
       setEvents(tagged);
-      setExpandedEvents(tagged.map(() => true));
+      setExpandedEvents(tagged.map(() => false));
     }
   }, [eventsEdit, anexo]);
 
@@ -230,6 +232,8 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     const nuevoEvento = { ...INITIAL_EVENT_STATE };
     setEvents([...events, nuevoEvento]);
     setExpandedEvents([...expandedEvents, false]);
+    // El evento nuevo está vacío: con un filtro activo quedaría oculto.
+    setSearch("");
   };
 
   const handle_proyecto = (eventIndex, selectedOption) => {
@@ -498,6 +502,10 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     [municipios],
   );
 
+  const matchesSearch = (event) =>
+    eventMatchesSearch(event, search, { proyectos, operadores });
+  const visibleEventsCount = events.filter(matchesSearch).length;
+
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
   return (
     <form onSubmit={handleSubmit}>
@@ -530,15 +538,27 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       </div>
 
       <div className="my-3">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center gap-4 mb-2">
           <span className="font-semibold text-navy uppercase">Eventos</span>
-          <button
-            type="button"
-            className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
-            onClick={handleAddEvent}
-          >
-            <span className="">+</span> Agregar evento
-          </button>
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              // Enter dentro del formulario lo enviaría y guardaría el anexo.
+              onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+              placeholder="Buscar por descripción, indicador, proyecto u operador"
+              aria-label="Buscar eventos"
+              className="w-full max-w-md p-2 border border-app-border rounded-md text-sm"
+            />
+            <button
+              type="button"
+              className="flex shrink-0 items-center gap-2 whitespace-nowrap bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+              onClick={handleAddEvent}
+            >
+              <span className="">+</span> Agregar evento
+            </button>
+          </div>
         </div>
       </div>
 
@@ -546,7 +566,16 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         <p className="text-center text-app-muted">No hay eventos agregados</p>
       )}
 
-      {events.map((event, index) => (
+      {events.length > 0 && search.trim() !== "" && (
+        <p className="text-start text-xs text-app-muted mb-2">
+          {visibleEventsCount
+            ? `${visibleEventsCount} de ${events.length} eventos coinciden con la búsqueda`
+            : "Ningún evento coincide con la búsqueda"}
+        </p>
+      )}
+
+      {/* Se oculta en vez de filtrar el arreglo: los handlers usan el índice original. */}
+      {events.map((event, index) => matchesSearch(event) && (
         <div key={index} className="mb-2">
           <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
             <div
