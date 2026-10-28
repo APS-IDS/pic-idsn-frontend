@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { MdDragIndicator } from "react-icons/md";
 import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
+import { moveItem } from "../../utils/move_item";
 import { NumericFormat } from "react-number-format";
 
 const soloNumerosYComa = (e) => {
@@ -148,6 +150,47 @@ const ActivityItem = ({
       },
       index
     );
+  };
+
+  // Arrastrar y soltar para reordenar soportes, solo dentro de esta actividad.
+  const [dragIndex, setDragIndex] = useState(null);
+  const [overIndex, setOverIndex] = useState(null);
+
+  const endSoporteDrag = () => {
+    setDragIndex(null);
+    setOverIndex(null);
+  };
+
+  const startSoporteDrag = (e, soporteIndex) => {
+    setDragIndex(soporteIndex);
+    e.dataTransfer.effectAllowed = "move";
+    // Firefox no inicia el arrastre si no hay datos.
+    e.dataTransfer.setData("text/plain", String(soporteIndex));
+    // Se ve la tarjeta completa siguiendo al cursor, no solo el ícono.
+    const card = e.currentTarget.parentElement;
+    const rect = card.getBoundingClientRect();
+    e.dataTransfer.setDragImage(card, e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  const dragOverSoporte = (e, soporteIndex) => {
+    if (dragIndex === null) return;
+    e.preventDefault();
+    setOverIndex(soporteIndex);
+  };
+
+  const dropSoporte = (e, soporteIndex) => {
+    if (dragIndex === null) return;
+    e.preventDefault();
+    handleActivityChange(
+      {
+        target: {
+          name: "array_soportes",
+          value: moveItem(activity.array_soportes || [], dragIndex, soporteIndex),
+        },
+      },
+      index
+    );
+    endSoporteDrag();
   };
 
   const handle_remove_soporte = (
@@ -544,9 +587,28 @@ const ActivityItem = ({
             {(activity.array_soportes || []).map(
               (soporte, soporteIndex) => (
                 <div
-                  className="col-span-3 grid gap-3 items-start bg-teal-light border rounded-lg px-3 py-3 grid-cols-10"
+                  className={`col-span-3 flex gap-2 items-start bg-teal-light border rounded-lg px-3 py-3 transition-opacity ${
+                    dragIndex === soporteIndex ? "opacity-50" : ""
+                  } ${
+                    overIndex === soporteIndex && dragIndex !== soporteIndex
+                      ? "ring-2 ring-teal"
+                      : ""
+                  }`}
                   key={soporteIndex}
+                  onDragOver={(e) => dragOverSoporte(e, soporteIndex)}
+                  onDrop={(e) => dropSoporte(e, soporteIndex)}
                 >
+                  <span
+                    draggable
+                    onDragStart={(e) => startSoporteDrag(e, soporteIndex)}
+                    onDragEnd={endSoporteDrag}
+                    title="Arrastra para cambiar el orden"
+                    aria-label="Arrastrar soporte para cambiar el orden"
+                    className="self-center cursor-grab active:cursor-grabbing text-app-muted hover:text-navy"
+                  >
+                    <MdDragIndicator size={22} />
+                  </span>
+                  <div className="flex-1 grid gap-3 items-start grid-cols-10">
                   <div className="col-span-3">
                     <label className="block text-xs text-app-muted mb-1 uppercase">
                       TIPO DE SOPORTE
@@ -643,6 +705,7 @@ const ActivityItem = ({
                       </span>
                     </div>
                   )}
+                  </div>
                 </div>
               ))}
 
