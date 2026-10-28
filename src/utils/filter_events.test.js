@@ -1,7 +1,7 @@
 // Ejecutar con: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { eventMatchesSearch } from "./filter_events.js";
+import { apiEventMatchesSearch, eventMatchesSearch } from "./filter_events.js";
 
 const opciones = {
   proyectos: [{ value: "p1", label: "Salud mental para la paz" }],
@@ -49,4 +49,32 @@ test("todas las palabras deben aparecer, aunque sea en campos distintos", () => 
 test("un evento nuevo con campos vacíos no rompe la búsqueda", () => {
   const vacio = { description_event: "", indicator_name: null, proyecto: "", operador_pic: "" };
   assert.equal(eventMatchesSearch(vacio, "embarazo", opciones), false);
+});
+
+// Evento tal como lo devuelve la API (lista de anexos).
+const eventoApi = {
+  descripcion: "Prevención del embarazo en la adolescencia",
+  indicador_evento: "Tasa de fecundidad específica",
+  meta_indicador_evento: "30 - TEF 15-19",
+  proyectos_idsn: { proyecto: "Salud mental para la paz" },
+  operador_pic: { operador_pic: "E.S.E. Hospital San Pedro" },
+};
+
+test("en la lista busca en descripción, indicador y meta del evento", () => {
+  assert.equal(apiEventMatchesSearch(eventoApi, "prevencion"), true);
+  assert.equal(apiEventMatchesSearch(eventoApi, "fecundidad"), true);
+  assert.equal(apiEventMatchesSearch(eventoApi, "TEF 15"), true);
+});
+
+test("en la lista busca por nombre de proyecto y de operador", () => {
+  assert.equal(apiEventMatchesSearch(eventoApi, "salud mental"), true);
+  assert.equal(apiEventMatchesSearch(eventoApi, "san pedro"), true);
+});
+
+test("en la lista exige todas las palabras y tolera relaciones vacías", () => {
+  assert.equal(apiEventMatchesSearch(eventoApi, "embarazo malaria"), false);
+  assert.equal(
+    apiEventMatchesSearch({ ...eventoApi, proyectos_idsn: null, operador_pic: null }, "embarazo"),
+    true,
+  );
 });

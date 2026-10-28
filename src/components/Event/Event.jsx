@@ -15,6 +15,7 @@ import validateEventsData from "../../utils/validate_events";
 import { fetchAnexo } from "../../utils/api";
 import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
 import { eventMatchesSearch } from "../../utils/filter_events";
+import EventSearch from "../EventSearch/EventSearch";
 import Spinner from "../Spinner/Spinner";
 
 const Event = ({ eventsEdit, anexo, onSaved }) => {
@@ -541,16 +542,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         <div className="flex justify-between items-center gap-4 mb-2">
           <span className="font-semibold text-navy uppercase">Eventos</span>
           <div className="flex flex-1 justify-end items-center gap-2">
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              // Enter dentro del formulario lo enviaría y guardaría el anexo.
-              onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
-              placeholder="Buscar por descripción, indicador, proyecto u operador"
-              aria-label="Buscar eventos"
-              className="w-full max-w-md p-2 border border-app-border rounded-md text-sm"
-            />
+            <EventSearch value={search} onChange={setSearch} />
             <button
               type="button"
               className="flex shrink-0 items-center gap-2 whitespace-nowrap bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"

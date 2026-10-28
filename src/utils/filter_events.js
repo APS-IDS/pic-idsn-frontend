@@ -9,19 +9,36 @@ const labelOf = (options, value) =>
 
 // Un evento coincide si cada palabra buscada aparece en alguno de sus campos
 // representativos; proyecto y operador se buscan por nombre, no por id.
-export const eventMatchesSearch = (event, search, { proyectos = [], operadores = [] } = {}) => {
+const textsMatchSearch = (texts, search) => {
   const words = normalize(search).split(/\s+/).filter(Boolean);
   if (!words.length) return true;
 
-  const text = normalize(
+  const text = normalize(texts.join(" "));
+  return words.every((word) => text.includes(word));
+};
+
+// Evento en el formato del formulario de edición.
+export const eventMatchesSearch = (event, search, { proyectos = [], operadores = [] } = {}) =>
+  textsMatchSearch(
     [
       event.description_event,
       event.indicator_name,
       event.meta_indicator,
       labelOf(proyectos, event.proyecto),
       labelOf(operadores, event.operador_pic),
-    ].join(" "),
+    ],
+    search,
   );
 
-  return words.every((word) => text.includes(word));
-};
+// Evento tal como lo devuelve la API (lista de anexos).
+export const apiEventMatchesSearch = (evento, search) =>
+  textsMatchSearch(
+    [
+      evento.descripcion,
+      evento.indicador_evento,
+      evento.meta_indicador_evento,
+      evento.proyectos_idsn?.proyecto,
+      evento.operador_pic?.operador_pic,
+    ],
+    search,
+  );

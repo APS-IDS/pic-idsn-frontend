@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import styles from "./ReporView.module.css";
 import ProductosCell from "./ProductosCell";
+import EventSearch from "../EventSearch/EventSearch";
 import { CustomRoles } from "../Login/constant";
 import { SIN_DATO } from "./utils";
+import { apiEventMatchesSearch } from "../../utils/filter_events";
 
 const AnexoCard = ({
   row,
@@ -16,9 +18,19 @@ const AnexoCard = ({
 }) => {
   const anio = row?.anexo_tecnico_date?.slice(0, 4);
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const eventos = (row?.eventos ?? []).filter((evento) =>
+    apiEventMatchesSearch(evento, search),
+  );
 
   const handle_click_edit = (row) => {
     navigate(`/anexo/edit/${row.documentId}`);
+  };
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    // Abre el anexo para que se vean los resultados.
+    if (value.trim() && openIndex !== index) handleToggle(index);
   };
 
   return (
@@ -27,10 +39,10 @@ const AnexoCard = ({
       className="bg-app-card mb-3 border rounded-lg shadow-sm overflow-hidden"
     >
       <div
-        className="flex items-center justify-between py-3 px-5 text-white cursor-pointer bg-navy"
+        className="flex items-center justify-between gap-4 py-3 px-5 text-white cursor-pointer bg-navy"
         onClick={() => handleToggle(index)}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-3">
           <span className="bg-yellow-brand text-amber-950 font-semibold text-sm py-1 px-2 rounded-3xl">
             ID {row.id}
           </span>
@@ -41,7 +53,14 @@ const AnexoCard = ({
             · {anio}
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-1 justify-end items-center gap-3">
+          {/* El clic en el buscador no debe abrir/cerrar el anexo. */}
+          <div
+            className="flex w-full justify-end"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <EventSearch value={search} onChange={handleSearch} />
+          </div>
           {usuario === CustomRoles.REFERENTE_INSTITUTO && (
             <button
               className={styles.edit_button}
@@ -75,7 +94,14 @@ const AnexoCard = ({
               </tr>
             </thead>
             <tbody>
-              {row?.eventos?.map((evento) => (
+              {search.trim() !== "" && !eventos.length && (
+                <tr>
+                  <td colSpan={9} className="text-center text-app-muted py-3">
+                    Ningún evento coincide con la búsqueda
+                  </td>
+                </tr>
+              )}
+              {eventos.map((evento) => (
                 <tr key={`${index}-${evento.id}`}>
                   <td>{evento.id}</td>
                   <td>{anio}</td>
