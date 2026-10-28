@@ -1,10 +1,19 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Product from "../Product/Product";
 import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
-import { INITIAL_EVENT_STATE, ANIOS_DISPONIBLES, PARAMETROS_INICIALES, NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
+import {
+  INITIAL_EVENT_STATE,
+  ANIOS_DISPONIBLES,
+  PARAMETROS_INICIALES,
+  NEW_ANEXO_DATE,
+  OLD_ANEXO_DATE,
+  transformEvent,
+} from "../../utils/const_forms";
 import validateEventsData from "../../utils/validate_events";
+import { fetchAnexo } from "../../utils/api";
+import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
 import Spinner from "../Spinner/Spinner";
 
 const Event = ({ eventsEdit, anexo, onSaved }) => {
@@ -12,15 +21,20 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   const [municipios, setMunicipios] = useState([]);
   const [proyectos, setProyectos] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [events, setEvents] = useState(eventsEdit && eventsEdit.length > 0 ? eventsEdit : [INITIAL_EVENT_STATE]);
+  const [events, setEvents] = useState(
+    eventsEdit && eventsEdit.length > 0 ? eventsEdit : [INITIAL_EVENT_STATE],
+  );
   const [loading, setLoading] = useState(false);
   const [anexoYear, setAnexoYear] = useState(NEW_ANEXO_DATE);
   const [expandedEvents, setExpandedEvents] = useState([true]);
+  // Versión del anexo que se abrió: se envía al guardar y es la base para
+  // combinar si otra persona guardó antes.
+  const baseRef = useRef({ events: [], anio: "", version: 0 });
   const anexoOptions = ANIOS_DISPONIBLES.map((option) => ({
     value: option,
     label: option,
   }));
-  
+
   const styleSelect = { menuPortal: (base) => ({ ...base, zIndex: 9999 }) };
 
   const resetForm = () => {
@@ -56,8 +70,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       value: item[valueField],
       label: item[labelField],
     }));
-
-  }
+  };
 
   const fetchParametros = async () => {
     try {
@@ -82,7 +95,6 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         soportes: mapperOptions(data.soportes),
         tecnologias: mapperOptions(data.tecnologias),
       });
-
     } catch (error) {
       console.error("Error fetching subregions:", error);
     }
@@ -97,7 +109,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       });
       if (!response.ok) throw new Error("Error al obtener subregiones.");
       const data = await response.json();
-      setMunicipios(mapperOptions(data.data, 'documentId', 'label'));
+      setMunicipios(mapperOptions(data.data, "documentId", "label"));
     } catch (error) {
       console.error("Error fetching subregions:", error);
     }
@@ -135,7 +147,6 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   };
 
   useEffect(() => {
-
     const loadData = async () => {
       setLoading(true);
       try {
@@ -143,25 +154,32 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
           fetchParametros(),
           fetchProyecto(),
           fetchOperador(),
-          fetchSubregion()
+          fetchSubregion(),
         ]);
-
       } catch (error) {
         console.error("Error fetching parameters:", error);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     loadData();
   }, [token]);
 
   useEffect(() => {
     if (eventsEdit && eventsEdit.length > 0) {
-      setEvents(eventsEdit);
-      setExpandedEvents(eventsEdit.map(() => true));
+      const version = anexo?.version ?? 0;
+      const tagged = tagEvents(eventsEdit, version);
+      // Copia profunda: los handlers modifican los eventos en sitio.
+      baseRef.current = {
+        events: structuredClone(tagged),
+        anio: anexo?.anio ?? "",
+        version,
+      };
+      setEvents(tagged);
+      setExpandedEvents(tagged.map(() => true));
     }
-  }, [eventsEdit]);
+  }, [eventsEdit, anexo]);
 
   useEffect(() => {
     if (anexo && anexo.anio) {
@@ -186,7 +204,12 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   };
 
   const handle_municipio = (eventIndex, selectedOptions) => {
-    console.log("Selected municipios for event index", eventIndex, ":", selectedOptions);
+    console.log(
+      "Selected municipios for event index",
+      eventIndex,
+      ":",
+      selectedOptions,
+    );
     const updatedEvents = [...events];
     updatedEvents[eventIndex].subregion = selectedOptions.map(
       (option) => option.value,
@@ -194,12 +217,11 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     setEvents(updatedEvents);
   };
 
-
   const handleEventChange = (index, campo, valor) => {
     const nuevosEventos = [...events];
     nuevosEventos[index] = {
       ...nuevosEventos[index],
-      [campo]: valor
+      [campo]: valor,
     };
     setEvents(nuevosEventos);
   };
@@ -252,6 +274,49 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     });
   };
 
+  // Otra persona guardó el anexo después de abrirlo (409): se carga la versión
+  // más reciente y se le aplican encima los eventos cambiados sin guardar.
+  const resolveConflict = async () => {
+    const { isConfirmed } = await Swal.fire({
+      icon: "warning",
+      title: "El anexo cambió mientras lo editabas",
+      html:
+        "Otra persona guardó cambios en este anexo después de que lo abriste. " +
+        "<b>Tus cambios todavía no se han guardado.</b><br/><br/>" +
+        "Puedes cargar la versión más reciente sin perder lo que diligenciaste: " +
+        "los eventos que modificaste se conservan como los dejaste y los que " +
+        "agregaste quedan al final. Después revisa el anexo y vuelve a guardar.",
+      showCancelButton: true,
+      confirmButtonText: "Cargar últimos cambios y conservar los míos",
+      cancelButtonText: "Seguir editando",
+      allowOutsideClick: false,
+    });
+
+    if (!isConfirmed) return;
+
+    const latest = await fetchAnexo(anexo.documentId, token);
+    const version = latest.version ?? 0;
+    const latestAnio = latest.anexo_tecnico_date ?? "";
+    const theirs = tagEvents(latest.eventos.map(transformEvent), version);
+    const base = baseRef.current;
+    const merged = mergeEvents(base.events, events, theirs);
+
+    baseRef.current = {
+      events: structuredClone(theirs),
+      anio: latestAnio,
+      version,
+    };
+    setEvents(merged);
+    setExpandedEvents(merged.map(() => true));
+    setAnexoYear(mergeValue(base.anio, anexoYear, latestAnio) || "");
+
+    await Swal.fire({
+      icon: "info",
+      title: "Versión actualizada",
+      text: "Se cargaron los últimos cambios junto con los tuyos. Revisa el anexo y vuelve a guardar.",
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -259,7 +324,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
 
     if (!isValid) {
       return;
-    };
+    }
 
     const isEdit = Boolean(eventsEdit?.length && anexo?.documentId);
 
@@ -269,6 +334,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       const transformedData = {
         data: {
           anexo_tecnico_date: anexoYear || null,
+          ...(isEdit && { version: baseRef.current.version }),
 
           eventos: events.map((event) => ({
             // operador_pic: {
@@ -277,8 +343,8 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
 
             operador_pic: event.operador_pic
               ? {
-                connect: [{ documentId: event.operador_pic }],
-              }
+                  connect: [{ documentId: event.operador_pic }],
+                }
               : null,
             equipo: event.equipo_operativo || null,
             perfiles_profesional: event.perfil_profesional || null,
@@ -286,25 +352,25 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
 
             territorializacion:
               event.total_hogares ||
-                (Array.isArray(event.subregion) && event.subregion.length > 0) ||
-                event.codigo_nombre_territorio ||
-                event.codigo_micro_territorio
+              (Array.isArray(event.subregion) && event.subregion.length > 0) ||
+              event.codigo_nombre_territorio ||
+              event.codigo_micro_territorio
                 ? {
-                  // numero_hogares: parseInt(event.total_hogares, 10) || null,
-                  numero_hogares: event.total_hogares || null,
-                  numero_pobalcion_intervenir: event.poblacion || null,
-                  municipios:
-                    Array.isArray(event.subregion) &&
+                    // numero_hogares: parseInt(event.total_hogares, 10) || null,
+                    numero_hogares: event.total_hogares || null,
+                    numero_pobalcion_intervenir: event.poblacion || null,
+                    municipios:
+                      Array.isArray(event.subregion) &&
                       event.subregion.length > 0
-                      ? {
-                        connect: (event.subregion || []).map((region) => ({
-                          documentId: region || null,
-                        })),
-                      }
-                      : [],
-                  territorio: event.codigo_nombre_territorio || null,
-                  microterritorio: event.codigo_micro_territorio || null,
-                }
+                        ? {
+                            connect: (event.subregion || []).map((region) => ({
+                              documentId: region || null,
+                            })),
+                          }
+                        : [],
+                    territorio: event.codigo_nombre_territorio || null,
+                    microterritorio: event.codigo_micro_territorio || null,
+                  }
                 : null,
 
             descripcion: event.description_event || null,
@@ -363,8 +429,8 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
             })),
             proyectos_idsn: event.proyecto
               ? {
-                connect: [{ documentId: event.proyecto }] || null,
-              }
+                  connect: [{ documentId: event.proyecto }] || null,
+                }
               : null,
           })),
         },
@@ -383,6 +449,11 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         body: JSON.stringify(transformedData),
       });
 
+      if (isEdit && response.status === 409) {
+        await resolveConflict();
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -396,9 +467,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
 
       await Swal.fire({
         icon: "success",
-        title: isEdit
-          ? "¡Actualización correcta!"
-          : "¡Registro correcto!",
+        title: isEdit ? "¡Actualización correcta!" : "¡Registro correcto!",
         text: isEdit
           ? "La información fue actualizada correctamente."
           : "La información fue agregada correctamente.",
@@ -409,7 +478,6 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
       } else {
         resetForm();
       }
-
     } catch (error) {
       console.error("ERROR BACKEND:", error);
       Swal.fire({
@@ -417,7 +485,6 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         title: "Error al enviar",
         text: error.message,
       });
-
     } finally {
       setLoading(false);
     }
@@ -434,23 +501,28 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   if (loading) return <Spinner envio={"Enviando datos, por favor espera..."} />;
   return (
     <form onSubmit={handleSubmit}>
-
       <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
         <div className="bg-teal text-app-card py-3 px-4 flex justify-between items-center font-semibold">
           Información General del Anexo
         </div>
         <div className="grid sm:grid-cols-3 gap-4 items-start">
           <div className="m-6">
-            <label className="block text-xs text-app-muted mb-1">AÑO ANEXO</label>
+            <label className="block text-xs text-app-muted mb-1">
+              AÑO ANEXO
+            </label>
             <select
               name="año"
               value={anexoYear.split("-")[0] || ""}
               className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
-              onChange={(e) => setAnexoYear(e.target.value ? `${e.target.value}-01-01` : "")}
+              onChange={(e) =>
+                setAnexoYear(e.target.value ? `${e.target.value}-01-01` : "")
+              }
             >
               <option value="">Seleccionar Año</option>
               {anexoOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
             </select>
           </div>
@@ -470,13 +542,17 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
         </div>
       </div>
 
-      {!events.length && <p className="text-center text-app-muted">No hay eventos agregados</p>}
-
+      {!events.length && (
+        <p className="text-center text-app-muted">No hay eventos agregados</p>
+      )}
 
       {events.map((event, index) => (
         <div key={index} className="mb-2">
           <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
-            <div onClick={() => handleToggle(index)} className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer hover:bg-navy-dark">
+            <div
+              onClick={() => handleToggle(index)}
+              className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer hover:bg-navy-dark"
+            >
               Evento #{index + 1}
               <div className="flex items-center gap-4">
                 <span
@@ -487,71 +563,112 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                 </span>
                 <span
                   className={`inline-block transform transition-transform duration-200 cursor-pointer ${expandedEvents[index] === true ? "rotate-180" : "rotate-0"}`}
-
                 >
                   &#9660;
                 </span>
               </div>
-
             </div>
 
             {expandedEvents[index] && (
               <div className="bg-app-card py-3 pb-4 px-6">
                 <div className="grid sm:grid-cols-3 gap-4 items-start">
-                  <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">Información de Referencia</h2>
-
+                  <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">
+                    Información de Referencia
+                  </h2>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">NODO - MUNICIPIO PRIORIZADO</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      NODO - MUNICIPIO PRIORIZADO
+                    </label>
                     <Select
                       isMulti
-                      value={event.subregion?.map((subregionId) => {
-                        const foundOption = municipios.find((option) => option.value === subregionId);
-                        return foundOption || { value: subregionId, label: subregionId };
-                      }) || []}
+                      value={
+                        event.subregion?.map((subregionId) => {
+                          const foundOption = municipios.find(
+                            (option) => option.value === subregionId,
+                          );
+                          return (
+                            foundOption || {
+                              value: subregionId,
+                              label: subregionId,
+                            }
+                          );
+                        }) || []
+                      }
                       options={municipiosOrdenados}
-                      onChange={(selectedOptions) => handle_municipio(index, selectedOptions)}
+                      onChange={(selectedOptions) =>
+                        handle_municipio(index, selectedOptions)
+                      }
                       placeholder="Seleccionar Region"
-                      menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                      menuPortalTarget={
+                        typeof window !== "undefined" ? document.body : null
+                      }
                       styles={styleSelect}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">OPERADOR PIC</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      OPERADOR PIC
+                    </label>
                     <Select
                       name="operador"
                       options={operadores}
-                      value={event.operador_pic
-                        ? {
-                          value: event.operador_pic,
-                          label: operadores.find((option) => option.value === event.operador_pic)?.label || event.operador_pic,
-                        }
-                        : null
+                      value={
+                        event.operador_pic
+                          ? {
+                              value: event.operador_pic,
+                              label:
+                                operadores.find(
+                                  (option) =>
+                                    option.value === event.operador_pic,
+                                )?.label || event.operador_pic,
+                            }
+                          : null
                       }
-                      onChange={(selectedOption) => handle_operador(index, selectedOption)}
+                      onChange={(selectedOption) =>
+                        handle_operador(index, selectedOption)
+                      }
                       placeholder="Seleccionar Operador"
-                      menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                      menuPortalTarget={
+                        typeof window !== "undefined" ? document.body : null
+                      }
                       styles={styleSelect}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">CODIGO - NOMBRE DEL TERRITORIO APS</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      CODIGO - NOMBRE DEL TERRITORIO APS
+                    </label>
                     <input
                       type="text"
                       value={event.codigo_nombre_territorio || ""}
-                      onChange={(e) => handleEventChange(index, "codigo_nombre_territorio", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "codigo_nombre_territorio",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">CODIGO MICRO-TERRITORIO</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      CODIGO MICRO-TERRITORIO
+                    </label>
                     <input
                       type="text"
                       value={event.codigo_micro_territorio || ""}
-                      onChange={(e) => handleEventChange(index, "codigo_micro_territorio", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "codigo_micro_territorio",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                   </div>
@@ -559,52 +676,89 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   <div>
                     {anexoYear == OLD_ANEXO_DATE && (
                       <div>
-                        <label className="block text-xs text-app-muted mb-1 uppercase">Total número de Hogares Beneficiarios</label>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          Total número de Hogares Beneficiarios
+                        </label>
                         <input
                           type="number"
                           value={event.total_hogares || ""}
-                          onChange={(e) => handleEventChange(index, "total_hogares", e.target.value)}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "total_hogares",
+                              e.target.value,
+                            )
+                          }
                           className="w-full p-2 border border-app-border rounded-md text-sm"
                         />
                       </div>
                     )}
                     {anexoYear == NEW_ANEXO_DATE && (
                       <div>
-                        <label className="block text-xs text-app-muted mb-1 uppercase">N° De Poblacion a Intervenir</label>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          N° De Poblacion a Intervenir
+                        </label>
                         <input
                           type="number"
                           value={event.poblacion || ""}
-                          onChange={(e) => handleEventChange(index, "poblacion", e.target.value)}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "poblacion",
+                              e.target.value,
+                            )
+                          }
                           className="w-full p-2 border border-app-border rounded-md text-sm"
                         />
                       </div>
                     )}
                   </div>
 
-                  <h2 className="text-lg font-semibold text-navy col-span-3 text-start my-1 "> Datos del Evento</h2>
+                  <h2 className="text-lg font-semibold text-navy col-span-3 text-start my-1 ">
+                    {" "}
+                    Datos del Evento
+                  </h2>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">EQUIPO OPERATIVO</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      EQUIPO OPERATIVO
+                    </label>
                     <select
                       name="equipo_operativo"
                       value={event.equipo_operativo || ""}
                       className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
-                      onChange={(e) => handleEventChange(index, "equipo_operativo", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "equipo_operativo",
+                          e.target.value,
+                        )
+                      }
                     >
                       <option value="">Seleccionar Equipo</option>
                       {parametros.equipos.map((option) => (
-                        <option key={option.value} value={option.value}>{option.value}</option>
+                        <option key={option.value} value={option.value}>
+                          {option.value}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">PERFIL PROFESIONAL</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      PERFIL PROFESIONAL
+                    </label>
                     <textarea
                       type="text"
                       maxLength={2000}
                       value={event.perfil_profesional || ""}
-                      onChange={(e) => handleEventChange(index, "perfil_profesional", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "perfil_profesional",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                     <p className="text-xs text-app-muted">
@@ -613,12 +767,20 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">PERFIL OPERATIVO</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      PERFIL OPERATIVO
+                    </label>
                     <textarea
                       type="text"
                       maxLength={2000}
                       value={event.perfil_operativo || ""}
-                      onChange={(e) => handleEventChange(index, "perfil_operativo", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "perfil_operativo",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                     <p className="text-xs text-app-muted">
@@ -627,32 +789,49 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1">PROYECTO IDSN RESPONSABLE</label>
+                    <label className="block text-xs text-app-muted mb-1">
+                      PROYECTO IDSN RESPONSABLE
+                    </label>
                     <Select
                       name="proyecto"
                       options={proyectos}
-                      value={event.proyecto
-                        ? {
-                          value: event.proyecto,
-                          label: proyectos.find((option) => option.value === event.proyecto)?.label || event.proyecto,
-                        }
-                        : null
+                      value={
+                        event.proyecto
+                          ? {
+                              value: event.proyecto,
+                              label:
+                                proyectos.find(
+                                  (option) => option.value === event.proyecto,
+                                )?.label || event.proyecto,
+                            }
+                          : null
                       }
-                      onChange={(selectedOption) => handle_proyecto(index, selectedOption)}
+                      onChange={(selectedOption) =>
+                        handle_proyecto(index, selectedOption)
+                      }
                       placeholder="Seleccionar Operador"
-                      menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                      menuPortalTarget={
+                        typeof window !== "undefined" ? document.body : null
+                      }
                       styles={styleSelect}
                     />
-
                   </div>
 
                   <div className="col-span-3">
-                    <label className="block text-xs text-app-muted mb-1 uppercase">Descripción EVENTO</label>
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      Descripción EVENTO
+                    </label>
                     <textarea
                       type="text"
                       maxLength={2000}
                       value={event.description_event || ""}
-                      onChange={(e) => handleEventChange(index, "description_event", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "description_event",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                     <p className="text-xs text-app-muted">
@@ -661,12 +840,20 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1 uppercase">nombre del indicador</label>
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      nombre del indicador
+                    </label>
                     <textarea
                       type="text"
                       maxLength={2000}
                       value={event.indicator_name || ""}
-                      onChange={(e) => handleEventChange(index, "indicator_name", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "indicator_name",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                     <p className="text-xs text-app-muted">
@@ -675,12 +862,20 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1 uppercase">meta indicador</label>
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      meta indicador
+                    </label>
                     <textarea
                       type="text"
                       maxLength={2000}
                       value={event.meta_indicator || ""}
-                      onChange={(e) => handleEventChange(index, "meta_indicator", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "meta_indicator",
+                          e.target.value,
+                        )
+                      }
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                     <p className="text-xs text-app-muted">
@@ -689,32 +884,52 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1 uppercase">Ejes Estratégicos</label>
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      Ejes Estratégicos
+                    </label>
                     <Select
                       isMulti
-                      value={event.eje_estrategico?.map((axis) => {
-                        const foundOption = parametros.ejes.find((option) => option.value === axis);
-                        return foundOption || { value: axis, label: axis };
-                      }) || []}
+                      value={
+                        event.eje_estrategico?.map((axis) => {
+                          const foundOption = parametros.ejes.find(
+                            (option) => option.value === axis,
+                          );
+                          return foundOption || { value: axis, label: axis };
+                        }) || []
+                      }
                       options={parametros.ejes}
-                      onChange={(selectedOptions) => handleStrategicAxisChange(index, selectedOptions)}
+                      onChange={(selectedOptions) =>
+                        handleStrategicAxisChange(index, selectedOptions)
+                      }
                       placeholder="Seleccionar ejes"
-                      menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
+                      menuPortalTarget={
+                        typeof window !== "undefined" ? document.body : null
+                      }
                       styles={styleSelect}
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-app-muted mb-1 uppercase">Líneas Operativas</label>
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      Líneas Operativas
+                    </label>
                     <select
                       name="lineas_operativas"
                       value={event.linea_operativa || ""}
                       className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
-                      onChange={(e) => handleEventChange(index, "linea_operativa", e.target.value)}
+                      onChange={(e) =>
+                        handleEventChange(
+                          index,
+                          "linea_operativa",
+                          e.target.value,
+                        )
+                      }
                     >
                       <option value="">Seleccionar Línea</option>
                       {parametros.lineas.map((option) => (
-                        <option key={option.value} value={option.value}>{option.value}</option>
+                        <option key={option.value} value={option.value}>
+                          {option.value}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -741,7 +956,6 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                       setEvents(updatedEvents);
                     }}
                   />
-
                 </div>
               </div>
             )}
@@ -754,11 +968,12 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
           className="w-full block bg-teal text-white rounded-lg p-3 text-lg font-semibold cursor-pointer hover:bg-teal-600"
           type="submit"
         >
-          {eventsEdit && eventsEdit.length > 0 ? "Actualizar Anexo" : "Crear Anexo"}
+          {eventsEdit && eventsEdit.length > 0
+            ? "Actualizar Anexo"
+            : "Crear Anexo"}
         </button>
       </div>
-    </form >
-
+    </form>
   );
 };
 export default Event;

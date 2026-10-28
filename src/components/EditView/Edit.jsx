@@ -20,7 +20,12 @@ const Edit = () => {
       setLoading(true);
       const anexoResult = await fetchAnexo(documentId, token);
       setEvents(anexoResult.eventos.map((ev) => transformEvent(ev)));
-      setAnexo({ id: anexoResult.id, documentId: anexoResult.documentId, anio: anexoResult.anexo_tecnico_date });
+      setAnexo({
+        id: anexoResult.id,
+        documentId: anexoResult.documentId,
+        anio: anexoResult.anexo_tecnico_date,
+        version: anexoResult.version ?? 0,
+      });
     }
     catch (error) {
       console.error("Error fetching anexo:", error);
