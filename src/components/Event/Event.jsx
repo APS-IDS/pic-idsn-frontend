@@ -15,6 +15,7 @@ import validateEventsData from "../../utils/validate_events";
 import { fetchAnexo } from "../../utils/api";
 import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
 import { eventMatchesSearch } from "../../utils/filter_events";
+import { buildAnexoPayload } from "../../utils/anexo_payload";
 import EventSearch from "../EventSearch/EventSearch";
 import Spinner from "../Spinner/Spinner";
 
@@ -336,110 +337,11 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     try {
       setLoading(true);
 
-      const transformedData = {
-        data: {
-          anexo_tecnico_date: anexoYear || null,
-          ...(isEdit && { version: baseRef.current.version }),
-
-          eventos: events.map((event) => ({
-            // operador_pic: {
-            //   connect: [{ documentId: event.operador_pic }] || null,
-            // },
-
-            operador_pic: event.operador_pic
-              ? {
-                  connect: [{ documentId: event.operador_pic }],
-                }
-              : null,
-            equipo: event.equipo_operativo || null,
-            perfiles_profesional: event.perfil_profesional || null,
-            perfil_operativo: event.perfil_operativo || null,
-
-            territorializacion:
-              event.total_hogares ||
-              (Array.isArray(event.subregion) && event.subregion.length > 0) ||
-              event.codigo_nombre_territorio ||
-              event.codigo_micro_territorio
-                ? {
-                    // numero_hogares: parseInt(event.total_hogares, 10) || null,
-                    numero_hogares: event.total_hogares || null,
-                    numero_pobalcion_intervenir: event.poblacion || null,
-                    municipios:
-                      Array.isArray(event.subregion) &&
-                      event.subregion.length > 0
-                        ? {
-                            connect: (event.subregion || []).map((region) => ({
-                              documentId: region || null,
-                            })),
-                          }
-                        : [],
-                    territorio: event.codigo_nombre_territorio || null,
-                    microterritorio: event.codigo_micro_territorio || null,
-                  }
-                : null,
-
-            descripcion: event.description_event || null,
-            indicador_evento: event.indicator_name || null,
-            meta_indicador_evento: event.meta_indicator || null,
-
-            ejes_estrategicos: (event.eje_estrategico || []).map((eje) => ({
-              nombre: eje || null,
-            })),
-
-            lineas_operativa: { nombre: event.linea_operativa || null },
-
-            productos: event.product_data.producto.map((producto, index) => ({
-              descripcion: producto.descripcion_producto || null,
-              problematica_priorizada: producto.problematica || null,
-              actividades: (event.activities[index] || []).map((activity) => ({
-                descripcion: activity.descripcion_actividad || null,
-                cantidad_a_ejecutar: activity.cantidad || null,
-                unidad_medida: activity.unidad_medida || null,
-                valor_unitario: activity.valor_unitario || null,
-                costos_directos: activity.costo_directo || null,
-                costos_indirectos: activity.costo_indirecto || null,
-                valor_total: activity.valor_total || null,
-                entornos: activity.entorno.map((entorno) => ({
-                  nombre: entorno || null,
-                })),
-
-                tecnologias: activity.tecnologia.map((tecno) => ({
-                  nombre: tecno || null,
-                })),
-                curso_de_vida: activity.cursos_vida.map((curso) => ({
-                  nombre: curso || null,
-                })),
-
-                // curso_de_vida: activity.cursos_vida[0] || null,
-
-                poblaciones: activity.poblacion_sujeto.map((poblacion) => ({
-                  nombre: poblacion || null,
-                })),
-                cups: { codigo: activity.codigo_cups } || null,
-                soportes: activity.array_soportes.map((soporte) => ({
-                  tipo: soporte.tipo_soporte || null,
-                  descripcion: soporte.descripcion_soporte || null,
-                  cantidad: soporte.cantidad_soporte || null,
-                })),
-                cronograma: activity.cronograma.map((item) => ({
-                  [item.mes]: parseInt(item.peso, 10),
-                })),
-              })),
-
-              indicadores: (producto.indicadores || []).map((indicador) => ({
-                meta_producto: indicador.meta_producto || null,
-                cantidad: indicador.cantidad || null,
-                indicador_linea_base: indicador.indicador_linea_base || null,
-              })),
-            })),
-            proyectos_idsn: event.proyecto
-              ? {
-                  connect: [{ documentId: event.proyecto }] || null,
-                }
-              : null,
-          })),
-        },
-      };
+      const transformedData = buildAnexoPayload(events, {
+        anexoYear,
+        isEdit,
+        version: baseRef.current.version,
+      });
 
       const url = isEdit
         ? `${back}/api/anexo-tecnicos/${anexo.documentId}`
