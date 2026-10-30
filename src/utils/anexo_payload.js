@@ -6,10 +6,15 @@
 const keepUuid = (item, isEdit) => (isEdit && item.uuid ? { uuid: item.uuid } : {});
 
 // Cuerpo del POST/PUT de un anexo a partir del estado del formulario de eventos.
-export const buildAnexoPayload = (events, { anexoYear, isEdit = false, version } = {}) => ({
+export const buildAnexoPayload = (
+  events,
+  { anexoYear, isEdit = false, version, confirmRemoval = false } = {},
+) => ({
   data: {
     anexo_tecnico_date: anexoYear || null,
     ...(isEdit && { version }),
+    // El usuario aceptó eliminar soportes/actividades que tienen registros.
+    ...(isEdit && confirmRemoval && { confirmar_borrado: true }),
 
     eventos: events.map((event) => ({
       // operador_pic: {

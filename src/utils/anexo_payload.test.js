@@ -87,3 +87,22 @@ test("al crear nunca envía uuid, porque el backend rechaza anexos nuevos con uu
   assert.equal("uuid" in primeraActividad(payload), false);
   assert.equal("uuid" in primeraActividad(payload).soportes[0], false);
 });
+
+test("al editar confirmando el borrado envía confirmar_borrado", () => {
+  const payload = buildAnexoPayload([evento([actividad()])], {
+    anexoYear: "2026-01-01",
+    isEdit: true,
+    version: 3,
+    confirmRemoval: true,
+  });
+
+  assert.equal(payload.data.confirmar_borrado, true);
+});
+
+test("sin confirmación, o al crear, no envía confirmar_borrado", () => {
+  const edicion = buildAnexoPayload([evento([actividad()])], { anexoYear: "2026-01-01", isEdit: true, version: 3 });
+  const creacion = buildAnexoPayload([evento([actividad()])], { anexoYear: "2026-01-01", confirmRemoval: true });
+
+  assert.equal("confirmar_borrado" in edicion.data, false);
+  assert.equal("confirmar_borrado" in creacion.data, false);
+});

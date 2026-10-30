@@ -16,6 +16,7 @@ import { fetchAnexo } from "../../utils/api";
 import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
 import { eventMatchesSearch } from "../../utils/filter_events";
 import { buildAnexoPayload } from "../../utils/anexo_payload";
+import { describePendingRemovals } from "../../utils/pending_removals";
 import EventSearch from "../EventSearch/EventSearch";
 import Spinner from "../Spinner/Spinner";
 
@@ -323,6 +324,23 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     });
   };
 
+  // El guardado elimina soportes/actividades que ya tienen seguimientos u
+  // observaciones (422): se muestran y solo se guarda si el usuario confirma.
+  const confirmRemovals = async (details) => {
+    const { isConfirmed } = await Swal.fire({
+      icon: "warning",
+      title: "Vas a eliminar elementos con registros",
+      html: describePendingRemovals(details),
+      showCancelButton: true,
+      confirmButtonText: "Eliminar y guardar",
+      cancelButtonText: "Volver al formulario",
+      confirmButtonColor: "#d33",
+      allowOutsideClick: false,
+    });
+
+    return isConfirmed;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -337,24 +355,34 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
     try {
       setLoading(true);
 
-      const transformedData = buildAnexoPayload(events, {
-        anexoYear,
-        isEdit,
-        version: baseRef.current.version,
-      });
-
       const url = isEdit
         ? `${back}/api/anexo-tecnicos/${anexo.documentId}`
         : `${back}/api/anexo-tecnicos`;
 
-      const response = await fetch(url, {
-        method: isEdit ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(transformedData),
-      });
+      const send = (confirmRemoval) =>
+        fetch(url, {
+          method: isEdit ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(
+            buildAnexoPayload(events, {
+              anexoYear,
+              isEdit,
+              version: baseRef.current.version,
+              confirmRemoval,
+            }),
+          ),
+        });
+
+      let response = await send(false);
+
+      if (isEdit && response.status === 422) {
+        const { error } = await response.json();
+        if (!(await confirmRemovals(error?.details))) return;
+        response = await send(true);
+      }
 
       if (isEdit && response.status === 409) {
         await resolveConflict();
