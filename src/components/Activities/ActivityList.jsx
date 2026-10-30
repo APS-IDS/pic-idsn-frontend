@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ActivityItem from "../ActivityEditor/ActivityItem";
 import { NEW_ACTIVITY } from "../../utils/const_forms";
+import { sumCostos } from "../../utils/costos";
 
 const ActivityList = ({
   activities,
@@ -62,10 +63,18 @@ const ActivityList = ({
           };
         }
 
-        return {
+        const updated = {
           ...activity,
           [name]: value,
         };
+
+        // El valor total se calcula sumando los costos cuando hay alguno.
+        if (name === "costo_directo" || name === "costo_indirecto") {
+          const total = sumCostos(updated.costo_directo, updated.costo_indirecto);
+          if (total !== null) updated.valor_total = total;
+        }
+
+        return updated;
       }
     );
     setActivities(updatedActivities);

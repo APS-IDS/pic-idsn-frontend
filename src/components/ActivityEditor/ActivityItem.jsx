@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import { MdDragIndicator } from "react-icons/md";
 import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
 import { moveItem } from "../../utils/move_item";
+import { sumCostos } from "../../utils/costos";
 import { NumericFormat } from "react-number-format";
 
 const soloNumerosYComa = (e) => {
@@ -67,6 +68,11 @@ const ActivityItem = ({
 
   const handleValorChange = (name, value) =>
     handleActivityChange({ target: { name, value } }, index);
+
+  // Con costos diligenciados el total se calcula solo (ver ActivityList).
+  const totalCalculado =
+    anexoYear == NEW_ANEXO_DATE &&
+    sumCostos(activity.costo_directo, activity.costo_indirecto) !== null;
 
   const handleCronogramaChange = (value, key, itemIndex) => {
     const updatedCronograma = [...(activity.cronograma || [])];
@@ -529,7 +535,13 @@ const ActivityItem = ({
                   name="valor_total"
                   value={activity.valor_total}
                   onValueChange={handleValorChange}
+                  readOnly={totalCalculado}
                 />
+                {totalCalculado && (
+                  <p className="text-xs text-app-muted mt-1">
+                    Suma de costos directos e indirectos
+                  </p>
+                )}
               </div>
               {anexoYear == OLD_ANEXO_DATE && (
                 <div>

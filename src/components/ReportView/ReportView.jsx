@@ -418,7 +418,7 @@ const ReportView = () => {
             },
           ]}
           loading={loadingData}
-          FILTROS_VACIOS={FILTROS_VACIOS}
+          filterEmptyState={FILTROS_VACIOS}
           filterState={filterState}
           setFilterState={setFilterState}
           setAppliedFilters={setAppliedFilters}

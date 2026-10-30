@@ -1,4 +1,5 @@
 import Swal from "sweetalert2";
+import { sumCronograma } from "./cronograma";
 const validateEventsData = (events, anexoYear) => {
   // console.log("Validando eventos", events, anexoYear);
 
@@ -313,17 +314,15 @@ const validateEventsData = (events, anexoYear) => {
           return false;
         }
 
-        const cronogramaValido = actividad.cronograma?.some(
-          (item) => item.peso > 0,
-        );
+        const totalCronograma = sumCronograma(actividad.cronograma);
 
-        if (!cronogramaValido) {
+        if (totalCronograma !== 100) {
           Swal.fire({
             icon: "warning",
-            title: "Campo Incompleto",
-            text: `Debe asignar al menos un porcentaje en el cronograma de la actividad ${
-              k + 1
-            } del producto ${j + 1} en el evento ${i + 1}.`,
+            title: "Cronograma incompleto",
+            text: `El cronograma de la actividad ${k + 1} del producto ${
+              j + 1
+            } en el evento ${i + 1} suma ${totalCronograma}%. Debe sumar exactamente 100% (los porcentajes se guardan sin decimales).`,
           });
           return false;
         }
