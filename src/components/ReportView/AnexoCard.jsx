@@ -61,7 +61,8 @@ const AnexoCard = ({
           >
             <EventSearch value={search} onChange={handleSearch} />
           </div>
-          {usuario === CustomRoles.REFERENTE_INSTITUTO && (
+          {(usuario === CustomRoles.REFERENTE_INSTITUTO ||
+            usuario === CustomRoles.SUPERUSER) && (
             <button
               className={styles.edit_button}
               onClick={() => handle_click_edit(row)}

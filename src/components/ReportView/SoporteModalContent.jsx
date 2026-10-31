@@ -25,15 +25,17 @@ const ExistingEvidencia = ({ evidencia, index, onDelete }) => (
         <strong>Región:</strong> {evidencia.municipio?.label}
       </p>
     </div>
-    <div>
-      <button
-        type="button"
-        className={styles.btnDelete}
-        onClick={() => onDelete(evidencia.documentId)}
-      >
-        <i className="fa-solid fa-trash" />
-      </button>
-    </div>
+    {onDelete && (
+      <div>
+        <button
+          type="button"
+          className={styles.btnDelete}
+          onClick={() => onDelete(evidencia.documentId)}
+        >
+          <i className="fa-solid fa-trash" />
+        </button>
+      </div>
+    )}
   </div>
 );
 

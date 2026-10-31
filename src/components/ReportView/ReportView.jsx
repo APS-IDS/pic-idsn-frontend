@@ -10,6 +10,7 @@ import FiltersPanel from "./FiltersPanel";
 import AnexoCard from "./AnexoCard";
 import { openSoporteModal } from "./soporteModal.jsx";
 import { ANIOS_DISPONIBLES } from "../../utils/const_forms";
+import { CustomRoles } from "../Login/constant";
 
 const FILTROS_VACIOS = {
   project: null,
@@ -302,13 +303,17 @@ const ReportView = () => {
         municipios,
         hasExistingData: existingData?.evidencias?.length > 0,
         existingEvidencias: existingData?.evidencias || [],
-        onDeleteExisting: (evidenciaId) => {
-          borradoPendiente = deleteEvidencia(
-            evidenciaId,
-            documentId,
-            soporteId,
-          );
-        },
+        // El operador no puede eliminar evidencias ya cargadas.
+        onDeleteExisting:
+          usuario === CustomRoles.OPERADOR
+            ? undefined
+            : (evidenciaId) => {
+                borradoPendiente = deleteEvidencia(
+                  evidenciaId,
+                  documentId,
+                  soporteId,
+                );
+              },
       });
 
       if (result.isConfirmed) {
