@@ -1,5 +1,6 @@
 // Contenido del aviso cuando el backend responde 422 porque el guardado
-// elimina soportes o actividades que ya tienen seguimientos u observaciones.
+// elimina soportes o actividades que ya tienen seguimientos u observaciones,
+// que se borran junto con ellos.
 
 const escapeHtml = (text) =>
   String(text ?? "").replace(
@@ -35,7 +36,7 @@ export const describePendingRemovals = ({ soportes = [], actividades = [] } = {}
     `<ul style="text-align:left;margin:12px 0;padding-left:20px">${items
       .map((item) => `<li>${escapeHtml(item)}</li>`)
       .join("")}</ul>` +
-    "<p>Los registros no se borran, pero quedarán desvinculados y dejarán de " +
-    "verse en el seguimiento. ¿Quieres continuar?</p>"
+    "<p>Sus seguimientos, evidencias y observaciones se borrarán definitivamente. " +
+    "Esta acción no se puede deshacer. ¿Quieres continuar?</p>"
   );
 };

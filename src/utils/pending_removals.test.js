@@ -13,6 +13,16 @@ test("lista actividades y soportes con sus registros", () => {
   assert.match(html, /Soporte Acta de Reunión: Actas firmadas — 1 evidencia</);
 });
 
+test("avisa que los registros se borran definitivamente", () => {
+  const html = describePendingRemovals({
+    actividades: [{ uuid: "a1", descripcion: "Concertar agenda", observaciones: 1 }],
+  });
+
+  assert.match(html, /se borrarán definitivamente/);
+  assert.match(html, /no se puede deshacer/);
+  assert.equal(html.includes("desvinculados"), false);
+});
+
 test("un soporte con seguimiento pero sin evidencias se describe como tal", () => {
   const html = describePendingRemovals({
     soportes: [{ uuid: "s1", tipo: "Acta", descripcion: "x", evidencias: 0 }],

@@ -23,13 +23,16 @@ const actividad = (overrides = {}) => ({
   ...overrides,
 });
 
-const evento = (actividades) => ({
+const evento = (actividades, overrides = {}, producto = {}) => ({
   description_event: "Prevención del embarazo",
-  product_data: { producto: [{ descripcion_producto: "Producto 1", indicadores: [] }] },
+  product_data: { producto: [{ descripcion_producto: "Producto 1", indicadores: [], ...producto }] },
   activities: [actividades],
+  ...overrides,
 });
 
-const primeraActividad = (payload) => payload.data.eventos[0].productos[0].actividades[0];
+const primerEvento = (payload) => payload.data.eventos[0];
+const primerProducto = (payload) => primerEvento(payload).productos[0];
+const primeraActividad = (payload) => primerProducto(payload).actividades[0];
 
 test("arma soportes y actividades con los campos del formulario", () => {
   const payload = buildAnexoPayload([evento([actividad()])], { anexoYear: "2026-01-01" });
@@ -77,13 +80,39 @@ test("al editar, lo agregado sin uuid se envía sin uuid para que el backend lo 
   assert.equal("uuid" in primeraActividad(payload).soportes[0], false);
 });
 
+test("al editar conserva el uuid del evento y de cada producto", () => {
+  const form = [evento([actividad()], { uuid: "evt-1" }, { uuid: "prod-1" })];
+
+  const payload = buildAnexoPayload(form, { anexoYear: "2026-01-01", isEdit: true, version: 3 });
+
+  assert.equal(primerEvento(payload).uuid, "evt-1");
+  assert.equal(primerProducto(payload).uuid, "prod-1");
+});
+
+test("al editar, un evento o producto agregado sin uuid se envía sin uuid", () => {
+  const payload = buildAnexoPayload([evento([actividad()])], {
+    anexoYear: "2026-01-01",
+    isEdit: true,
+    version: 3,
+  });
+
+  assert.equal("uuid" in primerEvento(payload), false);
+  assert.equal("uuid" in primerProducto(payload), false);
+});
+
 test("al crear nunca envía uuid, porque el backend rechaza anexos nuevos con uuid", () => {
   const form = [
-    evento([actividad({ uuid: "act-1", array_soportes: [soporte({ uuid: "sop-1" })] })]),
+    evento(
+      [actividad({ uuid: "act-1", array_soportes: [soporte({ uuid: "sop-1" })] })],
+      { uuid: "evt-1" },
+      { uuid: "prod-1" },
+    ),
   ];
 
   const payload = buildAnexoPayload(form, { anexoYear: "2026-01-01" });
 
+  assert.equal("uuid" in primerEvento(payload), false);
+  assert.equal("uuid" in primerProducto(payload), false);
   assert.equal("uuid" in primeraActividad(payload), false);
   assert.equal("uuid" in primeraActividad(payload).soportes[0], false);
 });

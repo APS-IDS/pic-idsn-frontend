@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ActivityList from "../Activities/ActivityList";
 import Swal from "sweetalert2";
 import { NEW_INDICATOR, NEW_PRODUCT, NEW_ANEXO_DATE } from "../../utils/const_forms";
+import { isSavedProduct } from "../../utils/saved_items";
 
 const Product = ({
   product_data,
@@ -15,6 +16,7 @@ const Product = ({
   cups,
   cursos_vida,
   anexoYear,
+  isSuperUser,
 }) => {
   const [isProductOpen, setIsProductOpen] = useState({});
   const toggleProduct = (productIndex) => {
@@ -268,17 +270,20 @@ const Product = ({
                 Producto #{productIndex + 1}
 
                 <div className="flex items-center gap-4">
-                  <span
-                    className="inline-block transform transition-transform duration-200 cursor-pointer hover:text-red-600"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handle_remove_producto(
-                        productIndex
-                      );
-                    }}
-                  >
-                    &#10005;
-                  </span>
+                  {(isSuperUser ||
+                    !isSavedProduct(product, activities?.[productIndex])) && (
+                    <span
+                      className="inline-block transform transition-transform duration-200 cursor-pointer hover:text-red-600"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handle_remove_producto(
+                          productIndex
+                        );
+                      }}
+                    >
+                      &#10005;
+                    </span>
+                  )}
 
                   <span
                     className={`inline-block transform transition-transform duration-200 cursor-pointer ${isProductOpen[
@@ -467,6 +472,7 @@ const Product = ({
                   <ActivityList
                     entornos={entornos}
                     anexoYear={anexoYear}
+                    isSuperUser={isSuperUser}
                     tecnologias={tecnologias}
                     poblaciones={poblaciones}
                     soportes={soportes}

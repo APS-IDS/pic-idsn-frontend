@@ -17,6 +17,8 @@ import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
 import { eventMatchesSearch } from "../../utils/filter_events";
 import { buildAnexoPayload } from "../../utils/anexo_payload";
 import { describePendingRemovals } from "../../utils/pending_removals";
+import { isSavedEvent } from "../../utils/saved_items";
+import { CustomRoles } from "../Login/constant";
 import EventSearch from "../EventSearch/EventSearch";
 import Spinner from "../Spinner/Spinner";
 
@@ -54,6 +56,12 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
   const token =
     useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
+
+  // Solo un superusuario puede eliminar eventos, productos, actividades y
+  // soportes ya guardados (el backend también lo valida).
+  const rolRedux = useSelector((state) => state.user.usuario);
+  const rolLS = JSON.parse(localStorage.getItem("usuario_rol"))?.usuario;
+  const isSuperUser = (rolRedux || rolLS) === CustomRoles.SUPERUSER;
 
   const back = import.meta.env.VITE_APP_BACK;
   const url_parametros = `${back}/api/labels`;
@@ -506,12 +514,14 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
             >
               Evento #{index + 1}
               <div className="flex items-center gap-4">
-                <span
-                  className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
-                  onClick={() => handle_remove_event(index)}
-                >
-                  &#10005;
-                </span>
+                {(isSuperUser || !isSavedEvent(event)) && (
+                  <span
+                    className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                    onClick={() => handle_remove_event(index)}
+                  >
+                    &#10005;
+                  </span>
+                )}
                 <span
                   className={`inline-block transform transition-transform duration-200 cursor-pointer ${expandedEvents[index] === true ? "rotate-180" : "rotate-0"}`}
                 >
@@ -889,6 +899,7 @@ const Event = ({ eventsEdit, anexo, onSaved }) => {
                   <Product
                     product_data={event.product_data}
                     anexoYear={anexoYear}
+                    isSuperUser={isSuperUser}
                     entornos={parametros.entornos}
                     tecnologias={parametros.tecnologias}
                     poblaciones={parametros.poblaciones}

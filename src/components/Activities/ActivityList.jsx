@@ -13,6 +13,7 @@ const ActivityList = ({
   cups,
   cursos_vida,
   anexoYear,
+  isSuperUser,
 }) => {
   const [expandedIndex, setExpandedIndex] = useState(null);
 
@@ -150,6 +151,7 @@ const ActivityList = ({
           cups={cups}
           cursos_vida={cursos_vida}
           anexoYear={anexoYear}
+          isSuperUser={isSuperUser}
         />
       ))}
     </div>

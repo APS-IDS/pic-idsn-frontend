@@ -6,6 +6,7 @@ import { MdDragIndicator } from "react-icons/md";
 import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
 import { moveItem } from "../../utils/move_item";
 import { sumCostos } from "../../utils/costos";
+import { isSavedActivity, isSavedSoporte } from "../../utils/saved_items";
 import { NumericFormat } from "react-number-format";
 
 const soloNumerosYComa = (e) => {
@@ -46,6 +47,7 @@ const ActivityItem = ({
   cups,
   cursos_vida,
   anexoYear,
+  isSuperUser,
 }) => {
   const options = {
     tipo_soporte: soportes,
@@ -301,15 +303,17 @@ const ActivityItem = ({
         Actividad #{index + 1}
 
         <div className="flex items-center gap-4">
-          <span
-            className="inline-block cursor-pointer hover:text-red-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              handle_remove_actividad(index);
-            }}
-          >
-            &#10005;
-          </span>
+          {(isSuperUser || !isSavedActivity(activity)) && (
+            <span
+              className="inline-block cursor-pointer hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                handle_remove_actividad(index);
+              }}
+            >
+              &#10005;
+            </span>
+          )}
 
           <span
             className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded ? "rotate-180" : "rotate-0"}`}>
@@ -705,7 +709,8 @@ const ActivityItem = ({
                       className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                   </div>
-                  {soporteIndex > 0 && (
+                  {soporteIndex > 0 &&
+                    (isSuperUser || !isSavedSoporte(soporte)) && (
                     <div className="col-span-1 flex items-center justify-cente m-7">
                       <span
                         className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}

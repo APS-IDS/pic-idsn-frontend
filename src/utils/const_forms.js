@@ -100,6 +100,7 @@ export const NEW_ACTIVITY = {
 
 export const transformEvent = (evento) => {
   return {
+    uuid: evento?.uuid,
     //subregion: evento.territorializacion.subregion,
     subregion: evento?.territorializacion?.municipios?.map(
       (muni) => muni.documentId,
@@ -197,6 +198,7 @@ export const transformEvent = (evento) => {
 
     product_data: {
       producto: evento.productos.map((producto) => ({
+        uuid: producto.uuid,
         problematica: producto.problematica_priorizada,
         descripcion_producto: producto.descripcion,
         indicadores: producto.indicadores.map((indicador) => ({

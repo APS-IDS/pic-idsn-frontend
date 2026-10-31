@@ -1,7 +1,8 @@
-// Al editar hay que reenviar el uuid de actividades y soportes: Strapi recrea
-// los componentes en cada guardado y, sin uuid, el lifecycle genera uno nuevo,
-// dejando huérfanos los seguimientos (soporte_id) y observaciones
-// (id_actividad) que apuntan al anterior. Al crear no se envía porque la
+// Al editar hay que reenviar el uuid de eventos, productos, actividades y
+// soportes: Strapi recrea los componentes en cada guardado y el backend usa el
+// uuid para saber qué se eliminó (y borrar los seguimientos y observaciones
+// que apuntan a soportes y actividades). Sin uuid el lifecycle genera uno
+// nuevo y el anterior cuenta como eliminado. Al crear no se envía porque la
 // política uuid-validation rechaza anexos nuevos con uuid.
 const keepUuid = (item, isEdit) => (isEdit && item.uuid ? { uuid: item.uuid } : {});
 
@@ -17,6 +18,7 @@ export const buildAnexoPayload = (
     ...(isEdit && confirmRemoval && { confirmar_borrado: true }),
 
     eventos: events.map((event) => ({
+      ...keepUuid(event, isEdit),
       // operador_pic: {
       //   connect: [{ documentId: event.operador_pic }] || null,
       // },
@@ -64,6 +66,7 @@ export const buildAnexoPayload = (
       lineas_operativa: { nombre: event.linea_operativa || null },
 
       productos: event.product_data.producto.map((producto, index) => ({
+        ...keepUuid(producto, isEdit),
         descripcion: producto.descripcion_producto || null,
         problematica_priorizada: producto.problematica || null,
         actividades: (event.activities[index] || []).map((activity) => ({
