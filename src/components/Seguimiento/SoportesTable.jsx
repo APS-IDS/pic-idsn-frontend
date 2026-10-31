@@ -16,6 +16,7 @@ const SoportesTable = ({
   soportes,
   soportesData,
   estadoSoportes,
+  canSaveEstado,
   estadosBack,
   usuario,
   onEstadoChange,
@@ -114,8 +115,14 @@ const SoportesTable = ({
                       <td>
                         {hasEvidencias ? (
                           <button
-                            className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold"
+                            className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal"
                             onClick={() => onSendCheck(soporte.uuid)}
+                            disabled={!canSaveEstado(soporte.uuid)}
+                            title={
+                              canSaveEstado(soporte.uuid)
+                                ? undefined
+                                : "No hay cambios para guardar"
+                            }
                           >
                             <FaSave />
                           </button>

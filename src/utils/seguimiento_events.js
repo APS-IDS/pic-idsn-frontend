@@ -38,3 +38,28 @@ export const formatDate = ( rol ) => {
 export const formatAnexoDateForLabel = (anexoDate) => {
   return anexoDate ? anexoDate.slice(0, 4) : "";
 };
+
+// Hay algo nuevo que guardar si el rol ("referente" u "operador") cambió su
+// observación, porcentaje o estado respecto a lo último guardado.
+export const hasSeguimientoChanges = (rol, saved, current) => {
+  if (!rol || !saved) return false;
+
+  const valueOf = ({ observaciones, status }, campo) =>
+    String({ ...observaciones, ...status }[`${campo}_${rol}`] ?? "");
+
+  return ["observacion", "porcentaje", "estado"].some(
+    (campo) => valueOf(saved, campo) !== valueOf(current, campo),
+  );
+};
+
+// El estado de un soporte se puede guardar si se eligió uno distinto al guardado.
+export const hasEstadoSoporteChange = (saved, current, soporteId) =>
+  Boolean(current[soporteId]) && current[soporteId] !== saved[soporteId];
+
+// El referente cierra el seguimiento de una actividad marcándola "Actividad
+// cerrada" al 100%; desde entonces ya no se puede modificar (el backend
+// también lo valida).
+export const ESTADO_ACTIVIDAD_CERRADA = "Actividad cerrada";
+
+export const isSeguimientoCerrado = (estado, porcentaje) =>
+  estado === ESTADO_ACTIVIDAD_CERRADA && Number(porcentaje) === 100;

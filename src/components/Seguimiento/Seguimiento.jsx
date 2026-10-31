@@ -15,15 +15,23 @@ import {
   fetchJson,
   formatDate,
   formatAnexoDateForLabel,
+  hasEstadoSoporteChange,
+  hasSeguimientoChanges,
+  isSeguimientoCerrado,
 } from "../../utils/seguimiento_events";
 
 const Seguimiento = () => {
   const { documentId, actividadId } = useParams();
   const [loading, setLoading] = useState(false);
+  // Texto del loader mientras se guarda; null si no se está guardando.
+  const [savingText, setSavingText] = useState(null);
   const [actividad, setActividad] = useState(null);
   const [uuid, setUuid] = useState(null);
   const [anexoDate, setAnexoDate] = useState(null);
   const [estadoSoportes, setEstadoSoportes] = useState([]);
+  // Lo último guardado, para habilitar los botones de guardar solo si hay cambios.
+  const [savedEstadoSoportes, setSavedEstadoSoportes] = useState({});
+  const [savedSeguimiento, setSavedSeguimiento] = useState(null);
   const [estados_back, setEstados_back] = useState([]);
   const [estados_operador, setEstados_operador] = useState([]);
   const [estados_referente, setEstados_referente] = useState([]);
@@ -109,25 +117,29 @@ const Seguimiento = () => {
 
     if (!response.ok) throw new Error("Error al obtener observaciones.");
     const data = await response.json();
-    setObservaciones((prev) => ({
-      ...prev,
+    const nuevasObservaciones = {
       observacion_referente: data.referente?.observacion ?? "Sin observación",
       observacion_operador: data.operador?.observacion ?? "Sin observación",
       fecha_operador: formatDate(data.operador),
       fecha_referente: formatDate(data.referente),
       usuario_operador: data.operador?.user?.username ?? "",
       usuario_referente: data.referente?.user?.username ?? "",
-    }));
-
-    setStatus((prev) => ({
-      ...prev,
+    };
+    const nuevoStatus = {
       estado_referente:
         data.referente?.estado_referente?.estado_actividad ?? "Sin Estado",
       estado_operador:
         data.operador?.estado_operador?.estado_actividad ?? "Sin Estado",
       porcentaje_operador: data.operador?.porcentaje_completado ?? 0,
       porcentaje_referente: data.referente?.porcentaje_completado ?? 0,
-    }));
+    };
+
+    setObservaciones((prev) => ({ ...prev, ...nuevasObservaciones }));
+    setStatus((prev) => ({ ...prev, ...nuevoStatus }));
+    setSavedSeguimiento({
+      observaciones: nuevasObservaciones,
+      status: nuevoStatus,
+    });
   };
 
   const fetchSoportes = async (actividad) => {
@@ -163,18 +175,19 @@ const Seguimiento = () => {
       return nuevosSoportes; // Retorna el nuevo estado sin borrar datos previos
     });
 
-    setEstadoSoportes((prevEstado) => {
-      const nuevosEstados = { ...prevEstado };
-
-      results.forEach((result) => {
-        if (result?.data?.estado_soporte?.estado_soporte) {
-          nuevosEstados[result.soporteId] =
-            result.data.estado_soporte.estado_soporte;
-        }
-      });
-
-      return nuevosEstados;
+    const estadosGuardados = {};
+    results.forEach((result) => {
+      if (result?.data?.estado_soporte?.estado_soporte) {
+        estadosGuardados[result.soporteId] =
+          result.data.estado_soporte.estado_soporte;
+      }
     });
+
+    setEstadoSoportes((prevEstado) => ({ ...prevEstado, ...estadosGuardados }));
+    setSavedEstadoSoportes((prevEstado) => ({
+      ...prevEstado,
+      ...estadosGuardados,
+    }));
   };
 
   const loadAnexoAndSoportes = async () => {
@@ -267,6 +280,29 @@ const Seguimiento = () => {
 
     const documentId_estado = estado_seleccionado?.documentId || null;
 
+    // Cerrar el seguimiento no se puede deshacer desde la aplicación.
+    if (
+      usuario === CustomRoles.REFERENTE_INSTITUTO &&
+      isSeguimientoCerrado(
+        status_porcentaje.estado_referente,
+        status_porcentaje.porcentaje_referente,
+      )
+    ) {
+      const { isConfirmed } = await Swal.fire({
+        icon: "warning",
+        title: "Vas a cerrar el seguimiento",
+        text: "Al guardar la actividad como cerrada al 100%, el seguimiento del referente quedará bloqueado y ya no se podrá modificar. ¿Quieres continuar?",
+        showCancelButton: true,
+        confirmButtonText: "Cerrar y guardar",
+        cancelButtonText: "Volver",
+        confirmButtonColor: "#d33",
+        allowOutsideClick: false,
+      });
+
+      if (!isConfirmed) return;
+    }
+
+    setSavingText("Guardando seguimiento");
     try {
       // Realizar la solicitud
       const response = await fetch(`${url_post_observaciones}`, {
@@ -299,6 +335,18 @@ const Seguimiento = () => {
         }),
       });
 
+      // P. ej. otra persona cerró el seguimiento mientras se editaba: se
+      // recarga para mostrarlo bloqueado.
+      if (response.status === 403) {
+        const { error } = await response.json();
+        await fetch_observacion();
+        Swal.fire({
+          icon: "error",
+          title: "No se puede guardar",
+          text: error?.message,
+        });
+        return;
+      }
       if (!response.ok) throw new Error("Error al enviar el reporte.");
       await fetch_observacion();
       // Reiniciar el formulario
@@ -314,6 +362,8 @@ const Seguimiento = () => {
         text: "Por favor revise que todos los datos esten completos !",
       });
       console.error(error);
+    } finally {
+      setSavingText(null);
     }
   };
 
@@ -322,6 +372,7 @@ const Seguimiento = () => {
       (e) => e.estado_soporte === estadoSoportes[id],
     );
 
+    setSavingText("Guardando estado del soporte");
     try {
       // Realizar la solicitud
 
@@ -340,6 +391,7 @@ const Seguimiento = () => {
 
       if (!response.ok) throw new Error("Error al enviar el reporte.");
 
+      setSavedEstadoSoportes((prev) => ({ ...prev, [id]: estadoSoportes[id] }));
       // Reiniciar el formulario
       Swal.fire({
         icon: "success",
@@ -353,8 +405,27 @@ const Seguimiento = () => {
         text: "Por favor revise que todos los datos esten completos !",
       });
       console.error(error);
+    } finally {
+      setSavingText(null);
     }
   };
+
+  const rolSeguimiento =
+    usuario === CustomRoles.REFERENTE_INSTITUTO
+      ? "referente"
+      : usuario === CustomRoles.OPERADOR
+        ? "operador"
+        : null;
+  // Según lo guardado, no lo que se está editando: se bloquea al guardarlo.
+  const seguimientoReferenteCerrado = isSeguimientoCerrado(
+    savedSeguimiento?.status.estado_referente,
+    savedSeguimiento?.status.porcentaje_referente,
+  );
+  const seguimientoChanged = hasSeguimientoChanges(
+    rolSeguimiento,
+    savedSeguimiento,
+    { observaciones, status: status_porcentaje },
+  );
 
   if (loading) {
     return <Spinner envio={"Cargando datos, por favor espera..."} />;
@@ -370,6 +441,12 @@ const Seguimiento = () => {
 
   return (
     <div className=" bg-app-bg">
+      {/* Cubre la página sin desmontarla, para no perder el scroll al guardar. */}
+      {savingText && (
+        <div className="fixed inset-0 z-50">
+          <Spinner envio={savingText} />
+        </div>
+      )}
       <Header />
       <div className="max-w-6xl mx-auto min-h-dvh bg-app-bg p-4">
         <div className="flex align-center items-center gap-2 mb-4 text-app-muted">
@@ -395,6 +472,13 @@ const Seguimiento = () => {
           soportes={actividad.soportes}
           soportesData={soportes}
           estadoSoportes={estadoSoportes}
+          canSaveEstado={(soporteId) =>
+            hasEstadoSoporteChange(
+              savedEstadoSoportes,
+              estadoSoportes,
+              soporteId,
+            )
+          }
           estadosBack={estados_back}
           usuario={usuario}
           onEstadoChange={handleEstadoChange}
@@ -410,7 +494,15 @@ const Seguimiento = () => {
             usuarioAutor={observaciones.usuario_referente}
             estado={status_porcentaje.estado_referente}
             porcentaje={status_porcentaje.porcentaje_referente}
-            canEdit={usuario === CustomRoles.REFERENTE_INSTITUTO}
+            canEdit={
+              usuario === CustomRoles.REFERENTE_INSTITUTO &&
+              !seguimientoReferenteCerrado
+            }
+            aviso={
+              seguimientoReferenteCerrado
+                ? "Seguimiento cerrado: la actividad se marcó como cerrada al 100% y ya no se puede modificar."
+                : null
+            }
             name="referente"
             onChange={onChange_observaciones}
             onChangeState={onchange_status}
@@ -442,8 +534,10 @@ const Seguimiento = () => {
           </button>
 
           <button
-            className="flex items-center gap-2 bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold "
+            className="flex items-center gap-2 bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-teal"
             onClick={handle_send}
+            disabled={!seguimientoChanged}
+            title={seguimientoChanged ? undefined : "No hay cambios para guardar"}
           >
             <Save className="w-4 h-4" />
             Guardar seguimiento

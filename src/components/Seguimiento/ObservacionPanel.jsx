@@ -28,6 +28,7 @@ const ObservacionPanel = ({
   porcentaje,
   estado,
   canEdit,
+  aviso,
   name,
   onChange,
   onChangeState,
@@ -42,6 +43,11 @@ const ObservacionPanel = ({
       </div>
 
       <div className="p-4">
+        {aviso && (
+          <p className="mb-4 rounded-md border border-app-border bg-gray-100 p-2 text-sm text-app-muted">
+            🔒 {aviso}
+          </p>
+        )}
         <div className="flex flex-row gap-4 mb-4">
           <div>
             <label className={styles.label}>Usuario</label>
