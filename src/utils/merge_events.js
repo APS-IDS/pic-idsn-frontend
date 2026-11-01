@@ -27,8 +27,26 @@ const isEqual = (a, b) => {
 
 export const mergeValue = (base, mine, theirs) => (isEqual(mine, base) ? theirs : mine);
 
-// Cada guardado regenera el anexo, así que theirs solo se puede alinear con
-// base por posición; mine viene de base y se alinea por _key.
+// Posición en theirs de cada evento de base (undefined si la otra persona lo
+// borró). Se emparejan por el uuid del evento; si alguno no tiene (anexos
+// guardados antes de que los eventos tuvieran uuid) o hay repetidos, por
+// posición.
+const alignBase = (base, theirs) => {
+  const uuids = base.map((evento) => evento.uuid);
+  const byUuid = uuids.every(Boolean) && new Set(uuids).size === uuids.length;
+
+  if (!byUuid) return base.map((_, i) => (i < theirs.length ? i : undefined));
+
+  const theirIndexByUuid = new Map();
+  theirs.forEach((evento, j) => {
+    if (evento.uuid && !theirIndexByUuid.has(evento.uuid)) {
+      theirIndexByUuid.set(evento.uuid, j);
+    }
+  });
+  return uuids.map((uuid) => theirIndexByUuid.get(uuid));
+};
+
+// mine viene de base y se alinea con él por _key.
 export const mergeEvents = (base, mine, theirs) => {
   const baseIndexByKey = new Map(base.map((evento, i) => [evento._key, i]));
   const mineByBaseIndex = new Map();
@@ -40,9 +58,18 @@ export const mergeEvents = (base, mine, theirs) => {
     else mineByBaseIndex.set(i, evento);
   }
 
+  const theirIndexOfBase = alignBase(base, theirs);
+  const baseIndexOfTheirs = new Map(
+    theirIndexOfBase
+      .map((j, i) => [j, i])
+      .filter(([j]) => j !== undefined),
+  );
+
   const result = [];
-  theirs.forEach((evento, i) => {
-    if (i >= base.length) {
+  theirs.forEach((evento, j) => {
+    const i = baseIndexOfTheirs.get(j);
+    if (i === undefined) {
+      // Lo agregó la otra persona.
       result.push(evento);
     } else if (mineByBaseIndex.has(i)) {
       const mio = mineByBaseIndex.get(i);
@@ -51,10 +78,12 @@ export const mergeEvents = (base, mine, theirs) => {
   });
 
   // Lo que la otra persona borró pero yo modifiqué no se pierde.
-  for (let i = theirs.length; i < base.length; i++) {
+  base.forEach((evento, i) => {
     const mio = mineByBaseIndex.get(i);
-    if (mio && !isEqual(mio, base[i])) result.push(mio);
-  }
+    if (theirIndexOfBase[i] === undefined && mio && !isEqual(mio, evento)) {
+      result.push(mio);
+    }
+  });
 
   return [...result, ...added];
 };

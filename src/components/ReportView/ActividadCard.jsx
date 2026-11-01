@@ -16,7 +16,8 @@ const Dato = ({ etiqueta, valor }) => (
 
 const ActividadCard = ({ actividad, documentId, usuario, onSoporte }) => {
   const soportes = actividad?.soportes ?? [];
-  const puedeCargarSoportes = usuario === CustomRoles.OPERADOR;
+  const puedeCargarSoportes =
+    usuario === CustomRoles.OPERADOR || usuario === CustomRoles.SUPERUSER;
 
   const handleClickActividad = (anexoId, actividadId) => {
     const rutaSeguimiento = `/anexo/${anexoId}/${actividadId}/seguimiento`;

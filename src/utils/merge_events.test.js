@@ -116,6 +116,68 @@ test("los eventos que conservo de mi versión toman la clave de la versión nuev
   assert.equal(mergeEvents(base, mine, theirs)[0]._key, "t0");
 });
 
+// Con uuid: base y theirs se emparejan por uuid, no por posición.
+const conUuid = (key, uuid, overrides = {}) =>
+  evento(key, { uuid, description_event: `Evento ${uuid}`, ...overrides });
+const uuids = (events) =>
+  events.map((e) => e.uuid + (e.description_event === `Evento ${e.uuid}` ? "" : "'"));
+
+test("con uuid: si la otra persona borró un evento, el que edité no se duplica", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "B"), conUuid("c", "C")];
+  const mine = [base[0], base[1], { ...base[2], description_event: "C editado" }];
+  const theirs = [conUuid("t0", "A"), conUuid("t1", "C")];
+
+  assert.deepEqual(uuids(mergeEvents(base, mine, theirs)), ["A", "C'"]);
+});
+
+test("con uuid: si la otra persona borró un evento que yo edité, los demás no se pierden", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "B"), conUuid("c", "C")];
+  const mine = [base[0], { ...base[1], description_event: "B editado" }, base[2]];
+  const theirs = [conUuid("t0", "A"), conUuid("t1", "C")];
+
+  assert.deepEqual(uuids(mergeEvents(base, mine, theirs)), ["A", "C", "B'"]);
+});
+
+test("con uuid: lo que borré no revive y lo que borró la otra persona no se pierde de más", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "B"), conUuid("c", "C")];
+  const mine = [base[0], base[2]];
+  const theirs = [conUuid("t0", "B"), conUuid("t1", "C")];
+
+  assert.deepEqual(uuids(mergeEvents(base, mine, theirs)), ["C"]);
+});
+
+test("con uuid: se conserva lo que agregó la otra persona y lo que borró pero yo edité", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "B")];
+  const mine = [{ ...base[0], description_event: "A editado" }, base[1]];
+  const theirs = [conUuid("t0", "B"), conUuid("t1", "N")];
+
+  assert.deepEqual(uuids(mergeEvents(base, mine, theirs)), ["B", "N", "A'"]);
+});
+
+test("con uuid: el evento que conservo de mi versión toma la clave de la versión nueva", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "B")];
+  const mine = [base[0], { ...base[1], description_event: "B editado" }];
+  const theirs = [conUuid("t0", "B")];
+
+  const [merged] = mergeEvents(base, mine, theirs);
+  assert.equal(merged.description_event, "B editado");
+  assert.equal(merged._key, "t0");
+});
+
+test("con uuid repetidos en la versión cargada se alinea por posición", () => {
+  const base = [conUuid("a", "A"), conUuid("b", "A")];
+  const mine = [base[0], base[1]];
+  const theirs = [
+    conUuid("t0", "A", { description_event: "primero de ellos" }),
+    conUuid("t1", "A", { description_event: "segundo de ellos" }),
+  ];
+
+  assert.deepEqual(descripciones(mergeEvents(base, mine, theirs)), [
+    "primero de ellos",
+    "segundo de ellos",
+  ]);
+});
+
 test("mergeValue conserva mi valor solo si lo cambié", () => {
   assert.equal(mergeValue("2025-01-01", "2026-01-01", "2024-01-01"), "2026-01-01");
   assert.equal(mergeValue("2025-01-01", "2025-01-01", "2024-01-01"), "2024-01-01");
