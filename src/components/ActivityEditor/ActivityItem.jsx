@@ -2,7 +2,36 @@ import React, { useState } from "react";
 import styles from "./ActivityItem.module.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { MdDragIndicator } from "react-icons/md";
+import { NEW_ANEXO_DATE, OLD_ANEXO_DATE } from "../../utils/const_forms";
+import { moveItem } from "../../utils/move_item";
+import { sumCostos } from "../../utils/costos";
+import { isSavedActivity, isSavedSoporte } from "../../utils/saved_items";
 import { NumericFormat } from "react-number-format";
+
+const soloNumerosYComa = (e) => {
+  const tieneModificador = e.ctrlKey || e.metaKey || e.altKey;
+  if (!tieneModificador && e.key.length === 1 && !/[0-9,]/.test(e.key)) {
+    e.preventDefault();
+  }
+};
+
+const CurrencyInput = ({ name, value, onValueChange, ...props }) => (
+  <NumericFormat
+    name={name}
+    value={value}
+    thousandSeparator="."
+    decimalSeparator=","
+    decimalScale={2}
+    fixedDecimalScale
+    allowNegative={false}
+    onValueChange={({ value: rawValue }) => onValueChange(name, rawValue)}
+    onKeyDown={soloNumerosYComa}
+    className={styles.input_valor}
+    min="0"
+    {...props}
+  />
+);
 
 const ActivityItem = ({
   activity,
@@ -11,12 +40,14 @@ const ActivityItem = ({
   toggleExpanded,
   handleActivityChange,
   handleRemoveActivity,
-  handleAddActivity,
   entornos,
   tecnologias,
   poblaciones,
   soportes,
   cups,
+  cursos_vida,
+  anexoYear,
+  isSuperUser,
 }) => {
   const options = {
     tipo_soporte: soportes,
@@ -35,40 +66,19 @@ const ActivityItem = ({
       "Dic",
     ],
   };
+  const styleSelect = { menuPortal: (base) => ({ ...base, zIndex: 9999 }) };
 
-  const custom_styles = {
-    control: (base) => ({
-      ...base,
-      minWidth: "200px", // Ajusta el ancho mínimo
-      //maxWidth: "400px", // Opcional, limita el ancho máximo
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 5, // Asegura que el menú no se superponga
-    }),
-    option: (base) => ({
-      ...base,
-      whiteSpace: "nowrap", // Evita que el texto se parta
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
-    }),
-  };
+  const handleValorChange = (name, value) =>
+    handleActivityChange({ target: { name, value } }, index);
 
-  const custom_styles_cups = {
-    ...custom_styles,
-    control: (base) => ({
-      ...base,
-      minWidth: "500px",
-    }),
-  };
+  // Con costos diligenciados el total se calcula solo (ver ActivityList).
+  const totalCalculado =
+    anexoYear == NEW_ANEXO_DATE &&
+    sumCostos(activity.costo_directo, activity.costo_indirecto) !== null;
 
   const handleCronogramaChange = (value, key, itemIndex) => {
     const updatedCronograma = [...(activity.cronograma || [])];
-    // console.log("cronograma", updatedCronograma);
 
-    // Asegurarse de que el elemento existe
     if (!updatedCronograma[itemIndex]) {
       updatedCronograma[itemIndex] = {
         mes: options.meses[itemIndex],
@@ -76,57 +86,124 @@ const ActivityItem = ({
       };
     }
 
-    // Actualizar el valor correspondiente
-    updatedCronograma[itemIndex][key] = value;
+    updatedCronograma[itemIndex] = {
+      ...updatedCronograma[itemIndex],
+      [key]: value,
+    };
 
     handleActivityChange(
       { target: { name: "cronograma", value: updatedCronograma } },
-      index
+      index,
     );
   };
 
-  // Añadir soporte
   const addSoporte = () => {
+    const newSoporte = {
+      tipo_soporte: "",
+      descripcion_soporte: "",
+      cantidad_soporte: "",
+    };
+
     const newSoportes = [
       ...(activity.array_soportes || []),
-      { tipo_soporte: "", descripcion_soporte: "", cantidad_soporte: "" },
+      newSoporte,
     ];
     handleActivityChange(
       { target: { name: "array_soportes", value: newSoportes } },
-      index
+      index,
     );
   };
 
-  // Eliminar soporte
   const removeSoporte = (soporteIndex) => {
-    const newSoportes = activity.array_soportes.filter(
+    const newSoportes = (
+      activity.array_soportes || []
+    ).filter(
       (_, idx) => idx !== soporteIndex
     );
+
     handleActivityChange(
-      { target: { name: "array_soportes", value: newSoportes } },
+      {
+        target: {
+          name: "array_soportes",
+          value: newSoportes,
+        },
+      },
       index
     );
   };
 
-  // Cambiar soporte
-  const handleSoporteChange = (e, soporteIndex) => {
+  const handleSoporteChange = (
+    e,
+    soporteIndex
+  ) => {
     const { name, value } = e.target;
-    const newSoportes = [...activity.array_soportes];
 
-    newSoportes[soporteIndex][name] = value;
+    const newSoportes = (activity.array_soportes || []).map((soporte, idx) => {
+
+      if (idx !== soporteIndex) {
+        return soporte;
+      }
+      return {
+        ...soporte,
+        [name]: value,
+      };
+    });
+
     handleActivityChange(
-      { target: { name: "array_soportes", value: newSoportes } },
+      {
+        target: {
+          name: "array_soportes",
+          value: newSoportes,
+        },
+      },
       index
     );
   };
 
-  // Obtener todas las opciones seleccionadas para deshabilitarlas
+  // Arrastrar y soltar para reordenar soportes, solo dentro de esta actividad.
+  const [dragIndex, setDragIndex] = useState(null);
+  const [overIndex, setOverIndex] = useState(null);
 
-  const selectedOptions = activity.array_soportes?.map(
-    (soporte) => soporte.tipo_soporte
-  );
+  const endSoporteDrag = () => {
+    setDragIndex(null);
+    setOverIndex(null);
+  };
 
-  const handle_remove_soporte = (index) => {
+  const startSoporteDrag = (e, soporteIndex) => {
+    setDragIndex(soporteIndex);
+    e.dataTransfer.effectAllowed = "move";
+    // Firefox no inicia el arrastre si no hay datos.
+    e.dataTransfer.setData("text/plain", String(soporteIndex));
+    // Se ve la tarjeta completa siguiendo al cursor, no solo el ícono.
+    const card = e.currentTarget.parentElement;
+    const rect = card.getBoundingClientRect();
+    e.dataTransfer.setDragImage(card, e.clientX - rect.left, e.clientY - rect.top);
+  };
+
+  const dragOverSoporte = (e, soporteIndex) => {
+    if (dragIndex === null) return;
+    e.preventDefault();
+    setOverIndex(soporteIndex);
+  };
+
+  const dropSoporte = (e, soporteIndex) => {
+    if (dragIndex === null) return;
+    e.preventDefault();
+    handleActivityChange(
+      {
+        target: {
+          name: "array_soportes",
+          value: moveItem(activity.array_soportes || [], dragIndex, soporteIndex),
+        },
+      },
+      index
+    );
+    endSoporteDrag();
+  };
+
+  const handle_remove_soporte = (
+    soporteIndex
+  ) => {
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará el soporte ",
@@ -138,13 +215,15 @@ const ActivityItem = ({
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        removeSoporte(index);
+        removeSoporte(soporteIndex);
         Swal.fire("Eliminado", "El soporte ha sido eliminado.", "success");
       }
     });
   };
 
-  const handle_remove_actividad = (index) => {
+  const handle_remove_actividad = (
+    activityIndex
+  ) => {
     Swal.fire({
       title: "¿Estás seguro?",
       text: "Esta acción eliminará la actividad",
@@ -156,7 +235,7 @@ const ActivityItem = ({
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
-        handleRemoveActivity(index);
+        handleRemoveActivity(activityIndex);
         Swal.fire("Eliminada", "La actividad ha sido borrada", "success");
       }
     });
@@ -168,18 +247,28 @@ const ActivityItem = ({
     // Inicializa el cronograma si no existe
     const cronograma = allMonths.map((mes) => {
       const existing = (activity.cronograma || []).find(
-        (item) => item.mes === mes
+        (item) => item.mes === mes,
       );
       return existing || { mes, peso: "" }; // Crea un item vacío si no existe
     });
 
     return (
-      <div>
-        {/* <label>Cronograma</label> */}
-        <div className={styles.cronogramaGrid}>
+      <div className="col-span-3">
+        <div className="col-span-3 grid-cols-3 flex gap-4 items-start justify-between mb-3">
+          <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">
+            Cronograma
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {cronograma.map((item, itemIndex) => (
-            <div key={item.mes} className={styles.cronogramaItem}>
-              <strong>{item.mes}</strong>
+            <div
+              key={item.mes}
+              className=" bg-teal-light rounded-lg  px-2 py-3 text-center"
+            >
+              <label className="block font-bold text-xs text-teal-dark mb-1">
+                {item.mes}
+              </label>
               <input
                 type="number"
                 placeholder="%"
@@ -188,12 +277,12 @@ const ActivityItem = ({
                   handleCronogramaChange(
                     e.target.value,
                     "peso",
-                    itemIndex,
-                    index
+                    itemIndex
                   )
                 }
                 min="0"
                 max="100"
+                className="w-full px-1 py-1 text-center border border-bg-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal focus:border-teal"
               />
             </div>
           ))}
@@ -203,403 +292,445 @@ const ActivityItem = ({
   };
 
   return (
-    <li className={styles.activityItem}>
+    <div
+      className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm"
+    >
       <div
-        className={styles.activityHeader}
-        onClick={() => toggleExpanded(index)}
-      >
-        <strong>Actividad {index + 1}</strong>
+        onClick={() => {
+          toggleExpanded(index);
+        }}
+        className="bg-teal-600 text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer">
+        Actividad #{index + 1}
 
-        {index > 0 && (
-          <button
-            type="button"
-            className={styles.removeButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              // handleRemoveActivity(index);
-              handle_remove_actividad(index);
-            }}
-          >
-            -
-          </button>
-        )}
+        <div className="flex items-center gap-4">
+          {(isSuperUser || !isSavedActivity(activity)) && (
+            <span
+              className="inline-block cursor-pointer hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                handle_remove_actividad(index);
+              }}
+            >
+              &#10005;
+            </span>
+          )}
 
-        <button
-          className={styles.buttonMain_añadir}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAddActivity();
-          }}
-        >
-          +
-        </button>
+          <span
+            className={`inline-block transform transition-transform duration-200 cursor-pointer ${expanded ? "rotate-180" : "rotate-0"}`}>
+            &#9660;
+          </span>
+        </div>
       </div>
+
       {expanded && (
-        <div className={styles.activityDetails}>
-          <table>
-            <thead>
-              <tr>
-                <th>Descripción Actividad</th>
-                <th>Cantidad</th>
-                <th>Unidad de Medida</th>
-                <th>Entornos</th>
-                <th>Tecnologías</th>
-                <th>Población Sujeto</th>
-                <th>Soportes</th>
-                <th>Código Cups</th>
-                <th>Valor Unitario</th>
-                <th>Valor Total</th>
-                <th>Cronograma</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div className={styles.contenedor_actividad}>
+        <div className="bg-[#f8fafb] py-3 pb-4 px-6">
+          <div className="grid sm:grid-cols-3 gap-4 items-start">
+            <div className="col-span-3">
+              <label className="block text-xs text-app-muted mb-1">
+                DESCRIPCIÓN DE LA ACTIVIDAD
+              </label>
+              <textarea
+                name="descripcion_actividad"
+                maxLength={6000}
+                value={activity.descripcion_actividad || ""}
+                onChange={(e) => handleActivityChange(e, index)}
+                className="w-full p-2 border border-app-border rounded-md text-sm"
+              />
+              <p className="text-xs text-app-muted">
+                {activity.descripcion_actividad?.length || 0} / 6000 caracteres
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                Cantidad
+              </label>
+              <input
+                type="number"
+                name="cantidad"
+                value={activity.cantidad || 0}
+                onChange={(e) => handleActivityChange(e, index)}
+                className="w-full p-2 border border-app-border rounded-md text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                Unidad de Medida
+              </label>
+              <input
+                type="text"
+                name="unidad_medida"
+                value={activity.unidad_medida || ""}
+                onChange={(e) => handleActivityChange(e, index)}
+                className="w-full p-2 border border-app-border rounded-md text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1">
+                ENTORNOS
+              </label>
+              <Select
+                isMulti
+                name="entorno"
+                value={activity.entorno.map((entorno) => ({
+                  value: entorno,
+                  label: entorno,
+                }))}
+                options={entornos}
+                onChange={(selectedOptions) =>
+                  handleActivityChange(
+                    {
+                      target: {
+                        name: "entorno",
+                        value: selectedOptions.map((option) => option.value),
+                      },
+                    },
+                    index,
+                  )
+                }
+                placeholder="Seleccionar Entornos"
+                menuPortalTarget={
+                  typeof window !== "undefined" ? document.body : null
+                }
+                styles={styleSelect}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                TECNOLOGíAS
+              </label>
+              <Select
+                isMulti
+                name="tecnologia"
+                value={activity.tecnologia.map((tecnologia) => ({
+                  value: tecnologia,
+                  label: tecnologia,
+                }))}
+                options={tecnologias}
+                onChange={(selectedOptions) =>
+                  handleActivityChange(
+                    {
+                      target: {
+                        name: "tecnologia",
+                        value: selectedOptions.map((option) => option.value),
+                      },
+                    },
+                    index,
+                  )
+                }
+                placeholder="Seleccionar Tecnologías"
+                menuPortalTarget={
+                  typeof window !== "undefined" ? document.body : null
+                }
+                styles={styleSelect}
+              />
+            </div>
+
+            {anexoYear == NEW_ANEXO_DATE && (
+              <div>
+                <label className="block text-xs text-app-muted mb-1 uppercase">
+                  CURSOS DE VIDA
+                </label>
+                <Select
+                  isMulti
+                  name="cursos_vida"
+                  value={activity?.cursos_vida?.map((cursos) => ({
+                    value: cursos,
+                    label: cursos,
+                  }))}
+                  options={cursos_vida}
+                  onChange={(selectedOptions) =>
+                    handleActivityChange(
+                      {
+                        target: {
+                          name: "cursos_vida",
+                          value: selectedOptions.map((option) => option.value),
+                        },
+                      },
+                      index,
+                    )
+                  }
+                  placeholder="Seleccionar Cursos de Vida"
+                  menuPortalTarget={
+                    typeof window !== "undefined" ? document.body : null
+                  }
+                  styles={styleSelect}
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                POBLACIÓN SUJETO
+              </label>
+              <Select
+                isMulti
+                name="poblacion_sujeto"
+                value={activity.poblacion_sujeto.map((poblacion) => ({
+                  value: poblacion,
+                  label: poblacion,
+                }))}
+                options={poblaciones}
+                onChange={(selectedOptions) =>
+                  handleActivityChange(
+                    {
+                      target: {
+                        name: "poblacion_sujeto",
+                        value: selectedOptions.map((option) => option.value),
+                      },
+                    },
+                    index,
+                  )
+                }
+                placeholder="Seleccionar Población"
+                menuPortalTarget={
+                  typeof window !== "undefined" ? document.body : null
+                }
+                styles={styleSelect}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                CODIGO CUPS
+              </label>
+              <Select
+                name="codigo_cups"
+                options={cups}
+                value={
+                  activity.codigo_cups
+                    ? {
+                      value: activity.codigo_cups,
+                      label:
+                        cups.find(
+                          (option) => option.value === activity.codigo_cups,
+                        )?.label || activity.codigo_cups,
+                    }
+                    : null
+                }
+                onChange={(selectedOption) =>
+                  handleActivityChange(
+                    {
+                      target: {
+                        name: "codigo_cups",
+                        value: selectedOption ? selectedOption.value : null,
+                      },
+                    },
+                    index,
+                  )
+                }
+                placeholder="Seleccionar Operador"
+                menuPortalTarget={
+                  typeof window !== "undefined" ? document.body : null
+                }
+                styles={styleSelect}
+              />
+            </div>
+
+            <div className="col-span-3">
+              <label className="block text-xs text-app-muted mb-1 uppercase">
+                VALOR TOTAL
+              </label>
+              <div>
+                <CurrencyInput
+                  name="valor_total"
+                  value={activity.valor_total}
+                  onValueChange={handleValorChange}
+                  readOnly={totalCalculado}
+                />
+                {totalCalculado && (
+                  <p className="text-xs text-app-muted mt-1">
+                    Suma de costos directos e indirectos
+                  </p>
+                )}
+              </div>
+              {anexoYear == OLD_ANEXO_DATE && (
+                <div>
+                  <label className="block text-xs text-app-muted mb-1 uppercase mt-2">
+                    VALOR UNITARIO
+                  </label>
+                  <CurrencyInput
+                    name="valor_unitario"
+                    value={activity.valor_unitario}
+                    onValueChange={handleValorChange}
+                  />
+                </div>
+              )}
+
+              {anexoYear == NEW_ANEXO_DATE && (
+                <div className="flex gap-2">
+                  <div className="mt-2">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      COSTOS DIRECTOS
+                    </label>
+                    <CurrencyInput
+                      name="costo_directo"
+                      value={activity.costo_directo}
+                      onValueChange={handleValorChange}
+                    />
+                  </div>
+
+                  <div className="mt-2">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      COSTOS INDIRECTOS
+                    </label>
+                    <CurrencyInput
+                      name="costo_indirecto"
+                      value={activity.costo_indirecto}
+                      onValueChange={handleValorChange}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="col-span-3 grid-cols-3 flex gap-4 items-start justify-between mt-3">
+              <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">
+                Soportes
+              </h2>
+              <button
+                type="button"
+                className="flex items-center gap-2 bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
+                onClick={() => addSoporte()}
+              >
+                <span>+</span> Agregar soporte
+              </button>
+            </div>
+
+            {(activity.array_soportes || []).map(
+              (soporte, soporteIndex) => (
+                <div
+                  className={`col-span-3 flex gap-2 items-start bg-teal-light border rounded-lg px-3 py-3 transition-opacity ${
+                    dragIndex === soporteIndex ? "opacity-50" : ""
+                  } ${
+                    overIndex === soporteIndex && dragIndex !== soporteIndex
+                      ? "ring-2 ring-teal"
+                      : ""
+                  }`}
+                  key={soporteIndex}
+                  onDragOver={(e) => dragOverSoporte(e, soporteIndex)}
+                  onDrop={(e) => dropSoporte(e, soporteIndex)}
+                >
+                  <span
+                    draggable
+                    onDragStart={(e) => startSoporteDrag(e, soporteIndex)}
+                    onDragEnd={endSoporteDrag}
+                    title="Arrastra para cambiar el orden"
+                    aria-label="Arrastrar soporte para cambiar el orden"
+                    className="self-center cursor-grab active:cursor-grabbing text-app-muted hover:text-navy"
+                  >
+                    <MdDragIndicator size={22} />
+                  </span>
+                  <div className="flex-1 grid gap-3 items-start grid-cols-10">
+                  <div className="col-span-3">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      TIPO DE SOPORTE
+                    </label>
+
+                    <Select
+                      options={
+                        options.tipo_soporte
+                      }
+                      value={
+                        soporte.tipo_soporte
+                          ? {
+                            value:
+                              soporte.tipo_soporte,
+                            label:
+                              options.tipo_soporte.find(
+                                (option) =>
+                                  option.value ===
+                                  soporte.tipo_soporte
+                              )?.label ||
+                              soporte.tipo_soporte,
+                          }
+                          : null
+                      }
+                      onChange={(selectedOption) =>
+                        handleSoporteChange(
+                          {
+                            target: {
+                              name: "tipo_soporte",
+                              value:
+                                selectedOption?.value ||
+                                "",
+                            },
+                          },
+                          soporteIndex
+                        )
+                      }
+                      placeholder="Seleccionar Soporte"
+                      menuPortalTarget={
+                        typeof window !==
+                          "undefined"
+                          ? document.body
+                          : null
+                      }
+                      styles={{
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999,
+                        }),
+                      }}
+                    />
+                  </div>
+
+                  <div className="col-span-4">
+                    <label className="block text-xs text-app-muted mb-1">
+                      DESCRIPCIÓN DE SOPORTES
+                    </label>
                     <textarea
                       type="text"
-                      name="descripcion_actividad"
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      value={activity.descripcion_actividad || ""}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.textarea_actividad}
+                      name="descripcion_soporte"
+                      maxLength={200}
+                      value={soporte.descripcion_soporte || ""}
+                      onChange={(e) => handleSoporteChange(e, soporteIndex)}
+                      className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
+                    <p className="text-xs text-app-muted">
+                      {soporte.descripcion_soporte?.length || 0} / 200 caracteres
+                    </p>
                   </div>
-                  <p>
-                    {activity.descripcion_actividad?.length || 0} / 2000
-                    caracteres
-                  </p>
-                </td>
-                <td>
-                  <div className={styles.inputContainer}>
+
+                  <div className="col-span-2">
+                    <label className="block text-xs text-app-muted mb-1 uppercase">
+                      Cantidad
+                    </label>
                     <input
                       type="number"
-                      name="cantidad"
-                      value={activity.cantidad}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.inputGlobal}
+                      name="cantidad_soporte"
+                      value={soporte.cantidad_soporte}
+                      onChange={(e) => handleSoporteChange(e, soporteIndex)}
+                      placeholder="Cantidad"
                       min="0"
+                      className="w-full p-2 border border-app-border rounded-md text-sm"
                     />
                   </div>
-                </td>
-                <td>
-                  <div className={styles.inputContainer}>
-                    <input
-                      type="text"
-                      name="unidad_medida"
-                      value={activity.unidad_medida}
-                      onChange={(e) => handleActivityChange(e, index)}
-                      className={styles.inputGlobal}
-                    />
+                  {soporteIndex > 0 &&
+                    (isSuperUser || !isSavedSoporte(soporte)) && (
+                    <div className="col-span-1 flex items-center justify-cente m-7">
+                      <span
+                        className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                        onClick={() => {
+                          handle_remove_soporte(soporteIndex);
+                        }}
+                      >
+                        &#10005;
+                      </span>
+                    </div>
+                  )}
                   </div>
-                </td>
-                <td>
-                  <Select
-                    isMulti
-                    name="entorno"
-                    options={entornos.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={entornos
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.entorno.includes(option.value)
-                      )}
-                    onChange={(selectedOptions) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "entorno",
-                            value: selectedOptions.map(
-                              (option) => option.value
-                            ),
-                          },
-                        },
-                        index
-                      )
-                    }
-                    placeholder="Seleccionar Entornos"
-                    styles={custom_styles}
-                  />
-                </td>
-                <td>
-                  <Select
-                    isMulti
-                    name="tecnologia"
-                    options={tecnologias.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={tecnologias
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.tecnologia.includes(option.value)
-                      )}
-                    onChange={(selectedOptions) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "tecnologia",
-                            value: selectedOptions.map(
-                              (option) => option.value
-                            ),
-                          },
-                        },
-                        index
-                      )
-                    }
-                    placeholder="Seleccionar Tecnologia"
-                    styles={custom_styles_cups}
-                  />
-                </td>
-                <td>
-                  <Select
-                    isMulti
-                    name="poblacion_sujeto"
-                    options={poblaciones.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={poblaciones
-                      .map((option) => ({ value: option, label: option }))
-                      .filter((option) =>
-                        activity.poblacion_sujeto.includes(option.value)
-                      )}
-                    onChange={(selectedOptions) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "poblacion_sujeto",
-                            value: selectedOptions.map(
-                              (option) => option.value
-                            ),
-                          },
-                        },
-                        index
-                      )
-                    }
-                    placeholder="Seleccionar Poblacion"
-                    styles={custom_styles}
-                  />
-                </td>
-                <td>
-                  <div className={styles.soporte_div}>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Tipo Soporte</th>
-                          <th>Descripción Soporte</th>
-                          <th>Cantidad</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activity.array_soportes?.map(
-                          (soporte, soporteIndex) => (
-                            <tr key={soporteIndex}>
-                              <td>
-                                <Select
-                                  className={styles.soporte_select}
-                                  value={
-                                    soporte.tipo_soporte
-                                      ? {
-                                          label: soporte.tipo_soporte,
-                                          value: soporte.tipo_soporte,
-                                        }
-                                      : null
-                                  }
-                                  onChange={(selectedOption) =>
-                                    handleSoporteChange(
-                                      {
-                                        target: {
-                                          name: "tipo_soporte",
-                                          value: selectedOption?.value,
-                                        },
-                                      },
-                                      soporteIndex
-                                    )
-                                  }
-                                  options={options.tipo_soporte.map(
-                                    (option) => ({
-                                      label: option,
-                                      value: option,
-                                      // isDisabled:
-                                      //   selectedOptions.includes(option) &&
-                                      //   option !== soporte.tipo_soporte,
-                                    })
-                                  )}
-                                  // isOptionDisabled={(option) =>
-                                  //   option.isDisabled
-                                  // }
-                                  placeholder="Seleccionar Soporte"
-                                />
-                              </td>
-                              <td>
-                                <textarea
-                                  type="text"
-                                  name="descripcion_soporte"
-                                  value={soporte.descripcion_soporte || ""}
-                                  onChange={(e) =>
-                                    handleSoporteChange(e, soporteIndex)
-                                  }
-                                  placeholder="Descripción Soporte"
-                                  className={styles.textarea}
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  name="cantidad_soporte"
-                                  value={soporte.cantidad_soporte}
-                                  onChange={(e) =>
-                                    handleSoporteChange(e, soporteIndex)
-                                  }
-                                  placeholder="Cantidad"
-                                  className={styles.soporte_input}
-                                  min="0"
-                                />
-                              </td>
-                              <td>
-                                <div className={styles.contenedor_boton}>
-                                  {soporteIndex > 0 && (
-                                    <button
-                                      className={styles.removeButton}
-                                      type="button"
-                                      onClick={() =>
-                                        handle_remove_soporte(soporteIndex)
-                                      }
-                                    >
-                                      -
-                                    </button>
-                                  )}
-                                  <button
-                                    className={styles.buttonMain_añadir}
-                                    type="button"
-                                    onClick={addSoporte}
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </td>
-                <td>
-                  <Select
-                    name="codigo_cups"
-                    options={cups.map((option) => ({
-                      value: option,
-                      label: option,
-                    }))}
-                    value={
-                      activity.codigo_cups
-                        ? {
-                            value: activity.codigo_cups,
-                            label: activity.codigo_cups,
-                          }
-                        : null
-                    }
-                    onChange={(selectedOption) =>
-                      handleActivityChange(
-                        {
-                          target: {
-                            name: "codigo_cups",
-                            value: selectedOption ? selectedOption.value : null,
-                          },
-                        },
-                        index
-                      )
-                    }
-                    placeholder="Seleccionar Cups"
-                    styles={custom_styles_cups}
-                  />
-                </td>
+                </div>
+              ))}
 
-                <td>
-                  <div className={styles.input_valor_container}>
-                    <NumericFormat
-                      name="valor_unitario"
-                      value={activity.valor_unitario}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      decimalScale={2} // Número de decimales permitidos
-                      fixedDecimalScale={true} // Mantener siempre el número de decimales
-                      onValueChange={(values) => {
-                        const { formattedValue, value } = values;
-                        handleActivityChange(
-                          { target: { name: "valor_unitario", value } },
-                          index
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        const isCtrlCombo = e.ctrlKey || e.metaKey;
-                        if (
-                          !/[0-9,]/.test(e.key) && // Solo números y coma
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" &&
-                          !isCtrlCombo
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td>
-                <td>
-                  <div className={styles.input_valor_container}>
-                    <NumericFormat
-                      name="valor_total"
-                      value={activity.valor_total}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      decimalScale={2} // Número de decimales permitidos
-                      fixedDecimalScale={true} // Mantener siempre el número de decimales
-                      onValueChange={(values) => {
-                        const { formattedValue, value } = values;
-                        handleActivityChange(
-                          { target: { name: "valor_total", value } },
-                          index
-                        );
-                      }}
-                      onKeyDown={(e) => {
-                        const isCtrlCombo = e.ctrlKey || e.metaKey;
-                        if (
-                          !/[0-9,]/.test(e.key) && // Solo números y coma
-                          e.key !== "Backspace" && // Permitir borrar
-                          e.key !== "Tab" && // Permitir Tab
-                          e.key !== "ArrowLeft" && // Permitir flecha izquierda
-                          e.key !== "ArrowRight" && // Permitir flecha derecha
-                          e.key !== "Delete" && // Permitir tecla Delete
-                          !isCtrlCombo
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                      className={styles.input_valor}
-                      min="0"
-                    />
-                  </div>
-                </td>
-
-                <td>{renderCronogramaField()}</td>
-              </tr>
-            </tbody>
-          </table>
+            {renderCronogramaField()}
+          </div>
         </div>
       )}
-    </li>
+    </div>
   );
 };
 

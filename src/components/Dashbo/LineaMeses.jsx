@@ -1,120 +1,69 @@
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  RadialLinearScale,
-} from "chart.js";
-import { Bar, Doughnut, PolarArea, Chart, Line } from "react-chartjs-2";
-import BarraPoblacion from "./BarraPoblacion";
-import { useSelector } from "react-redux";
-import React, { useState, useEffect } from "react";
+import { Line } from 'react-chartjs-2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  RadialLinearScale
-);
-
-const LineaMes = () => {
-  const data_full = useSelector((state) => state.data || []);
-  const [data_mes_actividad, setDataMes] = useState([]);
-
-  useEffect(() => {
-    if (data_full?.actividadesMes?.result) {
-      const resultObj = data_full.actividadesMes.result;
-      const resultArray = Object.entries(resultObj).map(([mes, cantidad]) => ({
-        mes,
-        cantidad,
-      }));
-      setDataMes(resultArray);
-    }
-  }, [data_full]);
-
-  const mes_actividad = [
-    { mes: "Enero", cantidad: 10 },
-    { mes: "Febrero", cantidad: 12 },
-    { mes: "Marzo", cantidad: 14 },
-    { mes: "Abril", cantidad: 16 },
-    { mes: "Mayo", cantidad: 18 },
-    { mes: "Junio", cantidad: 20 },
-    { mes: "Julio", cantidad: 22 },
-    { mes: "Agosto", cantidad: 24 },
-    { mes: "Septiembre", cantidad: 26 },
-    { mes: "Octubre", cantidad: 28 },
-    { mes: "Noviembre", cantidad: 40 },
-    { mes: "Diciembre", cantidad: 32 },
-  ];
-
-  const data_mes = {
-    labels: data_mes_actividad.map((item) => item.mes),
-    datasets: [
-      {
-        label: "Actividad por Mes",
-        data: data_mes_actividad.map((item) => item.cantidad),
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        tension: 0.4,
-      },
-    ],
-  };
-
-  const options_mes = {
+const LineaMes = ({ title, data }) => {
+  const optionsMes = {
     responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          font: {
-            size: 15, // Tamaño del texto de la leyenda
-          },
-        },
+    maintainAspectRatio: false,
+    elements: {
+      line: {
+        tension: 0, // 0 para líneas totalmente rectas (sin curvas)
       },
-      title: {
-        display: true,
-        text: "Cantidad de Actividades por Mes",
-        font: {
-          size: 18,
-          weight: "bold",
-        },
+      point: {
+        radius: 5, // Tamaño del punto/punteado
+        hoverRadius: 7, // Tamaño al pasar el cursor
+        borderWidth: 2,
+        backgroundColor: '#1E293B',
       },
     },
-
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        padding: 10,
+        backgroundColor: '#1E293B',
+      },
+    },
     scales: {
       x: {
+        grid: {
+          display: false,
+        },
         ticks: {
           font: {
-            size: 15, // Cambia este valor para agrandar los números del eje X
+            size: 13,
+            weight: '500',
           },
+          color: '#64748B',
         },
       },
       y: {
+        beginAtZero: true,
+        grid: {
+          color: '#F1F5F9',
+        },
         ticks: {
+          precision: 0,
           font: {
-            size: 15, // Cambia este valor para agrandar los textos del eje Y
+            size: 13,
           },
+          color: '#64748B',
         },
       },
     },
   };
 
   return (
-    <>
-      <Line data={data_mes} options={options_mes} />
-    </>
+    <div className="bg-app-card border border-app-border rounded-lg overflow-hidden shadow-md flex flex-col col-span-2">
+      <div className="p-3 border-b border-app-border">
+        <h3 className="font-semibold text-navy">{title}</h3>
+      </div>
+      <div className="p-4 h-[350px] relative">
+        <Line data={data} options={optionsMes} />
+      </div>
+    </div>
   );
 };
 

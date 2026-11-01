@@ -1,132 +1,104 @@
-import React from "react";
+import { useMemo } from "react";
 import Select from "react-select";
 import styles from "./ReporView.module.css";
 
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    padding: "2px 5px",
-    width: "1000px",
-    fontSize: "16px",
-    border: state.isFocused ? "1px solid #007bff" : "1px solid #ccc",
-    borderRadius: "5px",
-    backgroundColor: "white",
-    boxShadow: "none",
-    cursor: "pointer",
-    "&:hover": { borderColor: "#007bff" },
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    cursor: "pointer",
-    backgroundColor: state.isSelected
-      ? "#007bff"
-      : state.isFocused
-        ? "#e6f0ff"
-        : "white",
-    color: state.isSelected ? "white" : "black",
-  }),
-  singleValue: (provided) => ({ ...provided, color: "black" }),
+const selectStyles = {
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+  placeholder: (base) => ({ ...base, fontSize: "0.75rem", lineHeight: "1rem" }),
 };
 
 const FiltersPanel = ({
-  proyectos,
-  operadores,
-  filterValue,
-  operatorFilterValue,
-  anexoDate,
-  onProjectChange,
-  onOperatorChange,
-  onYearChange,
+  filters,
+  loading,
+  filterEmptyState,
+  filterState,
+  setFilterState,
+  setAppliedFilters,
+  setCurrentPage,
+  title
 }) => {
+  const handleFilterChange = (key, value) => {
+    setFilterState((prev) => ({ ...prev, [key]: value }));
+  };
+  const handleApplyFilters = () => {
+    setAppliedFilters(filterState);
+    setCurrentPage(1);
+  };
+
+  const handleClear = () => {
+    setFilterState(filterEmptyState);
+    setAppliedFilters(filterEmptyState);
+    setCurrentPage(1);
+  };
+
+  const filtrosOrdenados = useMemo(() => {
+    if (!filters) return [];
+    return filters.map((filter) => {
+      if (filter.key === "municipality") {
+        const municipiosOrdenados = [...filter.optionsList].sort((a, b) =>
+          a.label.localeCompare(b.label),
+        );
+        return { ...filter, optionsList: municipiosOrdenados };
+      }
+      return filter;
+    });
+  }, [filters]);
+
   return (
-    <>
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="proyectoFilter">Filtrar por Proyecto IDSN:</label>
-        </div>
-        <Select
-          name="proyecto"
-          options={[
-            { value: "", label: "Todos los proyectos" },
-            ...proyectos.map((option) => ({
-              value: option.proyecto,
-              label: option.proyecto,
-            })),
-          ]}
-          value={
-            filterValue
-              ? {
-                  value: filterValue,
-                  label:
-                    proyectos.find((p) => p.proyecto === filterValue)
-                      ?.proyecto || filterValue,
-                }
-              : { value: "", label: "Todos los proyectos" }
-          }
-          onChange={(selectedOption) =>
-            onProjectChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar proyecto"
-          styles={customStyles}
-        />
+    <div className="bg-app-card mb-3 py-3 pb-4 px-6 border rounded-lg shadow-sm">
+      <p className="font-semibold text-sm text-navy uppercase pt-1 pb-3">{title}</p>
+
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-3 items-end">
+        {filtrosOrdenados.map((filter) => (
+          <div key={filter.key}>
+            <label className="block text-xs text-app-muted mb-1">
+              {filter.label}
+            </label>
+            <Select
+              name={filter.label}
+              options={filter.optionsList}
+              value={
+                filter.value
+                  ? {
+                    value: filter.value,
+                    label:
+                      filter.optionsList.find(
+                        (option) => option.value === filter.value,
+                      )?.label ?? filter.text,
+                  }
+                  : null
+              }
+              onChange={(seleccion) =>
+                handleFilterChange(filter.key, seleccion?.value || null)
+              }
+              placeholder={filter.text}
+              isClearable
+              menuPortalTarget={
+                typeof window !== "undefined" ? document.body : null
+              }
+              styles={selectStyles}
+            />
+          </div>
+        ))}
       </div>
 
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="operatorFilter">Filtrar por Operador:</label>
-        </div>
-        <Select
-          name="operador"
-          options={[
-            { value: "", label: "Todos los operadores" },
-            ...operadores.map((option) => ({
-              value: option.operador_pic,
-              label: option.operador_pic,
-            })),
-          ]}
-          value={
-            operatorFilterValue
-              ? {
-                  value: operatorFilterValue,
-                  label:
-                    operadores.find(
-                      (o) => o.operador_pic === operatorFilterValue,
-                    )?.operador_pic || operatorFilterValue,
-                }
-              : { value: "", label: "Todos los operadores" }
-          }
-          onChange={(selectedOption) =>
-            onOperatorChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar operador"
-          styles={customStyles}
-        />
+      <div className="flex gap-3 mt-3">
+        <button
+          onClick={handleApplyFilters}
+          disabled={loading}
+          className="bg-teal text-white py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-teal-dark font-semibold"
+        >
+          {" "}
+          {loading ? "Aplicando..." : "Aplicar filtros"}
+        </button>
+        <button
+          className="py-2 px-6 text-sm cursor-pointer border rounded-md hover:bg-gray-200 font-semibold"
+          onClick={handleClear}
+        >
+          Limpiar
+        </button>
       </div>
-
-      <div className={styles.filterContainer}>
-        <div className={styles.container_label}>
-          <label htmlFor="yearFilter">Filtrar por Año:</label>
-        </div>
-        <Select
-          name="year"
-          options={[
-            { value: "", label: "Todos los años" },
-            { value: "2025", label: "2025" },
-            { value: "2026", label: "2026" },
-          ]}
-          value={
-            anexoDate
-              ? { value: anexoDate, label: anexoDate }
-              : { value: "", label: "Todos los años" }
-          }
-          onChange={(selectedOption) =>
-            onYearChange(selectedOption?.value || "")
-          }
-          placeholder="Seleccionar año"
-          styles={customStyles}
-        />
-      </div>
-    </>
+    </div>
   );
 };
 

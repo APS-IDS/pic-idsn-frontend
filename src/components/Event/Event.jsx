@@ -1,292 +1,260 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Product from "../Product/Product";
-import styles from "./Event.module.css";
 import Select from "react-select"; // Importamos React Select
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
+import {
+  INITIAL_EVENT_STATE,
+  ANIOS_DISPONIBLES,
+  PARAMETROS_INICIALES,
+  NEW_ANEXO_DATE,
+  OLD_ANEXO_DATE,
+  transformEvent,
+} from "../../utils/const_forms";
+import validateEventsData from "../../utils/validate_events";
+import { fetchAnexo } from "../../utils/api";
+import { mergeEvents, mergeValue, tagEvents } from "../../utils/merge_events";
+import { eventMatchesSearch } from "../../utils/filter_events";
+import { buildAnexoPayload } from "../../utils/anexo_payload";
+import { describePendingRemovals } from "../../utils/pending_removals";
+import { isSavedEvent } from "../../utils/saved_items";
+import { CustomRoles } from "../Login/constant";
+import EventSearch from "../EventSearch/EventSearch";
+import Spinner from "../Spinner/Spinner";
 
-const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
-  const [expandedEvents, setExpandedEvents] = useState(
-    // events.map(() => true) // Inicializamos todos como colapsados
-    events.map((_, index) => index === 0),
-  );
+const SENDING_TEXT = "Enviando datos, por favor espera";
 
-  // Estados
-  const [ejes, setEjes] = useState([]);
-  const [lineas, setLineas] = useState([]);
-  const [entornos, setEntornos] = useState([]);
-  const [tecnologias, setTecnologias] = useState([]);
-  const [poblaciones, setPoblacion] = useState([]);
-  const [soportes, setSoportes] = useState([]);
-  const [cups, setCups] = useState([]);
-  const [equipos, setEquipos] = useState([]);
-
-  const [labels, setLabels] = useState([]);
-
+const Event = ({ eventsEdit, anexo, onSaved }) => {
+  const [parametros, setParametros] = useState(PARAMETROS_INICIALES);
   const [municipios, setMunicipios] = useState([]);
   const [proyectos, setProyectos] = useState([]);
   const [operadores, setOperadores] = useState([]);
+  const [events, setEvents] = useState(
+    eventsEdit && eventsEdit.length > 0 ? eventsEdit : [INITIAL_EVENT_STATE],
+  );
+  const [loading, setLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState(SENDING_TEXT);
+  const [anexoYear, setAnexoYear] = useState(NEW_ANEXO_DATE);
+  const [expandedEvents, setExpandedEvents] = useState([true]);
+  const [search, setSearch] = useState("");
+  // Versión del anexo que se abrió: se envía al guardar y es la base para
+  // combinar si otra persona guardó antes.
+  const baseRef = useRef({ events: [], anio: "", version: 0 });
+  const anexoOptions = ANIOS_DISPONIBLES.map((option) => ({
+    value: option,
+    label: option,
+  }));
 
-  const [usuario, setUsuario] = useState("");
+  const styleSelect = { menuPortal: (base) => ({ ...base, zIndex: 9999 }) };
 
-  const back = import.meta.env.VITE_APP_BACK;
-  const url = `${back}/api/labels`;
-  const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
-  const url_proyectos = `${back}/api/proyectos-idsns`;
-  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
-  const url_usuarios = `${back}/api/users/me?pLevel=2`;
+  const resetForm = () => {
+    if (eventsEdit && eventsEdit.length > 0) {
+      setEvents(eventsEdit);
+    } else {
+      setEvents([INITIAL_EVENT_STATE]);
+      setAnexoYear(NEW_ANEXO_DATE);
+    }
+  };
+
   const token =
     useSelector((state) => state.token.token) ||
     JSON.parse(localStorage.getItem("token"))?.token;
 
-  useEffect(() => {
-    const fetch_data = async () => {
-      try {
-        const response = await fetch(`${url}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setLabels(data);
-        setCups(data.cups);
-        setEjes(data.ejes);
-        setEntornos(data.entornos);
-        setEquipos(data.equipos);
-        setLineas(data.lineas_operativas);
-        setPoblacion(data.poblacion_sujeto);
-        setSoportes(data.soportes);
-        setTecnologias(data.tecnologias);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+  // Solo un superusuario puede eliminar eventos, productos, actividades y
+  // soportes ya guardados (el backend también lo valida).
+  const rolRedux = useSelector((state) => state.user.usuario);
+  const rolLS = JSON.parse(localStorage.getItem("usuario_rol"))?.usuario;
+  const isSuperUser = (rolRedux || rolLS) === CustomRoles.SUPERUSER;
 
-    fetch_data();
-  }, [token]);
+  const back = import.meta.env.VITE_APP_BACK;
+  const url_parametros = `${back}/api/labels`;
+  const url_municipios = `${back}/api/municipios?pagination[pageSize]=100`;
+  const url_proyectos = `${back}/api/proyectos-idsns`;
+  const url_operadores = `${back}/api/operador-pics?pagination[pageSize]=200`;
 
-  useEffect(() => {
-    const fetch_subregion = async () => {
-      try {
-        const response = await fetch(`${url_municipios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setMunicipios(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
+  const mapperOptions = (data, valueField, labelField) => {
+    if (!data) return [];
 
-    fetch_subregion();
-  }, [token]);
+    if (valueField === undefined || labelField === undefined) {
+      return data.map((item) => ({
+        value: item,
+        label: item,
+      }));
+    }
 
-  useEffect(() => {
-    const fetch_proyecto = async () => {
-      try {
-        const response = await fetch(`${url_proyectos}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setProyectos(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_proyecto();
-  }, [token]);
-
-  useEffect(() => {
-    const fetch_operador = async () => {
-      try {
-        const response = await fetch(`${url_operadores}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener subregiones.");
-        const data = await response.json();
-        //setSubregions(data.data);
-        setOperadores(data.data);
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_operador();
-  }, [token]);
-
-  useEffect(() => {
-    const fetch_user = async () => {
-      try {
-        const response = await fetch(`${url_usuarios}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error("Error al obtener usuarios.");
-        const data = await response.json();
-      } catch (error) {
-        console.error("Error fetching subregions:", error);
-      }
-    };
-
-    fetch_user();
-  }, [token]);
-
-  const customStyles = {
-    control: (base) => ({
-      ...base,
-      minWidth: "280px", // Ajusta el ancho mínimo
-      //maxWidth: "400px", // Opcional, limita el ancho máximo
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 5, // Asegura que el menú no se superponga
-    }),
-    option: (base) => ({
-      ...base,
-      whiteSpace: "nowrap", // Evita que el texto se parta
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
-    }),
+    return data.map((item) => ({
+      value: item[valueField],
+      label: item[labelField],
+    }));
   };
 
-  const custom_styles_two = {
-    control: (base) => ({
-      ...base,
-      minWidth: "280px", // Ajusta el ancho mínimo
-      //maxWidth: "400px", // Opcional, limita el ancho máximo
-    }),
-    menu: (base) => ({
-      ...base,
-      zIndex: 5, // Asegura que el menú no se superponga
-      maxHeight: "200px", // Ajusta la altura máxima del menú
-      overflowY: "auto", // Activa la barra de desplazamiento si es necesario
-    }),
-    option: (base) => ({
-      ...base,
-      whiteSpace: "nowrap", // Evita que el texto se parta
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      whiteSpace: "normal", // Permite que las etiquetas ocupen más espacio
-    }),
+  const fetchParametros = async () => {
+    try {
+      const response = await fetch(`${url_parametros}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      const data = await response.json();
+
+      setParametros({
+        labels: data,
+        cursos: mapperOptions(data.curso_de_vida),
+        cups: mapperOptions(data.cups),
+        ejes: mapperOptions(data.ejes),
+        entornos: mapperOptions(data.entornos),
+        equipos: mapperOptions(data.equipos),
+        lineas: mapperOptions(data.lineas_operativas),
+        poblaciones: mapperOptions(data.poblacion_sujeto),
+        soportes: mapperOptions(data.soportes),
+        tecnologias: mapperOptions(data.tecnologias),
+      });
+    } catch (error) {
+      console.error("Error fetching subregions:", error);
+    }
+  };
+
+  const fetchSubregion = async () => {
+    try {
+      const response = await fetch(`${url_municipios}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      const data = await response.json();
+      setMunicipios(mapperOptions(data.data, "documentId", "label"));
+    } catch (error) {
+      console.error("Error fetching subregions:", error);
+    }
+  };
+
+  const fetchProyecto = async () => {
+    try {
+      const response = await fetch(`${url_proyectos}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      const data = await response.json();
+      const proyectos = mapperOptions(data.data, "documentId", "proyecto");
+      setProyectos(proyectos);
+    } catch (error) {
+      console.error("Error fetching subregions:", error);
+    }
+  };
+
+  const fetchOperador = async () => {
+    try {
+      const response = await fetch(`${url_operadores}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Error al obtener subregiones.");
+      const data = await response.json();
+      setOperadores(mapperOptions(data.data, "documentId", "operador_pic"));
+    } catch (error) {
+      console.error("Error fetching subregions:", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          fetchParametros(),
+          fetchProyecto(),
+          fetchOperador(),
+          fetchSubregion(),
+        ]);
+      } catch (error) {
+        console.error("Error fetching parameters:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [token]);
+
+  useEffect(() => {
+    if (eventsEdit && eventsEdit.length > 0) {
+      const version = anexo?.version ?? 0;
+      const tagged = tagEvents(eventsEdit, version);
+      // Copia profunda: los handlers modifican los eventos en sitio.
+      baseRef.current = {
+        events: structuredClone(tagged),
+        anio: anexo?.anio ?? "",
+        version,
+      };
+      setEvents(tagged);
+      setExpandedEvents(tagged.map(() => false));
+    }
+  }, [eventsEdit, anexo]);
+
+  useEffect(() => {
+    if (anexo && anexo.anio) {
+      setAnexoYear(anexo.anio);
+    }
+  }, [anexo]);
+
+  const handleToggle = (index) => {
+    setExpandedEvents((prevExpandedEvents) => {
+      const newExpandedEvents = [...prevExpandedEvents];
+      newExpandedEvents[index] = !newExpandedEvents[index];
+      return newExpandedEvents;
+    });
   };
 
   const handleStrategicAxisChange = (eventIndex, selectedOptions) => {
     const updatedEvents = [...events];
     updatedEvents[eventIndex].eje_estrategico = selectedOptions.map(
       (option) => option.value,
-    ); // Almacenar solo los valores seleccionados
+    );
     setEvents(updatedEvents);
   };
 
   const handle_municipio = (eventIndex, selectedOptions) => {
+    console.log(
+      "Selected municipios for event index",
+      eventIndex,
+      ":",
+      selectedOptions,
+    );
     const updatedEvents = [...events];
     updatedEvents[eventIndex].subregion = selectedOptions.map(
       (option) => option.value,
-    ); // Guarda los valores seleccionados en un array
+    );
     setEvents(updatedEvents);
   };
 
-  const handleEquipoChange = (eventIndex, selectedOption) => {
-    const updatedEvents = [...events];
-    updatedEvents[eventIndex].equipo_operativo = selectedOption
-      ? selectedOption.value
-      : ""; // Guarda el valor seleccionado o una cadena vacía si no hay selección
-    setEvents(updatedEvents);
-  };
-
-  const handle_linea_change = (eventIndex, selectedOption) => {
-    const updatedEvents = [...events];
-    updatedEvents[eventIndex].linea_operativa = selectedOption
-      ? selectedOption.value
-      : ""; // Guarda el valor seleccionado o una cadena vacía si no hay selección
-    setEvents(updatedEvents);
-  };
-
-  const handleEventChange = (index, field, value) => {
-    const updatedEvents = [...events];
-    updatedEvents[index][field] = value;
-    setEvents(updatedEvents);
+  const handleEventChange = (index, campo, valor) => {
+    const nuevosEventos = [...events];
+    nuevosEventos[index] = {
+      ...nuevosEventos[index],
+      [campo]: valor,
+    };
+    setEvents(nuevosEventos);
   };
 
   const handleAddEvent = () => {
-    setEvents([
-      ...events,
-      {
-        subregion: [],
-        operador_pic: "",
-        municipio_priorizado: "",
-        codigo_nombre_territorio: "",
-        codigo_micro_territorio: "",
-        total_hogares: "",
-        equipo_operativo: "",
-        perfil_profesional: "",
-        perfil_operativo: "",
-        proyecto: "",
-        description_event: "",
-        indicator_name: "",
-        meta_indicator: "",
-        eje_estrategico: [],
-        linea_operativa: "",
-        activities: [],
-        product_data: {
-          producto: [
-            {
-              descripcion_producto: "",
-              indicadores: [
-                {
-                  cantidad: "",
-                  indicador_linea_base: "",
-                  meta_producto: "",
-                },
-              ],
-            },
-          ],
-        },
-      },
-    ]);
+    const nuevoEvento = { ...INITIAL_EVENT_STATE };
+    setEvents([...events, nuevoEvento]);
     setExpandedEvents([...expandedEvents, false]);
-  };
-
-  const handleToggleAccordion = (index) => {
-    const updatedExpandedEvents = [...expandedEvents];
-    updatedExpandedEvents[index] = !updatedExpandedEvents[index]; // Cambiamos el estado de ese acordeón
-    setExpandedEvents(updatedExpandedEvents);
-    // Condicion si queremos que el evento uno no se expanda
-    // se puede aplicar o no
-    if (index == 0) {
-      setExpandedEvents([...expandedEvents, false]);
-    }
-  };
-
-  const handleRemoveEvent = (index) => {
-    const updatedEvents = events.filter((_, i) => i !== index);
-    const updatedExpandedEvents = [...expandedEvents];
-    setEvents(updatedEvents);
-    setExpandedEvents(updatedExpandedEvents);
+    // El evento nuevo está vacío: con un filtro activo quedaría oculto.
+    setSearch("");
   };
 
   const handle_proyecto = (eventIndex, selectedOption) => {
     const updatedEvents = [...events];
     updatedEvents[eventIndex].proyecto = selectedOption
       ? selectedOption.value
-      : ""; // Guarda el valor seleccionado o una cadena vacía si no hay selección
+      : "";
     setEvents(updatedEvents);
   };
 
@@ -295,7 +263,15 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
     updatedEvents[eventIndex].operador_pic = selectedOption
       ? selectedOption.value
       : ""; // Guarda el valor seleccionado o una cadena vacía si no hay selección
+    // Depuración: Verifica el estado actualizado
     setEvents(updatedEvents);
+  };
+
+  const handleRemoveEvent = (index) => {
+    const updatedEvents = events.filter((_, i) => i !== index);
+    const updatedExpandedEvents = [...expandedEvents];
+    setEvents(updatedEvents);
+    setExpandedEvents(updatedExpandedEvents);
   };
 
   const handle_remove_event = (index) => {
@@ -316,416 +292,667 @@ const Event = ({ events, setEvents, edit_button, anexoYear, setAnexoYear }) => {
     });
   };
 
+  // Otra persona guardó el anexo después de abrirlo (409): se carga la versión
+  // más reciente y se le aplican encima los eventos cambiados sin guardar.
+  const resolveConflict = async () => {
+    const { isConfirmed } = await Swal.fire({
+      icon: "warning",
+      title: "El anexo cambió mientras lo editabas",
+      html:
+        "Otra persona guardó cambios en este anexo después de que lo abriste. " +
+        "<b>Tus cambios todavía no se han guardado.</b><br/><br/>" +
+        "Puedes cargar la versión más reciente sin perder lo que diligenciaste: " +
+        "los eventos que modificaste se conservan como los dejaste y los que " +
+        "agregaste quedan al final. Después revisa el anexo y vuelve a guardar.",
+      showCancelButton: true,
+      confirmButtonText: "Cargar últimos cambios y conservar los míos",
+      cancelButtonText: "Seguir editando",
+      allowOutsideClick: false,
+    });
+
+    if (!isConfirmed) return;
+
+    setLoadingText("Cargando la versión más reciente del anexo");
+    const latest = await fetchAnexo(anexo.documentId, token);
+    const version = latest.version ?? 0;
+    const latestAnio = latest.anexo_tecnico_date ?? "";
+    const theirs = tagEvents(latest.eventos.map(transformEvent), version);
+    const base = baseRef.current;
+    const merged = mergeEvents(base.events, events, theirs);
+
+    baseRef.current = {
+      events: structuredClone(theirs),
+      anio: latestAnio,
+      version,
+    };
+    setEvents(merged);
+    setExpandedEvents(merged.map(() => true));
+    setAnexoYear(mergeValue(base.anio, anexoYear, latestAnio) || "");
+    // Ya cargó: el aviso se muestra sobre el formulario, no sobre el spinner.
+    setLoading(false);
+
+    await Swal.fire({
+      icon: "info",
+      title: "Versión actualizada",
+      text: "Se cargaron los últimos cambios junto con los tuyos. Revisa el anexo y vuelve a guardar.",
+    });
+  };
+
+  // El guardado elimina soportes/actividades que ya tienen seguimientos u
+  // observaciones (422): se muestran y solo se guarda si el usuario confirma.
+  const confirmRemovals = async (details) => {
+    const { isConfirmed } = await Swal.fire({
+      icon: "warning",
+      title: "Vas a eliminar elementos con registros",
+      html: describePendingRemovals(details),
+      showCancelButton: true,
+      confirmButtonText: "Eliminar y guardar",
+      cancelButtonText: "Volver al formulario",
+      confirmButtonColor: "#d33",
+      allowOutsideClick: false,
+    });
+
+    return isConfirmed;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const isValid = validateEventsData(events, anexoYear);
+
+    if (!isValid) {
+      return;
+    }
+
+    const isEdit = Boolean(eventsEdit?.length && anexo?.documentId);
+
+    try {
+      setLoadingText(SENDING_TEXT);
+      setLoading(true);
+
+      const url = isEdit
+        ? `${back}/api/anexo-tecnicos/${anexo.documentId}`
+        : `${back}/api/anexo-tecnicos`;
+
+      const send = (confirmRemoval) =>
+        fetch(url, {
+          method: isEdit ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(
+            buildAnexoPayload(events, {
+              anexoYear,
+              isEdit,
+              version: baseRef.current.version,
+              confirmRemoval,
+            }),
+          ),
+        });
+
+      let response = await send(false);
+
+      if (isEdit && response.status === 422) {
+        const { error } = await response.json();
+        if (!(await confirmRemovals(error?.details))) return;
+        response = await send(true);
+      }
+
+      if (isEdit && response.status === 409) {
+        await resolveConflict();
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const serverMessage =
+          data?.error?.message ||
+          data?.message ||
+          "Error desconocido del servidor";
+
+        throw new Error(`(${response.status}) ${serverMessage}`);
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: isEdit ? "¡Actualización correcta!" : "¡Registro correcto!",
+        text: isEdit
+          ? "La información fue actualizada correctamente."
+          : "La información fue agregada correctamente.",
+      });
+
+      if (isEdit) {
+        await onSaved?.();
+      } else {
+        resetForm();
+      }
+    } catch (error) {
+      console.error("ERROR BACKEND:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al enviar",
+        text: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const municipiosOrdenados = useMemo(
+    () =>
+      [...municipios]
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .map((muni) => ({ value: muni.value, label: muni.label })),
+    [municipios],
+  );
+
+  const matchesSearch = (event) =>
+    eventMatchesSearch(event, search, { proyectos, operadores });
+  const visibleEventsCount = events.filter(matchesSearch).length;
+
+  if (loading) return <Spinner envio={loadingText} />;
   return (
-    <div>
-      {events.map((event, index) => (
-        <div key={index} className={styles.eventWrapper}>
-          <div className={styles.contenedor_titulo_evento}>
-            {index > 0 ? (
-              <strong
-                className={styles.eventTitle}
-                onClick={() => handleToggleAccordion(index)}
-              >
-                Evento {index + 1}
-              </strong>
-            ) : (
-              <strong
-                className={styles.eventTitle}
-                onClick={() => handleToggleAccordion(index)}
-              >
-                Evento{" "}
-              </strong>
-            )}
+    <form onSubmit={handleSubmit}>
+      <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
+        <div className="bg-teal text-app-card py-3 px-4 flex justify-between items-center font-semibold">
+          Información General del Anexo
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4 items-start">
+          <div className="m-6">
+            <label className="block text-xs text-app-muted mb-1">
+              AÑO ANEXO
+            </label>
+            <select
+              name="año"
+              value={anexoYear.split("-")[0] || ""}
+              className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
+              onChange={(e) =>
+                setAnexoYear(e.target.value ? `${e.target.value}-01-01` : "")
+              }
+            >
+              <option value="">Seleccionar Año</option>
+              {anexoOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
 
-            {index > 0 && (
-              <button
-                type="button"
-                className={styles.removeButton_añadir}
-                onClick={() => handle_remove_event(index)}
-              >
-                -
-              </button>
-            )}
-
+      <div className="my-3">
+        <div className="flex justify-between items-center gap-4 mb-2">
+          <span className="font-semibold text-navy uppercase">Eventos</span>
+          <div className="flex flex-1 justify-end items-center gap-2">
+            <EventSearch value={search} onChange={setSearch} />
             <button
-              className={styles.buttonMain_añadir}
               type="button"
+              className="flex shrink-0 items-center gap-2 whitespace-nowrap bg-green-brand text-white border-0 py-2 pl-4 pr-3 rounded-3xl border-bg-teal-900 text-sm cursor-pointer hover:bg-teal"
               onClick={handleAddEvent}
             >
-              +
+              <span className="">+</span> Agregar evento
             </button>
           </div>
-
-          {/* <h3 className={styles.eventTitle}>Evento {index + 1}</h3> */}
-          {expandedEvents[index] && (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Año Anexo</th>
-                  <th>Nodo-Municipio Priorizado</th>
-                  <th>Operador PIC</th>
-                  <th>Código - Nombre de Territorio APS</th>
-                  <th>Código Micro-Territorio</th>
-                  <th>Total número de Hogares Beneficiarios</th>
-                  <th>Equipo Operativo</th>
-                  <th>Perfil Profesional</th>
-                  <th>Perfil Operativo</th>
-                  <th>Proyecto IDSN Responsable</th>
-                  <th>Descripción Evento</th>
-                  <th>Nombre del Indicador</th>
-                  <th>Meta Indicador</th>
-                  <th>Ejes Estratégicos</th>
-                  <th>Lineas Operativas</th>
-                  <th>Productos</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <Select
-                      name="año"
-                      options={[
-                        { value: "2025", label: "2025" },
-                        { value: "2026", label: "2026" },
-                      ]}
-                      value={
-                        anexoYear
-                          ? {
-                              value: anexoYear.split("-")[0],
-                              label: anexoYear.split("-")[0],
-                            }
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        setAnexoYear(
-                          selectedOption ? `${selectedOption.value}-01-01` : "",
-                        )
-                      }
-                      placeholder="Seleccionar Año"
-                      styles={customStyles}
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      isMulti
-                      value={event?.subregion?.map((subregion) => ({
-                        value: subregion,
-
-                        label:
-                          municipios.find(
-                            (muni) => muni.documentId === subregion,
-                          )?.label || subregion, // Muestra el label.
-                      }))}
-                      options={municipios.map((muni) => ({
-                        value: muni.documentId,
-                        label: muni.label,
-                      }))}
-                      onChange={(selectedOptions) =>
-                        handle_municipio(index, selectedOptions)
-                      }
-                      placeholder="Seleccionar Region"
-                      styles={customStyles}
-                    />
-                  </td>
-
-                  <td>
-                    <Select
-                      name="operador"
-                      options={operadores.map((option) => ({
-                        value: option.documentId, // Valor asociado internamente
-                        label: option.operador_pic, // Texto visible al usuario
-                      }))}
-                      value={
-                        event.operador_pic
-                          ? {
-                              value: event.operador_pic,
-                              label:
-                                operadores.find(
-                                  (operador) =>
-                                    operador.documentId === event.operador_pic,
-                                )?.operador_pic || event.operador_pic,
-                            }
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        handle_operador(index, selectedOption)
-                      }
-                      placeholder="Seleccionar Operador"
-                      styles={customStyles}
-                    />
-                  </td>
-
-                  <td>
-                    <div className={styles.cellWrapper}>
-                      <textarea
-                        className={styles.textarea}
-                        type="text"
-                        value={event.codigo_nombre_territorio || ""}
-                        onChange={(e) =>
-                          handleEventChange(
-                            index,
-                            "codigo_nombre_territorio",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-                  </td>
-                  <td>
-                    <div className={styles.cellWrapper}>
-                      <textarea
-                        className={styles.textarea}
-                        type="text"
-                        value={event.codigo_micro_territorio || ""}
-                        onChange={(e) =>
-                          handleEventChange(
-                            index,
-                            "codigo_micro_territorio",
-                            e.target.value,
-                          )
-                        }
-                      />
-                    </div>
-                  </td>
-                  <td>
-                    <input
-                      className={styles.input_hogares}
-                      type="number"
-                      min="0"
-                      value={event.total_hogares || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "total_hogares",
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      name="equipo_operativo"
-                      options={equipos.map((option) => ({
-                        value: option,
-                        label: option,
-                      }))}
-                      value={
-                        event.equipo_operativo
-                          ? {
-                              value: event.equipo_operativo,
-                              label: event.equipo_operativo,
-                            }
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        handleEquipoChange(index, selectedOption)
-                      }
-                      placeholder="Seleccionar Equipo"
-                      styles={customStyles}
-                    />
-                  </td>
-
-                  <td>
-                    <textarea
-                      className={styles.textarea}
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      value={event.perfil_profesional || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "perfil_profesional",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <p>
-                      {event.perfil_profesional?.length || 0} / 2000 caracteres
-                    </p>
-                  </td>
-                  <td>
-                    <textarea
-                      className={styles.textarea_perfil_operativo}
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      type="text"
-                      value={event.perfil_operativo || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "perfil_operativo",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <p>
-                      {event.perfil_operativo?.length || 0} / 2000 caracteres
-                    </p>
-                  </td>
-                  <td>
-                    <Select
-                      name="proyecto"
-                      options={proyectos.map((option) => ({
-                        value: option.documentId, // Valor asociado internamente
-                        label: option.proyecto, // Texto visible al usuario
-                      }))}
-                      value={
-                        event.proyecto
-                          ? {
-                              value: event.proyecto,
-                              label:
-                                proyectos.find(
-                                  (proyecto) =>
-                                    proyecto.documentId === event.proyecto,
-                                )?.proyecto || event.proyecto,
-                            }
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        handle_proyecto(index, selectedOption)
-                      }
-                      placeholder="Seleccionar Proyecto"
-                      styles={customStyles}
-                    />
-                  </td>
-                  <td>
-                    <textarea
-                      className={styles.textarea}
-                      type="text"
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      value={event.description_event || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "description_event",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <p>
-                      {event.description_event?.length || 0} / 2000 caracteres
-                    </p>
-                  </td>
-                  <td>
-                    <textarea
-                      className={styles.textarea}
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      type="text"
-                      value={event.indicator_name || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "indicator_name",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <p>{event.indicator_name?.length || 0} / 2000 caracteres</p>
-                  </td>
-                  <td>
-                    <textarea
-                      className={styles.textarea}
-                      placeholder="Máximo numero de caracteres 2000"
-                      maxLength={2000}
-                      type="text"
-                      value={event.meta_indicator || ""}
-                      onChange={(e) =>
-                        handleEventChange(
-                          index,
-                          "meta_indicator",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <p>{event.meta_indicator?.length || 0} / 2000 caracteres</p>
-                  </td>
-
-                  <td>
-                    <Select
-                      isMulti
-                      value={event.eje_estrategico.map((axis) => ({
-                        value: axis,
-                        label: axis,
-                      }))}
-                      options={ejes.map((eje) => ({
-                        value: eje,
-                        label: eje,
-                      }))}
-                      onChange={(selectedOptions) =>
-                        handleStrategicAxisChange(index, selectedOptions)
-                      }
-                      placeholder="Seleccionar ejes"
-                      styles={custom_styles_two}
-                    />
-                  </td>
-
-                  <td>
-                    <Select
-                      name="linea"
-                      options={lineas.map((option) => ({
-                        value: option,
-                        label: option,
-                      }))}
-                      value={
-                        event.linea_operativa
-                          ? {
-                              value: event.linea_operativa,
-                              label: event.linea_operativa,
-                            }
-                          : null
-                      }
-                      onChange={(selectedOption) =>
-                        handle_linea_change(index, selectedOption)
-                      }
-                      placeholder="Seleccionar Linea "
-                      styles={customStyles}
-                    />
-                  </td>
-
-                  <td>
-                    <Product
-                      product_data={event.product_data}
-                      entornos={entornos}
-                      tecnologias={tecnologias}
-                      poblaciones={poblaciones}
-                      soportes={soportes}
-                      cups={cups}
-                      setProductData={(updatedProductData) => {
-                        const updatedEvents = [...events];
-                        updatedEvents[index].product_data = updatedProductData;
-                        setEvents(updatedEvents);
-                      }}
-                      activities={event.activities}
-                      setActivities={(activities) => {
-                        const updatedEvents = [...events];
-                        updatedEvents[index].activities = activities;
-                        setEvents(updatedEvents);
-                      }}
-                    />
-                  </td>
-                  <td>
-                    {index > 0 && (
-                      <button
-                        type="button"
-                        className={styles.removeButton_añadir}
-                        onClick={() => handleRemoveEvent(index)}
-                      >
-                        -
-                      </button>
-                    )}
-                    {edit_button}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          )}
         </div>
-      ))}
-    </div>
+      </div>
+
+      {!events.length && (
+        <p className="text-center text-app-muted">No hay eventos agregados</p>
+      )}
+
+      {events.length > 0 && search.trim() !== "" && (
+        <p className="text-start text-xs text-app-muted mb-2">
+          {visibleEventsCount
+            ? `${visibleEventsCount} de ${events.length} eventos coinciden con la búsqueda`
+            : "Ningún evento coincide con la búsqueda"}
+        </p>
+      )}
+
+      {/* Se oculta en vez de filtrar el arreglo: los handlers usan el índice original. */}
+      {events.map(
+        (event, index) =>
+          matchesSearch(event) && (
+            <div key={index} className="mb-2">
+              <div className="bg-app-card border border-app-border rounded-xl mb-4 overflow-hidden shadow-sm">
+                <div
+                  onClick={() => handleToggle(index)}
+                  className="bg-navy text-app-card py-3 px-4 flex justify-between items-center font-semibold cursor-pointer hover:bg-navy-dark"
+                >
+                  Evento #{index + 1}
+                  <div className="flex items-center gap-4">
+                    {(isSuperUser || !isSavedEvent(event)) && (
+                      <span
+                        className={`inline-block transform transition-transform duration-200  cursor-pointer hover:text-red-600`}
+                        onClick={() => handle_remove_event(index)}
+                      >
+                        &#10005;
+                      </span>
+                    )}
+                    <span
+                      className={`inline-block transform transition-transform duration-200 cursor-pointer ${expandedEvents[index] === true ? "rotate-180" : "rotate-0"}`}
+                    >
+                      &#9660;
+                    </span>
+                  </div>
+                </div>
+
+                {expandedEvents[index] && (
+                  <div className="bg-app-card py-3 pb-4 px-6">
+                    <div className="grid sm:grid-cols-3 gap-4 items-start">
+                      <h2 className="text-lg font-semibold text-navy col-span-3 text-start ">
+                        Información de Referencia
+                      </h2>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          NODO - MUNICIPIO PRIORIZADO
+                        </label>
+                        <Select
+                          isMulti
+                          value={
+                            event.subregion?.map((subregionId) => {
+                              const foundOption = municipios.find(
+                                (option) => option.value === subregionId,
+                              );
+                              return (
+                                foundOption || {
+                                  value: subregionId,
+                                  label: subregionId,
+                                }
+                              );
+                            }) || []
+                          }
+                          options={municipiosOrdenados}
+                          onChange={(selectedOptions) =>
+                            handle_municipio(index, selectedOptions)
+                          }
+                          placeholder="Seleccionar Region"
+                          menuPortalTarget={
+                            typeof window !== "undefined" ? document.body : null
+                          }
+                          styles={styleSelect}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          OPERADOR PIC
+                        </label>
+                        <Select
+                          name="operador"
+                          options={operadores}
+                          value={
+                            event.operador_pic
+                              ? {
+                                  value: event.operador_pic,
+                                  label:
+                                    operadores.find(
+                                      (option) =>
+                                        option.value === event.operador_pic,
+                                    )?.label || event.operador_pic,
+                                }
+                              : null
+                          }
+                          onChange={(selectedOption) =>
+                            handle_operador(index, selectedOption)
+                          }
+                          placeholder="Seleccionar Operador"
+                          menuPortalTarget={
+                            typeof window !== "undefined" ? document.body : null
+                          }
+                          styles={styleSelect}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          CODIGO - NOMBRE DEL TERRITORIO APS
+                        </label>
+                        <input
+                          type="text"
+                          value={event.codigo_nombre_territorio || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "codigo_nombre_territorio",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          CODIGO MICRO-TERRITORIO
+                        </label>
+                        <input
+                          type="text"
+                          value={event.codigo_micro_territorio || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "codigo_micro_territorio",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        {anexoYear == OLD_ANEXO_DATE && (
+                          <div>
+                            <label className="block text-xs text-app-muted mb-1 uppercase">
+                              Total número de Hogares Beneficiarios
+                            </label>
+                            <input
+                              type="number"
+                              value={event.total_hogares || ""}
+                              onChange={(e) =>
+                                handleEventChange(
+                                  index,
+                                  "total_hogares",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full p-2 border border-app-border rounded-md text-sm"
+                            />
+                          </div>
+                        )}
+                        {anexoYear == NEW_ANEXO_DATE && (
+                          <div>
+                            <label className="block text-xs text-app-muted mb-1 uppercase">
+                              N° De Poblacion a Intervenir
+                            </label>
+                            <input
+                              type="number"
+                              value={event.poblacion || ""}
+                              onChange={(e) =>
+                                handleEventChange(
+                                  index,
+                                  "poblacion",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full p-2 border border-app-border rounded-md text-sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <h2 className="text-lg font-semibold text-navy col-span-3 text-start my-1 ">
+                        {" "}
+                        Datos del Evento
+                      </h2>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          EQUIPO OPERATIVO
+                        </label>
+                        <select
+                          name="equipo_operativo"
+                          value={event.equipo_operativo || ""}
+                          className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "equipo_operativo",
+                              e.target.value,
+                            )
+                          }
+                        >
+                          <option value="">Seleccionar Equipo</option>
+                          {parametros.equipos.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          PERFIL PROFESIONAL
+                        </label>
+                        <textarea
+                          type="text"
+                          maxLength={2000}
+                          value={event.perfil_profesional || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "perfil_profesional",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                        <p className="text-xs text-app-muted">
+                          {event.perfil_profesional?.length || 0} / 2000
+                          caracteres
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          PERFIL OPERATIVO
+                        </label>
+                        <textarea
+                          type="text"
+                          maxLength={2000}
+                          value={event.perfil_operativo || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "perfil_operativo",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                        <p className="text-xs text-app-muted">
+                          {event.perfil_operativo?.length || 0} / 2000
+                          caracteres
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1">
+                          PROYECTO IDSN RESPONSABLE
+                        </label>
+                        <Select
+                          name="proyecto"
+                          options={proyectos}
+                          value={
+                            event.proyecto
+                              ? {
+                                  value: event.proyecto,
+                                  label:
+                                    proyectos.find(
+                                      (option) =>
+                                        option.value === event.proyecto,
+                                    )?.label || event.proyecto,
+                                }
+                              : null
+                          }
+                          onChange={(selectedOption) =>
+                            handle_proyecto(index, selectedOption)
+                          }
+                          placeholder="Seleccionar Operador"
+                          menuPortalTarget={
+                            typeof window !== "undefined" ? document.body : null
+                          }
+                          styles={styleSelect}
+                        />
+                      </div>
+
+                      <div className="col-span-3">
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          Descripción EVENTO
+                        </label>
+                        <textarea
+                          type="text"
+                          maxLength={2000}
+                          value={event.description_event || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "description_event",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                        <p className="text-xs text-app-muted">
+                          {event.description_event?.length || 0} / 2000
+                          caracteres
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          nombre del indicador
+                        </label>
+                        <textarea
+                          type="text"
+                          maxLength={2000}
+                          value={event.indicator_name || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "indicator_name",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                        <p className="text-xs text-app-muted">
+                          {event.indicator_name?.length || 0} / 2000 caracteres
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          meta indicador
+                        </label>
+                        <textarea
+                          type="text"
+                          maxLength={2000}
+                          value={event.meta_indicator || ""}
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "meta_indicator",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full p-2 border border-app-border rounded-md text-sm"
+                        />
+                        <p className="text-xs text-app-muted">
+                          {event.meta_indicator?.length || 0} / 2000 caracteres
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          Ejes Estratégicos
+                        </label>
+                        <Select
+                          isMulti
+                          value={
+                            event.eje_estrategico?.map((axis) => {
+                              const foundOption = parametros.ejes.find(
+                                (option) => option.value === axis,
+                              );
+                              return (
+                                foundOption || { value: axis, label: axis }
+                              );
+                            }) || []
+                          }
+                          options={parametros.ejes}
+                          onChange={(selectedOptions) =>
+                            handleStrategicAxisChange(index, selectedOptions)
+                          }
+                          placeholder="Seleccionar ejes"
+                          menuPortalTarget={
+                            typeof window !== "undefined" ? document.body : null
+                          }
+                          styles={styleSelect}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs text-app-muted mb-1 uppercase">
+                          Líneas Operativas
+                        </label>
+                        <select
+                          name="lineas_operativas"
+                          value={event.linea_operativa || ""}
+                          className="w-full p-2 pr-10 border border-app-border rounded-md text-sm cursor-pointer hover:bg-gray-200"
+                          onChange={(e) =>
+                            handleEventChange(
+                              index,
+                              "linea_operativa",
+                              e.target.value,
+                            )
+                          }
+                        >
+                          <option value="">Seleccionar Línea</option>
+                          {parametros.lineas.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* PRODUCTOS */}
+                      <Product
+                        product_data={event.product_data}
+                        anexoYear={anexoYear}
+                        isSuperUser={isSuperUser}
+                        entornos={parametros.entornos}
+                        tecnologias={parametros.tecnologias}
+                        poblaciones={parametros.poblaciones}
+                        soportes={parametros.soportes}
+                        cups={parametros.cups}
+                        cursos_vida={parametros.cursos}
+                        setProductData={(updatedProductData) => {
+                          const updatedEvents = [...events];
+                          updatedEvents[index].product_data =
+                            updatedProductData;
+                          setEvents(updatedEvents);
+                        }}
+                        activities={event.activities}
+                        setActivities={(activities) => {
+                          const updatedEvents = [...events];
+                          updatedEvents[index].activities = activities;
+                          setEvents(updatedEvents);
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ),
+      )}
+
+      <div className="sticky bottom-0 bg-app-card border-t border-app-border py-4 px-6 flex justify-end items-center gap-4">
+        <button
+          className="w-full block bg-teal text-white rounded-lg p-3 text-lg font-semibold cursor-pointer hover:bg-teal-600"
+          type="submit"
+        >
+          {eventsEdit && eventsEdit.length > 0
+            ? "Actualizar Anexo"
+            : "Crear Anexo"}
+        </button>
+      </div>
+    </form>
   );
 };
-
 export default Event;
